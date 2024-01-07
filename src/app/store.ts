@@ -4,6 +4,7 @@ import sighnInReducer from '../slicers/sighnInSlice'
 import imagesReducer from '../slicers/ImagesSlice';
 import perAlbumReducer from '../slicers/perAlbumSlice';
 import sessAlbumReducer from '../slicers/sessAlbumSlice';
+import photographerReducer from '../slicers/photographerSlice';
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
     sighnIn: sighnInReducer,
     images: imagesReducer, 
     perAlbum: perAlbumReducer,
-    sessAlbum:sessAlbumReducer
+    sessAlbum:sessAlbumReducer,
+    photographer: photographerReducer,
   },
 });
 

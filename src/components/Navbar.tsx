@@ -17,6 +17,14 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import teal from '@mui/material/colors/teal';
 import { GiSurferVan } from "react-icons/gi";
+import { Link } from 'react-router-dom';
+
+
+const iconContainerStyle = {
+  textDecoration: 'none', // Remove text decoration
+  color: 'inherit', // Inherit color from parent
+};
+
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -168,18 +176,20 @@ export default function PrimarySearchAppBar() {
     <Box sx={{ flexGrow: 1 }}>
       <StyledAppBar position="static">
         <Toolbar>
-          <IconButton
+          {/* <IconButton
             size="large"
             edge="start"
             color="inherit"
             aria-label="open drawer"
-            sx={{ mr: 2 }}
+            // sx={{ mr: 2 }}
           >
-            <MenuIcon />
-            
-          </IconButton>
-          <GiSurferVan size={40}/>
-           
+            {/* <MenuIcon /> */}
+
+          {/* </IconButton> */}
+          <Link to="/" style={iconContainerStyle}>
+          <GiSurferVan size={40}  />
+          </Link>
+
           <Search>
             <SearchIconWrapper>
               <SearchIcon />

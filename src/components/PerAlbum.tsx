@@ -18,14 +18,14 @@ import { lightBlue, teal } from '@mui/material/colors';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import { TiLocation } from 'react-icons/ti';
-
+import { useNavigate  } from 'react-router-dom';
 
 
 const PerAlbum: React.FC = () => {
   const personalAlbums = useSelector(selectPersonalAlbum);
   const sessAlbum = useSelector(selectSessAlbums);
   const dispatch = useAppDispatch();
-
+  const navigate  = useNavigate();
 
   // useEffect(() => {
   //   dispatch(getDataAsync());
@@ -33,6 +33,7 @@ const PerAlbum: React.FC = () => {
 
   const handleCardClick = (albumId: number) => {
     dispatch(personalGetDataAsync(albumId));
+    navigate('/Images');
   };
 
   return (
@@ -45,19 +46,21 @@ const PerAlbum: React.FC = () => {
             <Card
               sx={{
                 '&:hover': {
-                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)',
                   '&:hover, &:focus-within': {
                     opacity: 1,
+                    transition: 'opacity 0.4s ease-out',
                   },
                   opacity: 0,
-                  transition: '0.1s ease-in',
+                  transition: '0.4s ease-in',
+                  marginRight: '8px',
+                  marginLeft: '8px',
                   background:
                     'linear-gradient(180deg, transparent 62%, rgba(0,0,0,0.00345888) 63.94%, rgba(0,0,0,0.014204) 65.89%, rgba(0,0,0,0.0326639) 67.83%, rgba(0,0,0,0.0589645) 69.78%, rgba(0,0,0,0.0927099) 71.72%, rgba(0,0,0,0.132754) 73.67%, rgba(0,0,0,0.177076) 75.61%, rgba(0,0,0,0.222924) 77.56%, rgba(0,0,0,0.267246) 79.5%, rgba(0,0,0,0.30729) 81.44%, rgba(0,0,0,0.341035) 83.39%, rgba(0,0,0,0.367336) 85.33%, rgba(0,0,0,0.385796) 87.28%, rgba(0,0,0,0.396541) 89.22%, rgba(0,0,0,0.4) 91.17%)',
                 },
               }}
-              onClick={() => handleCardClick(personalAlbum.id)}
             >
-              <CardActionArea >
+              <CardActionArea onClick={() => handleCardClick(personalAlbum.id)}>
                 <AspectRatio ratio="4/3">
                   <CardMedia
 
@@ -75,9 +78,9 @@ const PerAlbum: React.FC = () => {
                 </Avatar>
 
 
-                <Typography sx={{ fontSize: 'sm', fontWeight: 'md', marginLeft: 'auto', marginRight: 'auto+70' }}>
+                {/* <Typography sx={{ fontSize: 'sm', fontWeight: 'md', marginLeft: 'auto', marginRight: 'auto+70' }}>
                   {calculateTimeAgo(new Date(sessAlbum[personalAlbum.session_album - 1].sessDate))}
-                </Typography>
+                </Typography> */}
 
 
                 <Link
@@ -90,8 +93,8 @@ const PerAlbum: React.FC = () => {
                   }}
                 >
 
-                  <TiLocation />
-                  {sessAlbum[personalAlbum.session_album - 1].spot_name}
+                  {/* <TiLocation />
+                  {sessAlbum[personalAlbum.session_album - 1].spot_name} */}
                 </Link>
 
               </Box>
