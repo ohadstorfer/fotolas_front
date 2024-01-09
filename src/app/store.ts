@@ -5,6 +5,7 @@ import imagesReducer from '../slicers/ImagesSlice';
 import perAlbumReducer from '../slicers/perAlbumSlice';
 import sessAlbumReducer from '../slicers/sessAlbumSlice';
 import photographerReducer from '../slicers/photographerSlice';
+import spotReducer from '../slicers/spotSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     perAlbum: perAlbumReducer,
     sessAlbum:sessAlbumReducer,
     photographer: photographerReducer,
+    spot: spotReducer,
   },
 });
 

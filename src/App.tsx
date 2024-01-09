@@ -5,6 +5,7 @@ import PerAlbum from './components/PerAlbum';
 import Photographer from './components/Photographer';
 import SessAlbum from './components/SessAlbum';
 import { createBrowserRouter, createRoutesFromElements, Link, Outlet, Route, RouterProvider }from 'react-router-dom'
+import Spot from './components/Spot';
 
 function App() {
   const router = createBrowserRouter(
@@ -13,7 +14,8 @@ function App() {
         <Route index element={<SessAlbum />} />
         <Route path="/PerAlbum" element={<PerAlbum />} />
         <Route path="/Images" element={<Images />} />
-        <Route path="/Photographer" element={<Photographer />} />
+        <Route path="/Photographer/:photographerId" element={<Photographer />} />
+        <Route path="/Spot" element={<Spot />} />
       </Route>
     )
   );
@@ -35,7 +37,6 @@ const Root = () => {
   
   </div>
   <div>
-    {/* <Photographer></Photographer> */}
     <Outlet ></Outlet>
   </div>
   </>

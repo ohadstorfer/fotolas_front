@@ -19,6 +19,7 @@ import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import { useNavigate  } from 'react-router-dom';
 import { getPhotographerById, selectPhotographer } from '../slicers/photographerSlice';
+import { getSpotById } from '../slicers/spotSlice';
 
 
 // SessAlbum component
@@ -42,29 +43,30 @@ const SessAlbum: React.FC = () => {
     navigate('/');
   };
 
-  const handlePhotographerClick = async ( photographerId: number) => {
-    await dispatch(getPhotographerById(photographerId));
-    navigate('/Photographer');
+
+  const handleSpotClick = async ( spotId: number) => {
+    await dispatch(getSpotById(spotId));
+    navigate('/Spot');
   };
 
-
-
+  const PhotographerClick = (photographerId: number) => {
+    navigate(`/Photographer/${photographerId}`);
+  };
 
 
   return (
     <div>
       <h2>Session Albums</h2>
-      <ImageList variant="masonry" cols={3} gap={20} >
+      <ImageList variant="masonry" cols={3} gap={8} sx={{marginRight: '20px', marginLeft: '20px',marginBottom: '20px', marginTop:'20px'}}>
         {sessAlbum.map((sessAlbum) => (
           <ImageListItem key={sessAlbum.id}>
             <Card
               sx={{
                 '&:hover': {
-                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.7)',
                   '&:hover, &:focus-within': {
                     opacity: 1,
                     transition: 'opacity 0.4s ease-out',
-                    transform: 'scale(1.1)',
                   },
                   opacity: 0,
                   transition: '0.4s ease-in',
@@ -88,13 +90,9 @@ const SessAlbum: React.FC = () => {
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', bgcolor: teal[400] }}>
 
                 {/* <Avatar src={sessAlbum.photographer_profile_image} /> */}
-                <span onClick={() => handlePhotographerClick(sessAlbum.photographer)}>
+                <span onClick={() => PhotographerClick(sessAlbum.photographer)}>
                 <Avatar src={sessAlbum.photographer_profile_image}></Avatar>
                 </span>
-                
-
-                
-
 
 
                 <Typography sx={{ fontSize: 'sm', fontWeight: 'md' }}>
@@ -119,6 +117,12 @@ const SessAlbum: React.FC = () => {
                     // This will align the link to the right
                   }}
                 >
+
+                  <span onClick={() => handleSpotClick( sessAlbum.spot)}>
+                  {sessAlbum.spot_name}
+                  </span>
+
+
                   <TiLocation />
                   <span onClick={() => handleDisplaySessClick('spot', sessAlbum.spot)}>
                   {sessAlbum.spot_name}

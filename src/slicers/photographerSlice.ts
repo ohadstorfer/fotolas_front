@@ -29,14 +29,10 @@ const initialState: PhotographersState = {
 export const getPhotographerById = createAsyncThunk<Photographer, number>(
   'photographers/getPhotographerById',
   async (photographerId) => {
-    console.log(photographerId);
     const response = await fetchPhotographer(photographerId);
-    console.log(response.data);
-    
     return response.data;
   }
 );
-
 
 // Create a photographer slice
 const photographerSlice = createSlice({
@@ -57,8 +53,6 @@ const photographerSlice = createSlice({
       })
       .addCase(getPhotographerById.fulfilled, (state, action) => {
         state.photographer = action.payload;
-        console.log(state.photographer);
-        
         state.status = 'succeeded';
         state.error = null;
       })
@@ -71,5 +65,7 @@ const photographerSlice = createSlice({
 
 // Export actions and reducer
 export const { clearPhotographer } = photographerSlice.actions;
-export const selectPhotographer = (state: { photographers?: PhotographersState }) =>  state.photographers?.photographer ?? null;
+
+// Selectors
+export const selectPhotographer = (state: { photographer: PhotographersState }) =>  state.photographer.photographer;
 export default photographerSlice.reducer;

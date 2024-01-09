@@ -40,13 +40,13 @@ const PerAlbum: React.FC = () => {
     <div>
       <h2>Personal Albums</h2>
 
-      <ImageList variant="masonry" cols={3} gap={8}>
+      <ImageList variant="masonry" cols={3} gap={8} sx={{marginRight: '20px', marginLeft: '20px',marginBottom: '20px', marginTop:'20px'}}>
         {personalAlbums.map((personalAlbum) => (
           <ImageListItem key={personalAlbum.id}>
             <Card
               sx={{
                 '&:hover': {
-                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)',
+                  boxShadow: '0 4px 8px rgba(0, 0, 0, 1)',
                   '&:hover, &:focus-within': {
                     opacity: 1,
                     transition: 'opacity 0.4s ease-out',

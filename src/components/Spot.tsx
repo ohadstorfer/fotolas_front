@@ -7,31 +7,17 @@ import CardContent from '@mui/joy/CardContent';
 import Typography from '@mui/joy/Typography';
 import Sheet from '@mui/joy/Sheet';
 import { useAppDispatch } from '../app/hooks';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import {  getPhotographerById, selectPhotographer } from '../slicers/photographerSlice';
+import {  selectPhotographer } from '../slicers/photographerSlice';
 import { teal } from '@mui/material/colors';
-import { useEffect, useState } from 'react';
-import SessAlbum from './SessAlbum';
-import { sessGetDataAsync } from '../slicers/sessAlbumSlice';
+import { selectSpot } from '../slicers/spotSlice';
 
 export default function UserCard() {
   const dispatch = useAppDispatch();
   const navigate  = useNavigate();
   const photographer = useSelector(selectPhotographer);
-  const { photographerId } = useParams();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (photographerId) {
-      dispatch(getPhotographerById(Number(photographerId)));
-      dispatch(sessGetDataAsync({ filterType: "photographer", filterId: Number(photographerId) }))
-        .then(() => setLoading(false))
-        .catch(() => setLoading(false));
-    }
-  }, [dispatch, photographerId]);
-
-  
+  const spot = useSelector(selectSpot);
   
 
   return (
@@ -42,34 +28,31 @@ export default function UserCard() {
         marginTop: '16px',
       }}
     >
-      <Card
+        <Card
         orientation="horizontal"
         sx={{
           width: '100%',
           flexWrap: 'wrap',
           [`& > *`]: {
             '--stack-point': '500px',
-            minWidth: 'clamp(0px, (calc(var(--stack-point) - 2 * var(--Card-padding) - 2 * var(--variant-borderWidth, 0px)) + 1px - 100%) * 999, 100%)',
+            minWidth:
+              'clamp(0px, (calc(var(--stack-point) - 2 * var(--Card-padding) - 2 * var(--variant-borderWidth, 0px)) + 1px - 100%) * 999, 100%)',
           },
-
-
-          borderRadius: '16px', // Add rounded corners for a modern look
-          boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)', // Add a subtle shadow
+          
+     
+      borderRadius: '16px', // Add rounded corners for a modern look
+      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)', // Add a subtle shadow
         }}
       >
-        <AspectRatio flex ratio="1" maxHeight={182} sx={{ minWidth: 182 }}>
-          <img
-            src={photographer?.profile_image}
-            // srcSet="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286&dpr=2 2x"
-            loading="lazy"
-            alt="" />
-        </AspectRatio>
+        
         <CardContent>
           <Typography fontSize="xl" fontWeight="lg">
-            {photographer && photographer.photographer_name}
+            Spot Name
+            {spot?.name}
+          {spot && spot.name}
           </Typography>
           <Typography level="body-sm" fontWeight="lg" textColor="text.tertiary">
-            {photographer && photographer.about}
+            city + country
           </Typography>
           <Sheet
             sx={{
@@ -92,28 +75,25 @@ export default function UserCard() {
               <Typography level="body-xs" fontWeight="lg">
                 Followers
               </Typography>
-              <Typography fontWeight="lg">{photographer && photographer.followers_count}</Typography>
+              <Typography fontWeight="lg">980</Typography>
             </div>
             <div>
               <Typography level="body-xs" fontWeight="lg">
-                Spots
+                Photographers
               </Typography>
               <Typography fontWeight="lg">9</Typography>
             </div>
           </Sheet>
           <Box sx={{ display: 'flex', gap: 1.5, '& > button': { flex: 1 } }}>
             <Button variant="outlined" color="neutral">
-              Chat
+              Copy Link
             </Button>
-            <Button variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
+            <Button variant="solid"  style={{ backgroundColor: teal[400], color: 'white' }}>
               Follow
             </Button>
           </Box>
         </CardContent>
-
       </Card>
-      {/* {!loading && <SessAlbum />} */}
     </Box>
-
   );
 }

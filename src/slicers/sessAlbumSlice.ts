@@ -42,7 +42,6 @@ export const sessGetDataAsync = createAsyncThunk<sess[], { filterType?: string, 
     switch (filterType) {
       case 'photographer':
         if (filterId !== undefined) {
-          console.log("filter id is good" + filterId);
           response = await sessAlbumsByPhotographer(filterId);
         } else {
           console.log("filter id is undefined");
@@ -62,7 +61,6 @@ export const sessGetDataAsync = createAsyncThunk<sess[], { filterType?: string, 
     }
 
     const responseData = response?.data || [];
-    console.log(responseData);
 
     return responseData.map((item: { sessDate: Date }) => ({
       ...item,
