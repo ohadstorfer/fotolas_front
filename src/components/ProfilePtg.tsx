@@ -7,33 +7,39 @@ import CardContent from '@mui/joy/CardContent';
 import Typography from '@mui/joy/Typography';
 import Sheet from '@mui/joy/Sheet';
 import { useAppDispatch } from '../app/hooks';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import {  selectPhotographer } from '../slicers/photographerSlice';
+import {  getPhotographerById, selectPhotographer } from '../slicers/photographerSlice';
 import { teal } from '@mui/material/colors';
-import { getSpotById, selectSpot } from '../slicers/spotSlice';
 import { useEffect, useState } from 'react';
-import { sessGetDataAsync } from '../slicers/sessAlbumSlice';
 import SessAlbum from './SessAlbum';
+import { sessGetDataAsync } from '../slicers/sessAlbumSlice';
+import { MdModeEdit } from "react-icons/md";
+import { IoMdAddCircleOutline } from "react-icons/io";
+import { FaHistory } from "react-icons/fa";
+import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/profilePtgSlice';
+import { styled } from '@mui/material';
+
 
 export default function UserCard() {
   const dispatch = useAppDispatch();
   const navigate  = useNavigate();
-  const photographer = useSelector(selectPhotographer);
-  const spot = useSelector(selectSpot);
-  const { spotId } = useParams();
+  const photographer = useSelector(selectProfilePhotographer);
+  const { userId } = useParams();
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
-    if (spotId) {
-      dispatch(getSpotById(Number(spotId)));
-      dispatch(sessGetDataAsync({ filterType: "photographer", filterId: Number(spotId) }))
-        .then(() => setLoading(false))
-        .catch(() => setLoading(false));
+    if (userId) {
+      dispatch(getPhotographerByUserId(Number(userId)));
+      // dispatch(sessGetDataAsync({ filterType: "photographer", filterId: Number(userId) }))
+      //   .then(() => setLoading(false))
+      //   .catch(() => setLoading(false));
     }
-  }, [dispatch, spotId]);
+  }, [dispatch, userId]);
 
   
+  
+
   return (
     <><Box
       sx={{
@@ -57,13 +63,18 @@ export default function UserCard() {
           boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)', // Add a subtle shadow
         }}
       >
-
+        <AspectRatio flex ratio="1" maxHeight={182} sx={{ minWidth: 182 }}>
+          <img
+            src={photographer?.profile_image}
+            loading="lazy"
+            alt="" />
+        </AspectRatio>
         <CardContent>
           <Typography fontSize="xl" fontWeight="lg">
-            {spot?.name}
+            {photographer && photographer.photographer_name}
           </Typography>
           <Typography level="body-sm" fontWeight="lg" textColor="text.tertiary">
-            {spot?.city} , {spot?.country}
+            {photographer && photographer.about}
           </Typography>
           <Sheet
             sx={{
@@ -86,27 +97,36 @@ export default function UserCard() {
               <Typography level="body-xs" fontWeight="lg">
                 Followers
               </Typography>
-              <Typography fontWeight="lg">980</Typography>
+              <Typography fontWeight="lg">{photographer && photographer.followers_count}</Typography>
             </div>
             <div>
               <Typography level="body-xs" fontWeight="lg">
-                Photographers
+                Spots
               </Typography>
               <Typography fontWeight="lg">9</Typography>
             </div>
           </Sheet>
           <Box sx={{ display: 'flex', gap: 1.5, '& > button': { flex: 1 } }}>
-            <Button variant="outlined" color="neutral">
-              Copy Link
+            <Button variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
+              History  <FaHistory />
             </Button>
             <Button variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
-              Follow
+              Add Album <IoMdAddCircleOutline />
+            </Button>
+            <Button variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
+              Edit Profile <MdModeEdit />
             </Button>
           </Box>
         </CardContent>
+
       </Card>
+
+
+
     </Box>
-    <Box>{!loading && spot?.id && <SessAlbum filterType="spot" filterId={spot.id} />}</Box></>
+    {/* <Box>{!loading && photographer?.id && <SessAlbum filterType="photographer" filterId={photographer.id} />}</Box> */}
+    </>
+    
 
   );
 }

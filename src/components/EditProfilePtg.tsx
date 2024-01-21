@@ -9,30 +9,37 @@ import Sheet from '@mui/joy/Sheet';
 import { useAppDispatch } from '../app/hooks';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import {  getPhotographerById, selectPhotographer } from '../slicers/photographerSlice';
+import { getPhotographerById, selectPhotographer } from '../slicers/photographerSlice';
 import { teal } from '@mui/material/colors';
 import { useEffect, useState } from 'react';
 import SessAlbum from './SessAlbum';
 import { sessGetDataAsync } from '../slicers/sessAlbumSlice';
+import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/profilePtgSlice';
+import { TextField } from '@mui/material';
+import UploadButton from './UpdButton';
+
+
 
 export default function UserCard() {
   const dispatch = useAppDispatch();
-  const navigate  = useNavigate();
-  const photographer = useSelector(selectPhotographer);
-  const { photographerId } = useParams();
+  const navigate = useNavigate();
+  const photographer = useSelector(selectProfilePhotographer);
+  const { userId } = useParams();
   const [loading, setLoading] = useState(true);
+  const [isEditable, setIsEditable] = useState(false);
+
 
   useEffect(() => {
-    if (photographerId) {
-      dispatch(getPhotographerById(Number(photographerId)));
-      dispatch(sessGetDataAsync({ filterType: "photographer", filterId: Number(photographerId) }))
+    if (userId) {
+      dispatch(getPhotographerByUserId(Number(userId)));
+      dispatch(sessGetDataAsync({ filterType: "photographer", filterId: Number(userId) }))
         .then(() => setLoading(false))
         .catch(() => setLoading(false));
     }
-  }, [dispatch, photographerId]);
+  }, [dispatch, userId]);
 
-  
-  
+
+
 
   return (
     <><Box
@@ -60,55 +67,37 @@ export default function UserCard() {
         <AspectRatio flex ratio="1" maxHeight={182} sx={{ minWidth: 182 }}>
           <img
             src={photographer?.profile_image}
-            // srcSet="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286&dpr=2 2x"
             loading="lazy"
             alt="" />
+            <UploadButton></UploadButton>
         </AspectRatio>
         <CardContent>
-          <Typography fontSize="xl" fontWeight="lg">
-            {photographer && photographer.photographer_name}
-          </Typography>
-          <Typography level="body-sm" fontWeight="lg" textColor="text.tertiary">
-            {photographer && photographer.about}
-          </Typography>
-          <Sheet
-            sx={{
-              bgcolor: 'background.level1',
-              borderRadius: 'sm',
-              p: 1.5,
-              my: 1.5,
-              display: 'flex',
-              gap: 2,
-              '& > div': { flex: 1 },
-            }}
-          >
-            <div>
-              <Typography level="body-xs" fontWeight="lg">
-                Albums
-              </Typography>
-              <Typography fontWeight="lg">34</Typography>
-            </div>
-            <div>
-              <Typography level="body-xs" fontWeight="lg">
-                Followers
-              </Typography>
-              <Typography fontWeight="lg">{photographer && photographer.followers_count}</Typography>
-            </div>
-            <div>
-              <Typography level="body-xs" fontWeight="lg">
-                Spots
-              </Typography>
-              <Typography fontWeight="lg">9</Typography>
-            </div>
-          </Sheet>
-          <Box sx={{ display: 'flex', gap: 1.5, '& > button': { flex: 1 } }}>
+          
+         
+            
+            <TextField 
+            fullWidth
+            size="medium"
+            variant="standard"
+            defaultValue= "Full Name" // Set default value
+          />
+          <br></br>
+          <TextField 
+            fullWidth
+            size="medium"
+            variant="standard"
+            defaultValue= "About- Write something about yourself" // Set default value
+          />
+
+          <Box sx={{ display: 'flex', p: 1.5, my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
             <Button variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
-              Chat
+              Cancle 
             </Button>
             <Button variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
-              Follow
+              Submit 
             </Button>
           </Box>
+
         </CardContent>
 
       </Card>
@@ -116,8 +105,6 @@ export default function UserCard() {
 
 
     </Box>
-    <Box>{!loading && photographer?.id && <SessAlbum filterType="photographer" filterId={photographer.id} />}</Box></>
-    
-
+    </>
   );
 }

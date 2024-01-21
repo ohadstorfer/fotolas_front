@@ -6,15 +6,19 @@ import perAlbumReducer from '../slicers/perAlbumSlice';
 import sessAlbumReducer from '../slicers/sessAlbumSlice';
 import photographerReducer from '../slicers/photographerSlice';
 import spotReducer from '../slicers/spotSlice';
+import signUpReducer from '../slicers/signUpSlice'
+import profilePhotographerReducer from '../slicers/profilePtgSlice';
 
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
     sighnIn: sighnInReducer,
+    signUp: signUpReducer,
     images: imagesReducer, 
     perAlbum: perAlbumReducer,
     sessAlbum:sessAlbumReducer,
     photographer: photographerReducer,
+    profilePhotographer: profilePhotographerReducer,
     spot: spotReducer,
   },
 });

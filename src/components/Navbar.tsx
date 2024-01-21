@@ -17,7 +17,14 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import teal from '@mui/material/colors/teal';
 import { GiSurferVan } from "react-icons/gi";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAppDispatch } from '../app/hooks';
+import { logout, parseJwt, selectToken } from '../slicers/sighnInSlice';
+import { Avatar } from '@mui/material';
+import { useSelector } from 'react-redux';
+import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/profilePtgSlice';
+import { useEffect, useState } from 'react';
+
 
 
 const iconContainerStyle = {
@@ -73,7 +80,38 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
 
 
 
+
+
+
+
+
+
+
+
 export default function PrimarySearchAppBar() {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const storedToken = localStorage.getItem("token");
+  const token = storedToken ? JSON.parse(storedToken) : null;
+  const photographer = useSelector(selectProfilePhotographer);
+  console.log("photographer: ", photographer);
+
+// ******************************** This is the option for getting the userid from the token slicer (login slicer), and not from the localStorage:
+  // const storedToken = useSelector(selectToken);
+  // console.log(storedToken);
+  // const token = storedToken ? JSON.parse(storedToken) : null;
+  
+
+
+  useEffect(() => {
+    if (token && token?.id != photographer?.user ) {
+      dispatch(getPhotographerByUserId(Number(token.id)));
+    }
+  }, [dispatch, token,photographer ]);
+  
+  
+
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     React.useState<null | HTMLElement>(null);
@@ -92,6 +130,25 @@ export default function PrimarySearchAppBar() {
   const handleMenuClose = () => {
     setAnchorEl(null);
     handleMobileMenuClose();
+  };
+
+  const handleSignUp = () => {
+    navigate('/SignUp');
+  };
+
+  const handleSignIn = () => {
+    navigate('/SignIn');
+  };
+
+  const handleLogOut = () => {
+    handleMenuClose()
+    dispatch(logout());
+    navigate('/SignIn');
+  };
+
+  const PhotographerClick = () => {
+    handleMenuClose()
+    navigate(`/ProfilePtg/${token.id}`);
   };
 
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -115,8 +172,19 @@ export default function PrimarySearchAppBar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      {token ? (
+        [
+          <MenuItem key="profile" onClick={PhotographerClick}>Profile</MenuItem>,
+          <MenuItem key="account" onClick={handleMenuClose}>My account</MenuItem>,
+          <MenuItem key="logout" onClick={handleLogOut}>Log Out</MenuItem>
+        ]
+      ) : (
+        [
+          <MenuItem key="login" onClick={handleSignIn}>Log In</MenuItem>,
+          <MenuItem key="signup" onClick={handleSignUp}>Sign Up</MenuItem>
+        ]
+      )}
+
     </Menu>
   );
 
@@ -138,6 +206,10 @@ export default function PrimarySearchAppBar() {
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
+
+      </MenuItem>
+
+      <MenuItem>
         <IconButton size="large" aria-label="show 4 new mails" color="inherit">
           <Badge badgeContent={4} color="error">
             <MailIcon />
@@ -157,18 +229,7 @@ export default function PrimarySearchAppBar() {
         </IconButton>
         <p>Notifications</p>
       </MenuItem>
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          size="large"
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <AccountCircle />
-        </IconButton>
-        <p>Profile</p>
-      </MenuItem>
+
     </Menu>
   );
 
@@ -187,7 +248,7 @@ export default function PrimarySearchAppBar() {
 
           {/* </IconButton> */}
           <Link to="/" style={iconContainerStyle}>
-          <GiSurferVan size={40}  />
+            <GiSurferVan size={40} />
           </Link>
 
           <Search>
@@ -224,7 +285,9 @@ export default function PrimarySearchAppBar() {
               onClick={handleProfileMenuOpen}
               color="inherit"
             >
-              <AccountCircle />
+              {/* *************************************************************************************************************************************************************************************** */}
+              { token.id == photographer?.user ? (<Avatar src={photographer?.profile_image} />) : (<AccountCircle /> )}
+
             </IconButton>
           </Box>
           <Box sx={{ display: { xs: 'flex', md: 'none' } }}>

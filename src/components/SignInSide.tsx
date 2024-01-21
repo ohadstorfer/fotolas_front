@@ -14,6 +14,8 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAppDispatch } from '../app/hooks';
 import { loginAsync } from '../slicers/sighnInSlice';
+import { teal } from '@mui/material/colors';
+import { useNavigate } from 'react-router-dom';
 
 function Copyright(props: any) {
   return (
@@ -32,23 +34,25 @@ function Copyright(props: any) {
 const defaultTheme = createTheme();
 
 export default function SignInSide() {
-    const dispatch = useAppDispatch(); // Using the custom hook for useDispatch
+    const dispatch = useAppDispatch();
+    const navigate  = useNavigate();
+
   
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
   
       const credentials = {
-        email: data.get('email') as string,
-        password: data.get('password') as string,
+        email: data.get("email") as string,
+        password: data.get("password") as string,
       };
+      console.log(credentials);
   
       try {
-        // Dispatch the loginAsync action
         await dispatch(loginAsync(credentials));
-        // Additional logic if needed after successful login
+        // nabigate only if it succesfully did loginAsync
+        navigate('/');
       } catch (error) {
-        // Handle errors or dispatch additional actions in case of a failed login
         console.error('Login failed:', error);
       }
     };
@@ -81,7 +85,7 @@ export default function SignInSide() {
               alignItems: 'center',
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <Avatar sx={{ m: 1, bgcolor: teal[400] }}>
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
@@ -109,15 +113,15 @@ export default function SignInSide() {
                 autoComplete="current-password"
               />
               <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
+                control={<Checkbox  value="remember" color="primary" />}
                 label="Remember me"
               />
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
+                sx={{ mt: 3, mb: 2,backgroundColor: teal[400] }}
+                >
                 Sign In
               </Button>
               <Grid container>

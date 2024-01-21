@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardMedia from '@mui/material/CardMedia';
-import Grid from '@mui/material/Grid';
 import Box from '@mui/joy/Box';
 import Avatar from '@mui/joy/Avatar';
 import Typography from '@mui/joy/Typography';
@@ -11,43 +10,50 @@ import Link from '@mui/joy/Link';
 import { useAppDispatch } from '../app/hooks';
 import { calculateTimeAgo, selectSessAlbums, sessGetDataAsync } from '../slicers/sessAlbumSlice';
 import { getDataAsync } from '../slicers/perAlbumSlice';
-import { resetImages } from '../slicers/ImagesSlice';
 import { AspectRatio } from '@mui/joy';
 import { TiLocation } from 'react-icons/ti';
 import { teal } from '@mui/material/colors';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import { useNavigate  } from 'react-router-dom';
-import { getPhotographerById, selectPhotographer } from '../slicers/photographerSlice';
+import { selectPhotographer } from '../slicers/photographerSlice';
 import { getSpotById } from '../slicers/spotSlice';
 
+interface SessAlbumProps {
+  filterType: string;
+  filterId: number;
+}
 
 // SessAlbum component
-const SessAlbum: React.FC = () => {
+const SessAlbum: React.FC <SessAlbumProps>= ({ filterType, filterId }) => {
   const sessAlbum = useSelector(selectSessAlbums);
   const dispatch = useAppDispatch();
   const navigate  = useNavigate();
   const photographer = useSelector(selectPhotographer);
+  
 
   useEffect(() => {
-    dispatch(sessGetDataAsync({}));
-  }, [dispatch]);
+    dispatch(sessGetDataAsync({ filterType, filterId }));
+  }, [dispatch, filterType, filterId]);
+
+
+
+  const handleDisplaySessClick = (filterType: string, filterId: number) => {
+    dispatch(sessGetDataAsync({ filterType, filterId }));
+    // navigate('/');
+  };
+
 
   const handleCardClick = (albumId: number) => {
     dispatch(getDataAsync(albumId));
     navigate('/PerAlbum');
   };
 
-  const handleDisplaySessClick = (filterType: string, filterId: number) => {
-    dispatch(sessGetDataAsync({ filterType, filterId }));
-    navigate('/');
-  };
+  
 
 
   const handleSpotClick = async ( spotId: number) => {
-    await dispatch(getSpotById(spotId));
-    navigate('/Spot');
-  };
+    navigate(`/spot/${spotId}`);  };
 
   const PhotographerClick = (photographerId: number) => {
     navigate(`/Photographer/${photographerId}`);
@@ -56,7 +62,7 @@ const SessAlbum: React.FC = () => {
 
   return (
     <div>
-      <h2>Session Albums</h2>
+      
       <ImageList variant="masonry" cols={3} gap={8} sx={{marginRight: '20px', marginLeft: '20px',marginBottom: '20px', marginTop:'20px'}}>
         {sessAlbum.map((sessAlbum) => (
           <ImageListItem key={sessAlbum.id}>
@@ -96,9 +102,7 @@ const SessAlbum: React.FC = () => {
 
 
                 <Typography sx={{ fontSize: 'sm', fontWeight: 'md' }}>
-                
-                  {/* <span onClick={() => handleDisplaySessClick('photographer', sessAlbum.photographer)}> */}
-                  <span onClick={() => handleDisplaySessClick('photographer', sessAlbum.photographer)}>
+                    <span onClick={() => PhotographerClick(sessAlbum.photographer)}>
                     {sessAlbum.photographer_name }
                   </span>
                 </Typography>
@@ -117,14 +121,8 @@ const SessAlbum: React.FC = () => {
                     // This will align the link to the right
                   }}
                 >
-
-                  <span onClick={() => handleSpotClick( sessAlbum.spot)}>
-                  {sessAlbum.spot_name}
-                  </span>
-
-
                   <TiLocation />
-                  <span onClick={() => handleDisplaySessClick('spot', sessAlbum.spot)}>
+                  <span onClick={() => handleSpotClick( sessAlbum.spot)}>
                   {sessAlbum.spot_name}
                   </span>
                   

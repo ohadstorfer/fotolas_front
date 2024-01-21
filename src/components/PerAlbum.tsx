@@ -76,6 +76,10 @@ const PerAlbum: React.FC = () => {
                 <Avatar sx={{ bgcolor: teal[100] }}>
                   <span style={{ marginRight: '4px' }}>{personalAlbum.image_count}</span> <IoImagesOutline />
                 </Avatar>
+                <Avatar sx={{ bgcolor: teal[100] }}>
+                <span style={{ marginRight: '4px' }}>{Math.floor(personalAlbum.price)}$</span>
+                </Avatar>
+
 
 
                 {/* <Typography sx={{ fontSize: 'sm', fontWeight: 'md', marginLeft: 'auto', marginRight: 'auto+70' }}>

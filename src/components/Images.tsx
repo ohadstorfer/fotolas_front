@@ -56,7 +56,10 @@ const PerAlbum: React.FC = () => {
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', bgcolor: teal[400] }}>
           <Avatar sx={{ bgcolor: teal[100] }}>
                   <span style={{ marginRight: '4px' }}></span> <IoImagesOutline />
-                </Avatar>
+          </Avatar>
+          <Avatar sx={{ bgcolor: teal[100] }}>
+                <span style={{ marginRight: '4px' }}>{Math.floor(img.price)}$</span>
+          </Avatar>
           </Box>
         </Card>
         </ImageListItem>
