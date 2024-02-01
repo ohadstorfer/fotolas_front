@@ -3,7 +3,6 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { fetchImages } from '../services/ImagesAPI';
 
 interface Img {
-  cover_image: string | undefined;
   id: number;
   photo: string;
   price: number;

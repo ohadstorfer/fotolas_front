@@ -2,6 +2,13 @@
   text-align: center;
 }
 
+body {
+  /* background-color: rgb(138, 202, 202); */
+    margin: 0; /* Reset default body margin */
+  padding: 0; /* Reset default body padding */
+}
+
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;

@@ -24,6 +24,10 @@ import { Avatar } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/profilePtgSlice';
 import { useEffect, useState } from 'react';
+import { clearUser, getUserById, selectUser } from '../slicers/userSlice';
+import { clearPhotographer } from '../slicers/photographerSlice';
+import { selectBecomePhotographer } from '../slicers/becomePhotographerSlice';
+import { selectSessAlbums } from '../slicers/sessAlbumSlice';
 
 
 
@@ -31,7 +35,6 @@ const iconContainerStyle = {
   textDecoration: 'none', // Remove text decoration
   color: 'inherit', // Inherit color from parent
 };
-
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -73,7 +76,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: teal[400], // Set the background color to teal[400]
 }));
@@ -94,22 +96,28 @@ export default function PrimarySearchAppBar() {
   const storedToken = localStorage.getItem("token");
   const token = storedToken ? JSON.parse(storedToken) : null;
   const photographer = useSelector(selectProfilePhotographer);
-  console.log("photographer: ", photographer);
-
-// ******************************** This is the option for getting the userid from the token slicer (login slicer), and not from the localStorage:
-  // const storedToken = useSelector(selectToken);
-  // console.log(storedToken);
-  // const token = storedToken ? JSON.parse(storedToken) : null;
-  
+  const user = useSelector(selectUser)
+  const slicerToken = useSelector(selectToken)
+  const isLoggedIn = useSelector(selectToken)
+  const newPhotographer= useSelector(selectBecomePhotographer)
+  const sessAlbum = useSelector(selectSessAlbums);
 
 
   useEffect(() => {
-    if (token && token?.id != photographer?.user ) {
-      dispatch(getPhotographerByUserId(Number(token.id)));
-    }
-  }, [dispatch, token,photographer ]);
-  
-  
+    dispatch(getUserById(Number(token?.id)));
+    dispatch(getPhotographerByUserId(Number(token?.id)));
+  }
+    , [isLoggedIn,newPhotographer]);
+
+
+
+  useEffect(() => {
+    console.log("the user is: ", user?.fullName);
+    // dispatch(getUserById(Number(token?.id)));
+    // dispatch(getPhotographerByUserId(Number(token?.id)));
+  }
+    , [user]);
+
 
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -141,9 +149,11 @@ export default function PrimarySearchAppBar() {
   };
 
   const handleLogOut = () => {
-    handleMenuClose()
+    handleMenuClose();
+    dispatch(clearUser());
+    dispatch(clearPhotographer());
     dispatch(logout());
-    navigate('/SignIn');
+    navigate('/SignIn', { replace: true });
   };
 
   const PhotographerClick = () => {
@@ -151,9 +161,40 @@ export default function PrimarySearchAppBar() {
     navigate(`/ProfilePtg/${token.id}`);
   };
 
+  const BecomePhotographerClick = () => {
+    handleMenuClose()
+    navigate(`/BecomePhotographer/${token.id}`);
+  };
+
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
+
+  const renderLoggedInMenu = () => {
+    if (user?.is_photographer) {
+      return [
+        <MenuItem key="profile" onClick={PhotographerClick}>Profile</MenuItem>,
+        <MenuItem key="logout" onClick={handleLogOut}>Log Out</MenuItem>
+      ];
+    } else {
+      return [
+        <MenuItem key="becomePhotographer" onClick={BecomePhotographerClick}>Become a photographer</MenuItem>,
+        <MenuItem key="account" onClick={handleMenuClose}>My account</MenuItem>,
+        <MenuItem key="logout" onClick={handleLogOut}>Log Out</MenuItem>,
+
+      
+      ];
+    }
+  };
+
+  const renderLoggedOutMenu = () => (
+    [
+      <MenuItem key="login" onClick={handleSignIn}>Log In</MenuItem>,
+      <MenuItem key="signup" onClick={handleSignUp}>Sign Up</MenuItem>
+    ]
+  );
+
+
 
   const menuId = 'primary-search-account-menu';
   const renderMenu = (
@@ -172,18 +213,7 @@ export default function PrimarySearchAppBar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      {token ? (
-        [
-          <MenuItem key="profile" onClick={PhotographerClick}>Profile</MenuItem>,
-          <MenuItem key="account" onClick={handleMenuClose}>My account</MenuItem>,
-          <MenuItem key="logout" onClick={handleLogOut}>Log Out</MenuItem>
-        ]
-      ) : (
-        [
-          <MenuItem key="login" onClick={handleSignIn}>Log In</MenuItem>,
-          <MenuItem key="signup" onClick={handleSignUp}>Sign Up</MenuItem>
-        ]
-      )}
+      {user ? renderLoggedInMenu() : renderLoggedOutMenu()}
 
     </Menu>
   );
@@ -286,7 +316,8 @@ export default function PrimarySearchAppBar() {
               color="inherit"
             >
               {/* *************************************************************************************************************************************************************************************** */}
-              { token.id == photographer?.user ? (<Avatar src={photographer?.profile_image} />) : (<AccountCircle /> )}
+              {user?.is_photographer ? (<Avatar src={photographer?.profile_image} />) : (<AccountCircle />)}
+              {/* {user ? console.log(user) :"bbbbbbbbb"} */}
 
             </IconButton>
           </Box>
@@ -301,6 +332,7 @@ export default function PrimarySearchAppBar() {
             >
               <MoreIcon />
             </IconButton>
+
           </Box>
         </Toolbar>
       </StyledAppBar>

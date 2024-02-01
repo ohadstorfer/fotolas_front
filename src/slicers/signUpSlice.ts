@@ -14,6 +14,8 @@ const initialState: SignUpState = {
 
 
 export const signUpAsync = createAsyncThunk('signIn/login', async (credentials: { email: string, fullName: string, password: string }) => {
+  console.log("signUPPPPP");
+  
   const response = await signUp(credentials);
   return response.data;
 });
@@ -30,8 +32,6 @@ const signUpSlice = createSlice({
       })
       .addCase(signUpAsync.fulfilled, (state, action) => {
         state.token = action.payload;
-        console.log(state.token);
-        
         state.error = null;
       })
       .addCase(signUpAsync.rejected, (state, action) => {

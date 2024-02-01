@@ -1,24 +1,26 @@
 // sighnInSlice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { login } from '../services/sighnInAPI';
-import { clearPhotographer } from './photographerSlice';
-import { useAppDispatch } from '../app/hooks';
+
 
 interface SignInState {
   token: string | null;
+  loggedIn: boolean;
   error: string | null;
 }
 
+
 const initialState: SignInState = {
-  token: null,
+  token: "",
+  loggedIn: false,
   error: null,
 };
 
 
 
+
 export const loginAsync = createAsyncThunk('signIn/login', async (credentials: { email: string, password: string }) => {
-  console.log("trying");
-  
+
   const response = await login(credentials);
   return response.data;
 });
@@ -27,14 +29,14 @@ export const loginAsync = createAsyncThunk('signIn/login', async (credentials: {
 const signInSlice = createSlice({
   name: 'signIn',
   initialState,
-  
+
   reducers: {
     logout: (state) => {
       state.token = null;
       state.error = null;
       localStorage.removeItem("token");
-      clearPhotographer()
-      },
+      state.loggedIn = false;
+    },
     parseJwt: (state) => {
       const token = state.token;
       if (token && typeof token === 'string') {
@@ -46,7 +48,7 @@ const signInSlice = createSlice({
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
           }).join(''));
           const parsedPayload = JSON.parse(jsonPayload);
-    
+
           console.log(parsedPayload.access);
         }
       }
@@ -60,7 +62,7 @@ const signInSlice = createSlice({
       })
       .addCase(loginAsync.fulfilled, (state, action) => {
         state.token = JSON.stringify(action.payload);
-        console.log(state.token);
+        state.loggedIn = true;
         localStorage.setItem("token", (state.token));
         state.error = null;
       })
@@ -71,8 +73,8 @@ const signInSlice = createSlice({
   },
 });
 
-export const { logout,parseJwt } = signInSlice.actions;
-export const selectToken = (state: { signIn?: SignInState }) => state.signIn?.token ;
+export const { logout, parseJwt } = signInSlice.actions;
+export const selectToken = (state: { signIn?: SignInState }) => state.signIn?.loggedIn;
 export default signInSlice.reducer;
 
 

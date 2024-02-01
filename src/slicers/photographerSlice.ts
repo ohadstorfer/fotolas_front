@@ -40,6 +40,10 @@ const photographerSlice = createSlice({
   initialState,
   reducers: {
     clearPhotographer: (state) => {
+      console.log("clearPhotographer");
+      // if (state.photographer) {
+      //   state.photographer.profile_image = ""; // Set the profile_image property
+      // }      
       state.photographer = null;
       state.status = 'idle';
       state.error = null;

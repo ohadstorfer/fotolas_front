@@ -37,6 +37,13 @@ export default function UserCard() {
     }
   }, [dispatch, userId]);
 
+  const editProfilePtgClick = () => {
+    navigate(`/EditProfilePtg/${photographer?.id}`);
+  };
+
+  const addAlbum = () => {
+    navigate(`/CreatSessAlbum`);
+  };
   
   
 
@@ -110,10 +117,10 @@ export default function UserCard() {
             <Button variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
               History  <FaHistory />
             </Button>
-            <Button variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
+            <Button onClick={addAlbum} variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
               Add Album <IoMdAddCircleOutline />
             </Button>
-            <Button variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
+            <Button onClick={editProfilePtgClick} variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
               Edit Profile <MdModeEdit />
             </Button>
           </Box>

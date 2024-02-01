@@ -30,6 +30,7 @@ const initialState: PhotographersState = {
 export const getPhotographerByUserId = createAsyncThunk<Photographer, number>(
   'photographers/getPhotographerByUserId',
   async (userId) => {
+    console.log("getPhotographerByUserId");
     const response = await PhotographerByUserId(userId);
     return response.data;
   }

@@ -1,6 +1,6 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import counterReducer from '../features/counter/counterSlice';
-import sighnInReducer from '../slicers/sighnInSlice'
+import signInReducer  from '../slicers/sighnInSlice'
 import imagesReducer from '../slicers/ImagesSlice';
 import perAlbumReducer from '../slicers/perAlbumSlice';
 import sessAlbumReducer from '../slicers/sessAlbumSlice';
@@ -8,11 +8,14 @@ import photographerReducer from '../slicers/photographerSlice';
 import spotReducer from '../slicers/spotSlice';
 import signUpReducer from '../slicers/signUpSlice'
 import profilePhotographerReducer from '../slicers/profilePtgSlice';
+import userReducer from '../slicers/userSlice';
+import becomePhotographerReducer from '../slicers/becomePhotographerSlice';
+import uploadAlbumReducer from '../slicers/uploadPerAlbum';
 
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
-    sighnIn: sighnInReducer,
+    signIn: signInReducer ,
     signUp: signUpReducer,
     images: imagesReducer, 
     perAlbum: perAlbumReducer,
@@ -20,6 +23,10 @@ export const store = configureStore({
     photographer: photographerReducer,
     profilePhotographer: profilePhotographerReducer,
     spot: spotReducer,
+    user: userReducer,
+    becomePhotographer: becomePhotographerReducer,
+    uploadAlbum: uploadAlbumReducer, // Corrected name
+
   },
 });
 

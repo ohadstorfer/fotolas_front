@@ -53,14 +53,14 @@ const PerAlbum: React.FC = () => {
             />
             </AspectRatio>
           </CardActionArea>
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', bgcolor: teal[400] }}>
+          {/* <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', bgcolor: teal[400] }}>
           <Avatar sx={{ bgcolor: teal[100] }}>
                   <span style={{ marginRight: '4px' }}></span> <IoImagesOutline />
           </Avatar>
           <Avatar sx={{ bgcolor: teal[100] }}>
                 <span style={{ marginRight: '4px' }}>{Math.floor(img.price)}$</span>
           </Avatar>
-          </Box>
+          </Box> */}
         </Card>
         </ImageListItem>
       ))}

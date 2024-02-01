@@ -1,6 +1,6 @@
 // spotSlice.ts
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchSpot } from '../services/spotAPI';
+import { createSpot, fetchSpot } from '../services/spotAPI';
 
 interface Spot {
   id: number;
@@ -12,12 +12,14 @@ interface Spot {
 
 interface SpotsState {
   spot: Spot | null;
+  newSpot:Spot | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
 
 const initialState: SpotsState = {
   spot: null,
+  newSpot:null,
   status: 'idle',
   error: null,
 };
@@ -30,6 +32,17 @@ export const getSpotById = createAsyncThunk<Spot, number>(
     return response.data;
   }
 );
+
+
+export const createSpotAsync = createAsyncThunk('createSpot', async (credentials: { name: string, city: string, country: string  }) => {
+  console.log("Creating spot asynchronously");
+  const response = await createSpot(credentials);
+  return response.data; // Adjust based on the actual response structure
+});
+
+
+
+
 
 // Create a spot slice
 const spotSlice = createSlice({
@@ -52,10 +65,22 @@ const spotSlice = createSlice({
       .addCase(getSpotById.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Failed to fetch spot'; // Update the error message
+      })
+      
+      .addCase(createSpotAsync.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(createSpotAsync.fulfilled, (state, action) => {
+        state.newSpot = action.payload;
+        state.error = null;
+      })
+      .addCase(createSpotAsync.rejected, (state, action) => {
+        state.error = action.error.message || 'An error occurred';
       });
   },
 });
 
 // Export actions and reducer
 export const selectSpot = (state: { spot: SpotsState }) => state.spot.spot;
+export const selectNewSpot = (state: { spot: SpotsState }) => state.spot.newSpot;
 export default spotSlice.reducer;

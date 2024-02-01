@@ -1,0 +1,38 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    background-color:bisque;
+}
+
+.flexbox {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+}
+
+
+
+
+/* .flexbox .board {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    max-width: 300px;
+    background-color:rgb(3, 2, 0);
+
+    padding: 15px;
+} */
+
+/* .flexbox .board .card {
+    padding: 15px 25px;
+    background-color:aliceblue;
+    max-width: 100px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    border-radius: 16px;
+} */

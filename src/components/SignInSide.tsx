@@ -13,9 +13,13 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAppDispatch } from '../app/hooks';
-import { loginAsync } from '../slicers/sighnInSlice';
+import { loginAsync, selectToken } from '../slicers/sighnInSlice';
 import { teal } from '@mui/material/colors';
 import { useNavigate } from 'react-router-dom';
+import { getUserById } from '../slicers/userSlice';
+import { getPhotographerByUserId } from '../slicers/profilePtgSlice';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
 function Copyright(props: any) {
   return (
@@ -36,26 +40,30 @@ const defaultTheme = createTheme();
 export default function SignInSide() {
     const dispatch = useAppDispatch();
     const navigate  = useNavigate();
+    const storedToken = localStorage.getItem("token");
+    const token = storedToken ? JSON.parse(storedToken) : null;
+    const isLoggedIn = useSelector(selectToken)
 
   
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
-  
+    
       const credentials = {
         email: data.get("email") as string,
         password: data.get("password") as string,
       };
-      console.log(credentials);
-  
+    
       try {
         await dispatch(loginAsync(credentials));
-        // nabigate only if it succesfully did loginAsync
-        navigate('/');
+      navigate('/');
       } catch (error) {
         console.error('Login failed:', error);
       }
     };
+
+
+    
 
   return (
     <ThemeProvider theme={defaultTheme}>
