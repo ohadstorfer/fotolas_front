@@ -25,7 +25,7 @@ export default function UserCard() {
 
   useEffect(() => {
     console.log('prices:', prices);
-    if(prices){navigate('/AllWidgets');}
+    if(prices){navigate('/PleaseWork');}
     
  }, [prices]);
 

@@ -1,12 +1,14 @@
 // imagesSlice.ts
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { fetchImages } from '../services/ImagesAPI';
+import { fetchImages, fetchwatermarked_photos } from '../services/ImagesAPI';
 
 interface Img {
   id: number;
   photo: string;
+  WatermarkedPhoto: string;
   price: number;
   personal_album: number;
+  
 }
 
 interface imagesState {
@@ -25,11 +27,18 @@ export const resetImages = () => ({
 });
 
 
-export const personalGetDataAsync = createAsyncThunk<Img[], number>('images/fetchImages', async (albumId: number) => {
+export const personalGetDataAsync = createAsyncThunk<Img[], number>('images/fetchwatermarked_photos', async (albumId: number) => {
     console.log("trying");
     
-  const response = await fetchImages(albumId);
+  const response = await fetchwatermarked_photos(albumId);
   return response.data;
+});
+
+export const fetchImagesAsync = createAsyncThunk<Img[], number>('images/fetchImages', async (albumId: number) => {
+  console.log("trying");
+  
+const response = await fetchImages(albumId);
+return response.data;
 });
 
 

@@ -23,48 +23,65 @@ import UploadWidget from './UploadWidget';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import CreateSpot from './CreateSpot'; // Import CreateSpot component
-import { selectNewSpot, selectSpot } from '../slicers/spotSlice';
+import { getAllSpots, selectAllSpots, selectNewSpot, selectSpot } from '../slicers/spotSlice';
+import Autocomplete from '@mui/material/Autocomplete';
 
 export default function UserCard() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const photographer = useSelector(selectProfilePhotographer);
   const { userId } = useParams();
-  const [loading, setLoading] = useState(true);
-  const [isEditable, setIsEditable] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [imageUrl, setimageUrl] = useState<string | null>(null);
   const [about, setabout] = useState<string | null>(null);
-  const [showCreateSpot, setShowCreateSpot] = useState(false); // State to control rendering CreateSpot
+  const [showCreateSpot, setShowCreateSpot] = useState(false);
   const newSpot = useSelector(selectNewSpot);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const newSess = useSelector(selectNewSess);
-  const [isSpotAdded, setSpotAdded] = useState(false); // State to control the content
+  const allSpots = useSelector(selectAllSpots);
+  const [selectedSpot, setSelectedSpot] = useState<any  | null>(null);
 
   useEffect(() => {
-      if(newSpot){setSpotAdded(true);}
+    console.log(allSpots);
+
+    dispatch(getAllSpots());
+  }, []);
+
+
+
+
+  useEffect(() => {
+    if (newSpot) { 
+      setSelectedSpot(newSpot);
+      dispatch(getAllSpots()); }
   }, [newSpot]);
 
 
   useEffect(() => {
     console.log('newSess:', newSess);
-    if(newSess){navigate('/CreatePrices');}
-    
- }, [newSess]);
+    if (newSess) { navigate('/CreatePrices'); }
+
+  }, [newSess]);
 
   useEffect(() => {
     handleSubmit();
   }, [imageUrl]);
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      setSelectedFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
+  
+
+
+
+  const handleSubmit222222 = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    console.log(data);
+    await uploadImage(e as any);
   };
+
+
+
 
   const uploadImage = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
     e.preventDefault();
@@ -81,7 +98,7 @@ export default function UserCard() {
         const response = await fetch('http://api.cloudinary.com/v1_1/dauupwecm/image/upload', { method: 'post', body: formData });
         const imgData = await response.json();
         imageUrl = imgData.url.toString();
-        setImagePreview(null);
+        // setImagePreview(null);
       }
       setimageUrl(imageUrl);
       console.log('imageUrl: ', imageUrl);
@@ -95,31 +112,29 @@ export default function UserCard() {
 
 
 
-  const handleSubmit222222 = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    console.log(data);
-    setabout(data.get('About') as string);
-    console.log(about);
-    await uploadImage(e as any);
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
-
 
 
 
   const handleSubmit = async () => {
-    if (!selectedDate) {
-      console.error('Please select a date.');
+    if (!selectedDate || !selectedSpot) {
+      console.error('Please select a date and a spot.');
       return;
     }
-    
+
     const formattedDate = selectedDate?.toJSON();
-  const credentials = {
-    sessDate: new Date(formattedDate),
-    spot: Number(newSpot?.id),
-    photographer: Number(photographer?.id),
-    cover_image: String(imageUrl),
-  };
+    const credentials = {
+      sessDate: new Date(formattedDate),
+      spot: Number(selectedSpot.id),
+      photographer: Number(photographer?.id),
+      cover_image: String(imageUrl),
+    };
     try {
       console.log(credentials);
       await dispatch(createSessAlbumAsync(credentials));
@@ -128,9 +143,6 @@ export default function UserCard() {
       console.error('Error creating sess album:', error);
     }
   };
-
-
-  
 
 
 
@@ -179,32 +191,36 @@ export default function UserCard() {
                 onChange={(newDate) => setSelectedDate(newDate)}
               />
             </LocalizationProvider>
-            {!isSpotAdded ?(
-            <Box sx={{ display: 'flex', p: 1.5, gap: 1.5, '& > button': { flex: 1 } }}>
-              <TextField
-                required
-                name="About"
-                label="Spot"
-                type="About"
-                id="About"
-                autoComplete="current-About"
-              />
-              <Button
-                type="button"
-                onClick={handleAddSpotClick}
-                sx={{ backgroundColor: teal[400], color: 'white' }}
-              >
-                Add a spot
-              </Button>
-            </Box>
-            ):(
+            
+              <Box sx={{ display: 'flex', p: 1.5, gap: 1.5, '& > button': { flex: 1 } }}>
+                <Autocomplete
+                  disablePortal
+                  onChange={(event, newValue) => setSelectedSpot(newValue)}
+                  id="combo-box-demo"
+                  options={allSpots}
+                  getOptionLabel={(spot) => spot.name}  // Specify how to get the label from each spot object
+                  sx={{ width: 300 }}
+                  renderInput={(params) => <TextField {...params} label="Spot" />}
+                  value={selectedSpot}
+                />
+                <Button
+                  type="button"
+                  onClick={handleAddSpotClick}
+                  sx={{ backgroundColor: teal[400], color: 'white' }}
+                >
+                  Add a spot
+                </Button>
+              </Box>
+            
 
-            <Box sx={{ display: 'flex', my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
+
+            <Box sx={{ display: 'flex',  gap: 1.5, '& > button': { flex: 1 } }}>
               <Button type="submit" fullWidth sx={{ backgroundColor: teal[400], color: 'white' }}>
                 Submit
               </Button>
             </Box>
-            )}
+
+
           </CardContent>
         </Card>
       </Box>

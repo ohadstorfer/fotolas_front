@@ -18,7 +18,7 @@ import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/p
 import { TextField } from '@mui/material';
 import UploadButton from './UpdButton';
 import { loginAsync } from '../slicers/sighnInSlice';
-import { becomePhotographerAsync } from '../slicers/becomePhotographerSlice';
+import { becomePhotographerAsync, selectBecomePhotographer } from '../slicers/becomePhotographerSlice';
 import UploadWidget from './UploadWidget';
 import { selectUser } from '../slicers/userSlice';
 
@@ -28,6 +28,7 @@ export default function UserCard() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const photographer = useSelector(selectProfilePhotographer);
+  const newPhotographer = useSelector(selectBecomePhotographer);
   const { userId } = useParams();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -44,11 +45,11 @@ export default function UserCard() {
 
 
     useEffect(() => {
-      if(photographer?.user === userId){
+      if(newPhotographer===true){
       navigate('/');
       }
     }
-      , [photographer]);
+      , [newPhotographer]);
 
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>): void => {

@@ -74,7 +74,7 @@ const signInSlice = createSlice({
 });
 
 export const { logout, parseJwt } = signInSlice.actions;
-export const selectToken = (state: { signIn?: SignInState }) => state.signIn?.loggedIn;
+export const selectToken = (state: { signIn: SignInState }) => state.signIn.loggedIn;
 export default signInSlice.reducer;
 
 

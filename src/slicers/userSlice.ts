@@ -34,8 +34,6 @@ const initialState: UserState = {
 export const getUserById = createAsyncThunk<User, number>(
   'users/getUserById',
   async (userId) => {
-    console.log("getUserById");
-    
     const response = await fetchUser(userId);
     return response.data;
   }

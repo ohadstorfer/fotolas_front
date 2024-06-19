@@ -3,12 +3,12 @@ import { becomePhotographer } from '../services/becomePhotographerAPI';
 
 
 interface becPhotogState {
-  newPhotographer: {}
+  newPhotographer: boolean
   error: string | null;
 }
 
 const initialState: becPhotogState = {
-  newPhotographer: {},
+  newPhotographer: false,
   error: null,
 };
 
@@ -30,7 +30,7 @@ const becomePhotographerSlice = createSlice({
         state.error = null;
       })
       .addCase(becomePhotographerAsync.fulfilled, (state, action) => {
-        state.newPhotographer = action.payload;
+        state.newPhotographer = true
         state.error = null;
       })
       .addCase(becomePhotographerAsync.rejected, (state, action) => {

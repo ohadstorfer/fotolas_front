@@ -111,12 +111,10 @@ export default function PrimarySearchAppBar() {
 
 
 
-  useEffect(() => {
-    console.log("the user is: ", user?.fullName);
-    // dispatch(getUserById(Number(token?.id)));
-    // dispatch(getPhotographerByUserId(Number(token?.id)));
-  }
-    , [user]);
+  // useEffect(() => {
+  //   console.log("the user is: ", user?.fullName);
+  // }
+  //   , [user]);
 
 
 

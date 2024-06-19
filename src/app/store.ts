@@ -12,6 +12,7 @@ import userReducer from '../slicers/userSlice';
 import becomePhotographerReducer from '../slicers/becomePhotographerSlice';
 import uploadAlbumReducer from '../slicers/uploadPerAlbum';
 
+
 export const store = configureStore({
   reducer: {
     counter: counterReducer,

@@ -67,7 +67,7 @@ export default function UserCard() {
                     <CardContent>
                         {isSpotAdded ? (
                             // If spot is added, display success message
-                            <h1>Spot added successfully!</h1>
+                            <h2>Spot added successfully!</h2>
                         ) : (
                             // If spot is not added, display the form
                             <>

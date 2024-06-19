@@ -44,6 +44,14 @@ export default function SignInSide() {
     const token = storedToken ? JSON.parse(storedToken) : null;
     const isLoggedIn = useSelector(selectToken)
 
+
+
+    useEffect(() => {
+      if (isLoggedIn===true) { navigate('/'); }
+    }, [isLoggedIn]);
+
+
+
   
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -56,7 +64,6 @@ export default function SignInSide() {
     
       try {
         await dispatch(loginAsync(credentials));
-      navigate('/');
       } catch (error) {
         console.error('Login failed:', error);
       }

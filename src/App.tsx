@@ -21,6 +21,12 @@ import AllWidgets from './components/AllWidgets';
 import CreatSessAlbum from './components/CreatSessAlbum';
 import CreateSpot from './components/CreateSpot';
 import CreatePrices from './components/CreatePrices';
+import UploadWidgetCopyyyy from './components/UploadWidgetCopyyyy';
+import UploadWidgetTheThird from './components/UploadWidgetTheThird';
+import FileUploadComponent from './components/FileUploadComponent';
+import SecondFileUploadComponent from './components/SecondFileUploadComponent';
+import PleaseWork from './components/PleaseWork';
+import Cart from './components/Cart';
 
 function App() {
   const router = createBrowserRouter(
@@ -39,6 +45,8 @@ function App() {
       <Route path="/CreatePrices" element={<CreatePrices />} />
       <Route path="/CreatSessAlbum" element={<CreatSessAlbum />} />
       <Route path="/AllWidgets" element={<AllWidgets />} />
+      <Route path="/FileUploadComponent" element={<FileUploadComponent />} />
+      <Route path="/PleaseWork" element={<PleaseWork />} />
 
     </Route>
     )
@@ -59,8 +67,8 @@ const Root = () => {
     <Navbar></Navbar> 
   </div>
   <div> 
-    
-  <Outlet ></Outlet>
+    {/* <Cart></Cart> */}
+    <Outlet ></Outlet>
   </div>
   </>
   )

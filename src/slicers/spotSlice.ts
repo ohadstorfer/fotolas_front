@@ -1,6 +1,6 @@
 // spotSlice.ts
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { createSpot, fetchSpot } from '../services/spotAPI';
+import { createSpot, fetchAllSpots, fetchSpot } from '../services/spotAPI';
 
 interface Spot {
   id: number;
@@ -13,6 +13,7 @@ interface Spot {
 interface SpotsState {
   spot: Spot | null;
   newSpot:Spot | null;
+  allSpots:Spot[]
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
@@ -20,6 +21,7 @@ interface SpotsState {
 const initialState: SpotsState = {
   spot: null,
   newSpot:null,
+  allSpots: [],
   status: 'idle',
   error: null,
 };
@@ -39,6 +41,18 @@ export const createSpotAsync = createAsyncThunk('createSpot', async (credentials
   const response = await createSpot(credentials);
   return response.data; // Adjust based on the actual response structure
 });
+
+
+
+
+// Async thunk for fetching all spots
+export const getAllSpots = createAsyncThunk<Spot[], void>(
+  'spots/getAllSpots', // Update the action name
+  async () => {
+    const response = await fetchAllSpots(); // Update the service function name
+    return response.data;
+  }
+);
 
 
 
@@ -76,11 +90,26 @@ const spotSlice = createSlice({
       })
       .addCase(createSpotAsync.rejected, (state, action) => {
         state.error = action.error.message || 'An error occurred';
+      })
+
+
+      .addCase(getAllSpots.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(getAllSpots.fulfilled, (state, action) => {
+        state.allSpots = action.payload;
+        state.error = null;
+      })
+      .addCase(getAllSpots.rejected, (state, action) => {
+        state.error = action.error.message || 'An error occurred';
       });
+
+
   },
 });
 
 // Export actions and reducer
 export const selectSpot = (state: { spot: SpotsState }) => state.spot.spot;
 export const selectNewSpot = (state: { spot: SpotsState }) => state.spot.newSpot;
+export const selectAllSpots = (state: { spot: SpotsState }) => state.spot.allSpots;
 export default spotSlice.reducer;

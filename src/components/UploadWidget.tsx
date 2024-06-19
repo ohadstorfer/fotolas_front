@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectYalla, updateAlbums } from '../slicers/uploadPerAlbum';
+import { Button } from '@mui/material';
+import { teal } from '@mui/material/colors';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 
-const UploadWidget: React.FC = () => {
+const UploadWidget = () => {
   const cloudinaryRef = useRef<any>();
   const widgetRef = useRef<any>();
   const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
@@ -13,6 +16,8 @@ const UploadWidget: React.FC = () => {
     const handleUpload = (error: any, result: any) => {
       if (result.info.secure_url) {
         setUploadedUrls((prevUrls) => [...prevUrls, result.info.secure_url]);
+        console.log( result.info.created_at);
+        
       }
     };
 
@@ -26,28 +31,45 @@ const UploadWidget: React.FC = () => {
     );
   }, []);
 
+
   useEffect(() => {
     if (yalla) {
-      console.log(uploadedUrls);
-      
       dispatch(updateAlbums(uploadedUrls));
     }
   }, [yalla, uploadedUrls, dispatch]);
 
+
   return (
     <div>
-      <button onClick={() => widgetRef.current.open()}>Upload</button>
+      <Button onClick={() => widgetRef.current.open()} variant="contained" style={{ backgroundColor: teal[400], color: 'white' }}>
+        Upload Images Of A Surfer
+      </Button>
+
       {uploadedUrls.length > 0 && (
-        <div>
-          <h2>Uploaded URLs:</h2>
-          <ul>
-            {uploadedUrls.map((url, index) => (
-              <li key={index}>{url}</li>
-            ))}
-          </ul>
-          <hr></hr>
-        </div>
+        <Droppable droppableId="uploaded-images">
+          {(provided) => (
+            <ul ref={provided.innerRef} {...provided.droppableProps} style={{ listStyleType: 'none', padding: 0, display: 'flex' }}>
+              {uploadedUrls.map((url, index) => (
+                <Draggable key={index} draggableId={`image-${index}`} index={index}>
+                  {(provided) => (
+                    <li
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      style={{ marginRight: '10px' }}
+                    >
+                      <img src={url} alt={`Image ${index}`} style={{ width: '100px', height: 'auto' }} />
+                    </li>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </ul>
+          )}
+        </Droppable>
       )}
+
+      <hr />
     </div>
   );
 };
