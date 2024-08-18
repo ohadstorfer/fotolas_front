@@ -11,7 +11,8 @@ import profilePhotographerReducer from '../slicers/profilePtgSlice';
 import userReducer from '../slicers/userSlice';
 import becomePhotographerReducer from '../slicers/becomePhotographerSlice';
 import uploadAlbumReducer from '../slicers/uploadPerAlbum';
-
+import purchaseSliceReducer from'../slicers/purchaseSlice';
+import cartReducer from '../slicers/cartSlice';
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     signUp: signUpReducer,
     images: imagesReducer, 
     perAlbum: perAlbumReducer,
+    cart: cartReducer,
     sessAlbum:sessAlbumReducer,
     photographer: photographerReducer,
     profilePhotographer: profilePhotographerReducer,
@@ -27,6 +29,7 @@ export const store = configureStore({
     user: userReducer,
     becomePhotographer: becomePhotographerReducer,
     uploadAlbum: uploadAlbumReducer, // Corrected name
+    purchase: purchaseSliceReducer,
 
   },
 });

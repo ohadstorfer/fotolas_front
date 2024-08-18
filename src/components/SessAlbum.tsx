@@ -8,7 +8,7 @@ import Avatar from '@mui/joy/Avatar';
 import Typography from '@mui/joy/Typography';
 import Link from '@mui/joy/Link';
 import { useAppDispatch } from '../app/hooks';
-import { calculateTimeAgo, selectSessAlbums, sessGetDataAsync } from '../slicers/sessAlbumSlice';
+import { calculateTimeAgo, selectSessAlbums, sessGetDataAsync, setSelectedSessAlbum } from '../slicers/sessAlbumSlice';
 import { getDataAsync } from '../slicers/perAlbumSlice';
 import { AspectRatio } from '@mui/joy';
 import { TiLocation } from 'react-icons/ti';
@@ -18,56 +18,87 @@ import ImageListItem from '@mui/material/ImageListItem';
 import { useNavigate  } from 'react-router-dom';
 import { selectPhotographer } from '../slicers/photographerSlice';
 import { getSpotById } from '../slicers/spotSlice';
+import {  fetchImagesAsync, fetchImagesBySessAsync, fetchVideosBySessionAsync } from '../slicers/ImagesSlice';
+import { fetchPricesBySessionAlbumId, setSessAlbumOfCart } from '../slicers/cartSlice';
 
 interface SessAlbumProps {
   filterType: string;
   filterId: number;
 }
+interface sess {
+  id: number;
+  created_at: Date;
+  updated_at: Date;
+  cover_image: string;
+  spot: number;
+  photographer: number;
+  albums_prices: number;
+  sessDate: Date;
+  spot_name: string;
+  photographer_name: string;
+  photographer_profile_image: string;
+  videos: boolean;
+  dividedToWaves: boolean;
+}
 
-// SessAlbum component
-const SessAlbum: React.FC <SessAlbumProps>= ({ filterType, filterId }) => {
+const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
   const sessAlbum = useSelector(selectSessAlbums);
   const dispatch = useAppDispatch();
-  const navigate  = useNavigate();
-  const photographer = useSelector(selectPhotographer);
-  
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(sessGetDataAsync({ filterType, filterId }));
   }, [dispatch, filterType, filterId]);
 
-
-
-  const handleDisplaySessClick = (filterType: string, filterId: number) => {
-    dispatch(sessGetDataAsync({ filterType, filterId }));
-    // navigate('/');
-  };
-
-
-  const handleCardClick = (albumId: number) => {
+  const handleCardClickImg = (albumId: number) => {
     dispatch(getDataAsync(albumId));
     navigate('/PerAlbum');
   };
 
-  
+  const handleCardClickVideo = (albumId: number) => {
+    dispatch(fetchVideosBySessionAsync(albumId));
+    navigate('/Video');
+  };
 
-
-  const handleSpotClick = async ( spotId: number) => {
-    navigate(`/c/${spotId}`);  };
-
-  const PhotographerClick = (photographerId: number) => {
-    navigate(`/Photographer/${photographerId}`);
+  const handleCardClickSingleImages = (albumId: number) => {
+    // here i need to fetch images, instead of videos
+    dispatch(fetchImagesBySessAsync(albumId));
+    // dispatch(fetchPricesBySessionAlbumId(albumId));
+    navigate('/UndividedImgs');
   };
 
 
+  const handleCardClick = (sessAlbum: any) => {
+    if (sessAlbum.videos) {      
+      handleCardClickVideo(sessAlbum.id);
+    } 
+    else if (sessAlbum.dividedToWaves) {
+      console.log(sessAlbum.dividedToWaves);
+      handleCardClickSingleImages(sessAlbum.id);
+    }
+    else {
+      console.log(sessAlbum.videos);
+      handleCardClickImg(sessAlbum.id);
+    }
+    dispatch(setSelectedSessAlbum(sessAlbum))
+  };
+
+
+  const handleSpotClick = async (spotId: number) => {
+    navigate(`/Spot/${spotId}`);
+  };
+
+  const handlePhotographerClick = (photographerId: number) => {
+    navigate(`/Photographer/${photographerId}`);
+  };
+
   return (
     <div>
-      
-      <ImageList variant="masonry" cols={3} gap={8} sx={{marginRight: '20px', marginLeft: '20px',marginBottom: '20px', marginTop:'20px'}}>
+      <ImageList variant="masonry" cols={3} gap={8} sx={{ marginRight: '20px', marginLeft: '20px', marginBottom: '20px', marginTop: '20px' }}>
         {sessAlbum.map((sessAlbum) => (
           <ImageListItem key={sessAlbum.id}>
             <Card>
-              <CardActionArea onClick={() => handleCardClick(sessAlbum.id)}>
+              <CardActionArea onClick={() => handleCardClick(sessAlbum)}>
                 <AspectRatio ratio="4/3">
                   <CardMedia
                     component="img"
@@ -78,23 +109,17 @@ const SessAlbum: React.FC <SessAlbumProps>= ({ filterType, filterId }) => {
                 </AspectRatio>
               </CardActionArea>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', bgcolor: teal[400] }}>
-
-                {/* <Avatar src={sessAlbum.photographer_profile_image} /> */}
-                <span onClick={() => PhotographerClick(sessAlbum.photographer)}>
-                <Avatar src={sessAlbum.photographer_profile_image}></Avatar>
+                <span onClick={() => handlePhotographerClick(sessAlbum.photographer)}>
+                  <Avatar src={sessAlbum.photographer_profile_image}></Avatar>
                 </span>
-
-
                 <Typography sx={{ fontSize: 'sm', fontWeight: 'md' }}>
-                    <span onClick={() => PhotographerClick(sessAlbum.photographer)}>
-                    {sessAlbum.photographer_name }
+                  <span onClick={() => handlePhotographerClick(sessAlbum.photographer)}>
+                    {sessAlbum.photographer_name}
                   </span>
                 </Typography>
-
                 <Typography sx={{ fontSize: 'sm', fontWeight: 'md', marginLeft: 'auto' }}>
                   {calculateTimeAgo(new Date(sessAlbum.sessDate))}
                 </Typography>
-
                 <Link
                   sx={{
                     fontSize: 'sm',
@@ -102,14 +127,12 @@ const SessAlbum: React.FC <SessAlbumProps>= ({ filterType, filterId }) => {
                     color: 'black',
                     marginLeft: 'auto',
                     marginRight: '8px',
-                    // This will align the link to the right
                   }}
                 >
                   <TiLocation />
-                  <span onClick={() => handleSpotClick( sessAlbum.spot)}>
-                  {sessAlbum.spot_name}
+                  <span onClick={() => handleSpotClick(sessAlbum.spot)}>
+                    {sessAlbum.spot_name}
                   </span>
-                  
                 </Link>
               </Box>
             </Card>

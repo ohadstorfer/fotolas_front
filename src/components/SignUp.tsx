@@ -13,8 +13,13 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAppDispatch } from '../app/hooks';
-import { signUpAsync } from '../slicers/signUpSlice';
+import { refreshNavbar, selectCredentials, selectSignUP, setCredentials, signUpAsync } from '../slicers/signUpSlice';
 import { teal } from '@mui/material/colors';
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { loginAsync, selectToken } from '../slicers/sighnInSlice';
+
 
 function Copyright(props: any) {
   return (
@@ -33,21 +38,47 @@ function Copyright(props: any) {
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-    const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const isLoggedIn = useSelector(selectSignUP)
+  const isLoggedIn222 = useSelector(selectToken)
+  const credentials = useSelector(selectCredentials)
+  const dispatch = useAppDispatch();
+
+
+
+
+
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/');
+    }
+
+  }
+    , [isLoggedIn, ]);
+
+
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const credentials = {
-        email: data.get("email") as string,
-        fullName: `${data.get("firstName")} ${data.get("lastName")}`.trim(),
-        password: data.get("password") as string,
-      };
-      console.log(credentials);
+      email: data.get("email") as string,
+      fullName: `${data.get("firstName")} ${data.get("lastName")}`.trim(),
+      password: data.get("password") as string,
+    };
+
+    console.log(credentials);
     try {
-        await dispatch(signUpAsync(credentials));
-      } catch (error) {
-        console.error('SignUp failed:', error);
-      }
+      await dispatch(signUpAsync(credentials));
+      await dispatch(loginAsync({
+        email: data.get("email") as string,
+        password: data.get("password") as string,
+      }));
+      dispatch(refreshNavbar());
+    } catch (error) {
+      console.error('SignUp failed:', error);
+    }
   };
 
   return (
@@ -123,7 +154,7 @@ export default function SignUp() {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2,backgroundColor: teal[400] }}
+              sx={{ mt: 3, mb: 2, backgroundColor: teal[400] }}
             >
               Sign Up
             </Button>

@@ -12,7 +12,7 @@ import { teal } from '@mui/material/colors';
 import { IoImagesOutline } from 'react-icons/io5';
 import { AspectRatio } from '@mui/joy';
 
-const PerAlbum: React.FC = () => {
+const Images: React.FC = () => {
   const imgs = useSelector(selectImg);
   const dispatch = useAppDispatch();
 
@@ -55,4 +55,4 @@ const PerAlbum: React.FC = () => {
   );
 };
 
-export default PerAlbum;
+export default Images;

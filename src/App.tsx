@@ -10,7 +10,6 @@ import SignInSide from './components/SignInSide';
 import SignUp from './components/SignUp';
 import ProfilePhotographer from './components/ProfilePtg';
 import EditProfilePtg from './components/EditProfilePtg';
-import Upd from './components/Upd';
 import BecomePhotographer from './components/BecomePhotographer';
 import UploadWidget from './components/UploadWidget';
 import UploadImage from './components/UploadImage';
@@ -27,6 +26,14 @@ import FileUploadComponent from './components/FileUploadComponent';
 import SecondFileUploadComponent from './components/SecondFileUploadComponent';
 import PleaseWork from './components/PleaseWork';
 import Cart from './components/Cart';
+import PleaseWorkVideoCloudinary from './components/PleaseWorkVideoCloudinary';
+import Video from './components/Video';
+import PleaseWorkcopy from './components/PleaseWorkVideoS3';
+import CreatePricesForVideos from './components/CreatePricesForVideos';
+import UndividedImgs from './components/UndividedImgs';
+import DashboardSurferImages from './components/DashboardSurfer';
+import DashboardSurfer from './components/DashboardSurfer';
+import PleaseWorkVideoS3 from './components/PleaseWorkVideoS3';
 
 function App() {
   const router = createBrowserRouter(
@@ -43,10 +50,16 @@ function App() {
       <Route path="/SignIn" element={<SignInSide />} />
       <Route path="/SignUp" element={<SignUp />} />
       <Route path="/CreatePrices" element={<CreatePrices />} />
+      <Route path="/CreatePricesForVideos" element={<CreatePricesForVideos />} />
       <Route path="/CreatSessAlbum" element={<CreatSessAlbum />} />
       <Route path="/AllWidgets" element={<AllWidgets />} />
       <Route path="/FileUploadComponent" element={<FileUploadComponent />} />
       <Route path="/PleaseWork" element={<PleaseWork />} />
+      <Route path="/PleaseWorkVideoCloudinary" element={<PleaseWorkVideoCloudinary />} />
+      <Route path="/Cart" element={<Cart />} />
+      <Route path="/Video" element={<Video />} />
+      <Route path="/UndividedImgs" element={<UndividedImgs />} />
+      <Route path="/DashboardSurfer" element={<DashboardSurfer />} />
 
     </Route>
     )
@@ -66,9 +79,19 @@ const Root = () => {
   <div>
     <Navbar></Navbar> 
   </div>
-  <div> 
-    {/* <Cart></Cart> */}
-    <Outlet ></Outlet>
+
+  <div style={{ marginTop: '80px', padding: '0px' }}>  
+   
+    <DashboardSurferImages></DashboardSurferImages>
+    {/* <Outlet ></Outlet> */}
+    {/* <hr></hr> */}
+    {/* <BecomePhotographer></BecomePhotographer> */}
+    {/* <PleaseWork></PleaseWork> */}
+    {/* <UploadImage></UploadImage> */}
+    {/* <hr></hr> */}
+    {/* <PleaseWorkVideoCloudinary></PleaseWorkVideoCloudinary> */}
+    {/* <UploadWidget></UploadWidget> */}
+    {/* <PleaseWorkVideoS3></PleaseWorkVideoS3> */}
   </div>
   </>
   )

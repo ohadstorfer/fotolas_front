@@ -19,10 +19,9 @@ import { TextField } from '@mui/material';
 import UploadButton from './UpdButton';
 import { loginAsync } from '../slicers/sighnInSlice';
 import { becomePhotographerAsync, selectBecomePhotographer } from '../slicers/becomePhotographerSlice';
-import UploadWidget from './UploadWidget';
 import { selectUser } from '../slicers/userSlice';
-
-
+import axios from 'axios';
+import pica from 'pica';
 
 export default function UserCard() {
   const dispatch = useAppDispatch();
@@ -33,24 +32,20 @@ export default function UserCard() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [imageUrl, setimageUrl] = useState<string | null>(null);
-  const [about, setabout] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [about, setAbout] = useState<string | null>(null);
 
   useEffect(() => {
-    if(about){
-    handleSubmit()
+    if (about) {
+      handleSubmit();
     }
-  }
-    , [imageUrl]);
+  }, [imageUrl]);
 
-
-    useEffect(() => {
-      if(newPhotographer===true){
+  useEffect(() => {
+    if (newPhotographer === true) {
       navigate('/');
-      }
     }
-      , [newPhotographer]);
-
+  }, [newPhotographer]);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>): void => {
     if (e.target.files && e.target.files.length > 0) {
@@ -60,35 +55,76 @@ export default function UserCard() {
     }
   };
 
+  const compressImage = async (file: File): Promise<File> => {
+    const picaInstance = pica();
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = reject;
+    });
 
+    const targetWidth = 800;
+    const targetHeight = 533;
+
+    const offscreenCanvas = document.createElement('canvas');
+    offscreenCanvas.width = img.width;
+    offscreenCanvas.height = img.height;
+
+    const ctx = offscreenCanvas.getContext('2d');
+    if (!ctx) {
+      throw new Error('Canvas context not available');
+    }
+
+    ctx.drawImage(img, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
+
+    const compressedCanvas = document.createElement('canvas');
+    compressedCanvas.width = targetWidth;
+    compressedCanvas.height = targetHeight;
+
+    await picaInstance.resize(offscreenCanvas, compressedCanvas, {
+      quality: 3,
+      unsharpAmount: 0,
+      unsharpRadius: 0,
+      unsharpThreshold: 0,
+    });
+
+    return new Promise((resolve, reject) => {
+      compressedCanvas.toBlob((blob) => {
+        if (blob) {
+          const compressedFile = new File([blob], `compressed_${file.name}`, { type: 'image/jpeg' });
+          resolve(compressedFile);
+        } else {
+          reject(new Error('Blob creation failed'));
+        }
+      }, 'image/jpeg', 0.8);
+    });
+  };
+
+  const uploadToS3 = async (file: File): Promise<string> => {
+    const response = await axios.get(`http://localhost:8000/presigned_urls_for_watermarked?num_urls=1`);
+    const presignedUrl = response.data.urls[0];
+
+    await axios.put(presignedUrl, file, {
+      headers: {
+        'Content-Type': file.type,
+      },
+    });
+
+    return presignedUrl.split('?')[0];
+  };
 
   const uploadImage = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      let imageUrl;
-      if (selectedFile && (
-        selectedFile.type === "image/png" ||
-        selectedFile.type === "image/jpg" ||
-        selectedFile.type === "image/jpeg"
-      )) {
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-        formData.append("cloud_name", "dauupwecm");
-        formData.append("upload_preset", "ntncxwfx");
-
-        const response = await fetch(
-          "http://api.cloudinary.com/v1_1/dauupwecm/image/upload",
-          { method: "post", body: formData }
-        );
-        const imgData = await response.json();
-        imageUrl = imgData.url.toString();
+      if (selectedFile) {
+        const compressedFile = await compressImage(selectedFile);
+        const s3Url = await uploadToS3(compressedFile);
+        setImageUrl(s3Url);
         setImagePreview(null);
       }
-      setimageUrl(imageUrl);
-      console.log("imageUrl: ", imageUrl);
-
     } catch (error) {
       console.error(error);
     } finally {
@@ -96,24 +132,7 @@ export default function UserCard() {
     }
   };
 
-
-
-
-  const handleSubmit222222 = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const data = new FormData(e.currentTarget);
-    setabout(data.get("About") as string);
-    await uploadImage(e as any);
-};
-
-
-
-
   const handleSubmit = async () => {
-    // event.preventDefault();
-    // const data = new FormData(event.currentTarget);
-
     const credentials = {
       about: String(about),
       user: Number(userId),
@@ -122,27 +141,21 @@ export default function UserCard() {
 
     try {
       console.log(credentials);
-
       await dispatch(becomePhotographerAsync(credentials));
-      
     } catch (error) {
       console.error('Login failed:', error);
     }
   };
 
-
-
-
-
-
-
-
-
-
-
+  const handleSubmitForm = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    setAbout(data.get("About") as string);
+    await uploadImage(e as any);
+  };
 
   return (
-    <><Box component="form" noValidate onSubmit={handleSubmit222222}  encType="multipart/form-data"
+    <Box component="form" noValidate onSubmit={handleSubmitForm} encType="multipart/form-data"
       sx={{
         width: '50%',
         margin: 'auto',
@@ -158,46 +171,35 @@ export default function UserCard() {
             '--stack-point': '500px',
             minWidth: 'clamp(0px, (calc(var(--stack-point) - 2 * var(--Card-padding) - 2 * var(--variant-borderWidth, 0px)) + 1px - 100%) * 999, 100%)',
           },
-
-
-          borderRadius: '16px', // Add rounded corners for a modern look
-          boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)', // Add a subtle shadow
+          borderRadius: '16px',
+          boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
         }}
       >
         <AspectRatio flex ratio="1" maxHeight={182} sx={{ minWidth: 182 }}>
           {imagePreview && (<img src={imagePreview} alt='profileImg' />)}
-
         </AspectRatio>
         <CardContent>
-          {/* 8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888 */}
-          {/* <UploadWidget></UploadWidget> */}
           <input type="file" accept="image/png,image/jpeg" name="image" onChange={handleImageChange} />
-
           <TextField
             margin="normal"
             required
             fullWidth
             name="About"
-            label="About- Write something about yourself"
+            label="About - Write something about yourself"
             type="About"
             id="About"
             autoComplete="current-About"
           />
-
           <Box sx={{ display: 'flex', p: 1.5, my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
             <Button variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
-              Cancle
+              Cancel
             </Button>
-            <Button type="submit"
-              fullWidth
-              sx={{ backgroundColor: teal[400], color: 'white' }}>
+            <Button type="submit" fullWidth sx={{ backgroundColor: teal[400], color: 'white' }}>
               Submit
             </Button>
           </Box>
-
         </CardContent>
       </Card>
     </Box>
-    </>
   );
 }

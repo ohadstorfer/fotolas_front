@@ -28,6 +28,11 @@ import { clearUser, getUserById, selectUser } from '../slicers/userSlice';
 import { clearPhotographer } from '../slicers/photographerSlice';
 import { selectBecomePhotographer } from '../slicers/becomePhotographerSlice';
 import { selectSessAlbums } from '../slicers/sessAlbumSlice';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { selectCartTotalItems } from '../slicers/cartSlice';
+import { IoImagesOutline } from 'react-icons/io5';
+import { selectRefreshNavbar } from '../slicers/signUpSlice';
+import { fetchSurferPurchasedItemsAsync } from '../slicers/purchaseSlice';
 
 
 
@@ -101,13 +106,17 @@ export default function PrimarySearchAppBar() {
   const isLoggedIn = useSelector(selectToken)
   const newPhotographer= useSelector(selectBecomePhotographer)
   const sessAlbum = useSelector(selectSessAlbums);
+  const totalImages = useSelector(selectCartTotalItems)
+  const refreshNavbar = useSelector(selectRefreshNavbar)
+  const surferId = JSON.parse(localStorage.getItem('token') || '{}').id;
 
 
   useEffect(() => {
     dispatch(getUserById(Number(token?.id)));
     dispatch(getPhotographerByUserId(Number(token?.id)));
   }
-    , [isLoggedIn,newPhotographer]);
+    , [refreshNavbar, isLoggedIn,newPhotographer]);
+
 
 
 
@@ -142,6 +151,10 @@ export default function PrimarySearchAppBar() {
     navigate('/SignUp');
   };
 
+  const handleCart = () => {
+    navigate('/Cart');
+  };
+
   const handleSignIn = () => {
     navigate('/SignIn');
   };
@@ -164,6 +177,13 @@ export default function PrimarySearchAppBar() {
     navigate(`/BecomePhotographer/${token.id}`);
   };
 
+  const SurferDashboardClick = () => {
+    handleMenuClose()
+    console.log(surferId);
+    dispatch(fetchSurferPurchasedItemsAsync(surferId));
+    navigate(`/DashboardSurfer`);
+  };
+
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
@@ -177,7 +197,7 @@ export default function PrimarySearchAppBar() {
     } else {
       return [
         <MenuItem key="becomePhotographer" onClick={BecomePhotographerClick}>Become a photographer</MenuItem>,
-        <MenuItem key="account" onClick={handleMenuClose}>My account</MenuItem>,
+        <MenuItem key="account" onClick={SurferDashboardClick}>My account</MenuItem>,
         <MenuItem key="logout" onClick={handleLogOut}>Log Out</MenuItem>,
 
       
@@ -263,7 +283,7 @@ export default function PrimarySearchAppBar() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <StyledAppBar position="static">
+      <StyledAppBar position="fixed">
         <Toolbar>
           {/* <IconButton
             size="large"
@@ -290,20 +310,13 @@ export default function PrimarySearchAppBar() {
           </Search>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+
             <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={4} color="error">
-                <MailIcon />
+              <Badge badgeContent={totalImages} color="error" onClick={handleCart}>
+                <ShoppingCartIcon />
               </Badge>
             </IconButton>
-            <IconButton
-              size="large"
-              aria-label="show 17 new notifications"
-              color="inherit"
-            >
-              <Badge badgeContent={17} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
+
             <IconButton
               size="large"
               edge="end"

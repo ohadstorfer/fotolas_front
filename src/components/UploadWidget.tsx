@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectYalla, updateAlbums } from '../slicers/uploadPerAlbum';
 import { Button } from '@mui/material';
 import { teal } from '@mui/material/colors';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
@@ -9,7 +8,6 @@ const UploadWidget = () => {
   const cloudinaryRef = useRef<any>();
   const widgetRef = useRef<any>();
   const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
-  const yalla = useSelector(selectYalla);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -32,11 +30,7 @@ const UploadWidget = () => {
   }, []);
 
 
-  useEffect(() => {
-    if (yalla) {
-      dispatch(updateAlbums(uploadedUrls));
-    }
-  }, [yalla, uploadedUrls, dispatch]);
+
 
 
   return (

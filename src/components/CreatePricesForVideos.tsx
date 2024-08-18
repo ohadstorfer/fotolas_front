@@ -10,7 +10,7 @@ import { getPhotographerById, selectPhotographer } from '../slicers/photographer
 import { teal } from '@mui/material/colors';
 import { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import SessAlbum from './SessAlbum';
-import { selectNewSess, selectPrices, selectVideos, sessGetDataAsync, updatePricesAsync } from '../slicers/sessAlbumSlice';
+import { selectNewSess, selectPrices, selectVideos, sessGetDataAsync, updatePricesAsync, updatePricesForVideosAsync } from '../slicers/sessAlbumSlice';
 import { TextField } from '@mui/material';
 import { createSpotAsync, selectSpot } from '../slicers/spotSlice';
 
@@ -23,26 +23,23 @@ export default function UserCard() {
   const prices = useSelector(selectPrices);
   const videos = useSelector(selectVideos)
   console.log(videos);
-  
 
 
-//   useEffect(() => {
-//     console.log('prices:', prices);
-//     if(prices)
-//     {videos? navigate('/PleaseWorkVideo') :navigate('/PleaseWork') }
-    
-//  }, [prices]);
 
+  //   useEffect(() => {
+  //     console.log('prices:', prices);
+  //     if(prices)
+  //     {videos? navigate('/PleaseWorkVideo') :navigate('/PleaseWork') }
 
-useEffect(() => {
-  
-  if(prices){
-    console.log('prices:', prices);
-    navigate('/PleaseWork') 
-  }
-  
-  
-}, [prices]);
+  //  }, [prices]);
+
+  useEffect(() => {
+    console.log('prices from the component 1: ', prices);
+    if (prices) {
+      console.log('prices from the component 2: ', prices);
+      navigate('/PleaseWorkVideoCloudinary')
+    }
+  }, [prices]);
 
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -52,14 +49,13 @@ useEffect(() => {
     const credentials = {
       session_album: Number(newSess),
       price_1_to_5: Number(data.get("price_1_to_5")),
-      price_6_to_20: Number(data.get("price_6_to_20")),
-      price_21_to_50: Number(data.get("price_21_to_50")),
-      price_51_plus: Number(data.get("price_51_plus")),
+      price_6_to_15: Number(data.get("price_6_to_15")),
+      price_16_plus: Number(data.get("price_16_plus")),
     };
 
     try {
       console.log(credentials);
-      await dispatch(updatePricesAsync(credentials));
+      await dispatch(updatePricesForVideosAsync(credentials));
     } catch (error) {
       console.error('updatePrices failed:', error);
     }
@@ -95,15 +91,15 @@ useEffect(() => {
         <CardContent>
           {/* 8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888 */}
 
-          
+
 
           <TextField
             margin="normal"
             required
             fullWidth
             name="price_1_to_5"
-            label={`Set a price for albums with 1 to 5 ${videos ? 'videos' : 'images'}`}
-            type="number"  
+            label="Set a price for albums with 1 to 5 videos"
+            type="number"
             id="price_1_to_5"
             autoComplete="current-price_1_to_5"
           />
@@ -112,11 +108,11 @@ useEffect(() => {
             margin="normal"
             required
             fullWidth
-            name="price_6_to_20"
-            label={`Set a price for albums with 6 to 20 ${videos ? 'videos' : 'images'}`}
-            type="number"  
-            id="price_6_to_20"
-            autoComplete="current-price_6_to_20"
+            name="price_6_to_15"
+            label="Set a price for albums with 6 to 15 videos"
+            type="number"
+            id="price_6_to_15"
+            autoComplete="current-price_6_to_15"
           />
 
 
@@ -124,23 +120,13 @@ useEffect(() => {
             margin="normal"
             required
             fullWidth
-            name="price_21_to_50"
-            label={`Set a price for albums with 21 to 50 ${videos ? 'videos' : 'images'}`}
-            type="number"  
-            id="price_21_to_50"
-            autoComplete="current-price_21_to_50"
+            name="price_16_plus"
+            label="Set a price for albums with 16 videos or more videos"
+            type="number"
+            id="price_16_plus"
+            autoComplete="current-price_16_plus"
           />
 
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            name="price_51_plus"
-            label={`Set a price for albums with more than 50 ${videos ? 'videos' : 'images'}`}
-            type="number"  
-            id="price_51_plus"
-            autoComplete="current-price_51_plus"
-          />
 
           <Box sx={{ display: 'flex', p: 1.5, my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
 

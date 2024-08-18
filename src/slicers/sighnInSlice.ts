@@ -20,7 +20,6 @@ const initialState: SignInState = {
 
 
 export const loginAsync = createAsyncThunk('signIn/login', async (credentials: { email: string, password: string }) => {
-
   const response = await login(credentials);
   return response.data;
 });
@@ -61,6 +60,7 @@ const signInSlice = createSlice({
         state.error = null;
       })
       .addCase(loginAsync.fulfilled, (state, action) => {
+        console.log("logging in");
         state.token = JSON.stringify(action.payload);
         state.loggedIn = true;
         localStorage.setItem("token", (state.token));
