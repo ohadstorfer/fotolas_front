@@ -12,6 +12,8 @@ interface Photographer {
   user: number;
   photographer_name: string;
   followers_count: number;
+  unique_spots_count: number;
+  session_album_count: number;
 }
 
 interface PhotographersState {

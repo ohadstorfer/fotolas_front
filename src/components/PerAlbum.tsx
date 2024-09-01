@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getDataAsync, selectPersonalAlbum, addToCart, removeFromCart, removeWaveFromCart, updateTotalPrice } from '../slicers/perAlbumSlice';
+import { getDataAsync, selectPersonalAlbum, addToCart, removeFromCart, removeWaveFromCart, updateTotalPrice, selectNextPageWaves, selectPreviousPageWaves } from '../slicers/perAlbumSlice';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardMedia from '@mui/material/CardMedia';
@@ -21,6 +21,7 @@ import { addToCart_singleImages, fetchPricesBySessionAlbumId, selectCart, addToC
 import { calculateTimeAgo, selectSelectedSessAlbum, selectSessAlbums } from '../slicers/sessAlbumSlice';
 import { TiLocation } from 'react-icons/ti';
 import SessAlbumDetails from './SessAlbumDetails';
+import { Button } from '@mui/material';
 
 const PerAlbum: React.FC = () => {
   const personalAlbums = useSelector(selectPersonalAlbum);
@@ -30,6 +31,11 @@ const PerAlbum: React.FC = () => {
   const navigate = useNavigate();
   const cartTotalImages = useSelector((state: any) => state.perAlbum.cartTotalImages);
   const cartTotalPrice = useSelector((state: any) => state.perAlbum.cartTotalPrice);
+  const Prices = useSelector((state: any) => state.cart.prices);
+  const nextPage = useSelector(selectNextPageWaves);
+  const previousPage = useSelector(selectPreviousPageWaves);
+  console.log(Prices);
+  
   const sessAlbumOfCart = useSelector(selectSessAlbumOfCart);
 
 
@@ -40,7 +46,7 @@ const PerAlbum: React.FC = () => {
     }
 
     if (!sessAlbumOfCart) {
-      await dispatch(fetchPricesBySessionAlbumId(sessionAlbum));
+      // await dispatch(fetchPricesBySessionAlbumId(sessionAlbum));
       dispatch(setSessAlbumOfCart(selectedSessAlbum!));
       dispatch(setCartType("waves"));
     }
@@ -72,9 +78,63 @@ const PerAlbum: React.FC = () => {
     navigate(`/Photographer/${photographerId}`);
   };
 
+
+
+
+
+  const handleNextPage = () => {
+    if (nextPage) {
+      const page = new URL(nextPage).searchParams.get('page');
+      dispatch(
+        getDataAsync({
+          albumId: selectedSessAlbum!.id,
+          page: parseInt(page || '1', 10),
+          pageSize: 21, // Use your desired page size
+        })
+      );
+    }
+  };
+  
+  const handlePreviousPage = () => {
+    if (previousPage) {
+      const page = new URL(previousPage).searchParams.get('page');
+      dispatch(
+        getDataAsync({
+          albumId: selectedSessAlbum!.id,
+          page: parseInt(page || '1', 10),
+          pageSize: 21, // Use your desired page size
+        })
+      );
+    }
+  };
+
+
   return (
     <div>
       <SessAlbumDetails></SessAlbumDetails>
+
+      {Prices &&(
+        <Box sx={{ padding: '5px', backgroundColor: '#f9f9f9', borderRadius: '8px', margin: '5px' }}>
+          <Typography>
+            Price Details:
+          </Typography>
+          <Typography>
+            For 1-5 images: {Prices.price_1_to_5} $
+          </Typography>
+          <Typography>
+            For 6-20 images: {Prices.price_6_to_20} $
+          </Typography>
+          <Typography>
+            For 21-50 images: {Prices.price_21_to_50} $
+          </Typography>
+          <Typography>
+            For 51+ images: {Prices.price_51_plus} $
+          </Typography>
+        </Box>
+      )}
+
+
+
 
       <ImageList variant="masonry" cols={3} gap={8} sx={{ margin: '20px' }}>
         {personalAlbums.map((personalAlbum) => {
@@ -133,6 +193,17 @@ const PerAlbum: React.FC = () => {
           );
         })}
       </ImageList>
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+        <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
+          Previous
+        </Button>
+        <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
+          Next
+        </Button>
+      </Box>
+
+      
     </div>
   );
 };

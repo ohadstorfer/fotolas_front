@@ -199,8 +199,6 @@ export default function PrimarySearchAppBar() {
         <MenuItem key="becomePhotographer" onClick={BecomePhotographerClick}>Become a photographer</MenuItem>,
         <MenuItem key="account" onClick={SurferDashboardClick}>My account</MenuItem>,
         <MenuItem key="logout" onClick={handleLogOut}>Log Out</MenuItem>,
-
-      
       ];
     }
   };

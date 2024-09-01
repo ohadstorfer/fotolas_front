@@ -38,32 +38,75 @@ useEffect(() => {
   
   if(prices){
     console.log('prices:', prices);
-    navigate('/PleaseWork') 
+    navigate('/PleaseWorkneww') 
   }
   
   
 }, [prices]);
 
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const data = new FormData(e.currentTarget);
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const data = new FormData(e.currentTarget);
 
-    const credentials = {
-      session_album: Number(newSess),
-      price_1_to_5: Number(data.get("price_1_to_5")),
-      price_6_to_20: Number(data.get("price_6_to_20")),
-      price_21_to_50: Number(data.get("price_21_to_50")),
-      price_51_plus: Number(data.get("price_51_plus")),
-    };
+  const price_1_to_5_str = data.get("price_1_to_5");
+  const price_6_to_20_str = data.get("price_6_to_20");
+  const price_21_to_50_str = data.get("price_21_to_50");
+  const price_51_plus_str = data.get("price_51_plus");
 
-    try {
-      console.log(credentials);
-      await dispatch(updatePricesAsync(credentials));
-    } catch (error) {
-      console.error('updatePrices failed:', error);
-    }
+  // Check if any field is empty or not a valid number
+  if (
+    !price_1_to_5_str ||
+    !price_6_to_20_str ||
+    !price_21_to_50_str ||
+    !price_51_plus_str ||
+    isNaN(Number(price_1_to_5_str)) ||
+    isNaN(Number(price_6_to_20_str)) ||
+    isNaN(Number(price_21_to_50_str)) ||
+    isNaN(Number(price_51_plus_str))
+  ) {
+    alert("Please add a value for all fields.");
+    return;
+  }
+
+  const credentials = {
+    session_album: Number(newSess),
+    price_1_to_5: Number(price_1_to_5_str),
+    price_6_to_20: Number(price_6_to_20_str),
+    price_21_to_50: Number(price_21_to_50_str),
+    price_51_plus: Number(price_51_plus_str),
   };
+
+  // Price validation scenarios
+  if (credentials.price_1_to_5 > credentials.price_6_to_20) {
+    const confirm1 = window.confirm(
+      "The price for 1 to 5 images is higher than the price for 6 to 20 images. Are you sure you want to proceed?"
+    );
+    if (!confirm1) return;
+  }
+
+  if (credentials.price_6_to_20 > credentials.price_21_to_50) {
+    const confirm2 = window.confirm(
+      "The price for 6 to 20 images is higher than the price for 21 to 50 images. Are you sure you want to proceed?"
+    );
+    if (!confirm2) return;
+  }
+
+  if (credentials.price_21_to_50 > credentials.price_51_plus) {
+    const confirm3 = window.confirm(
+      "The price for 21 to 50 images is higher than the price for 51 or more images. Are you sure you want to proceed?"
+    );
+    if (!confirm3) return;
+  }
+
+  try {
+    console.log(credentials);
+    await dispatch(updatePricesAsync(credentials));
+  } catch (error) {
+    console.error('updatePrices failed:', error);
+  }
+};
+
 
 
 

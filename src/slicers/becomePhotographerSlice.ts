@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { becomePhotographer } from '../services/becomePhotographerAPI';
+import { becomePhotographer, updatePhotographer } from '../services/becomePhotographerAPI';
 
 
 interface becPhotogState {
@@ -19,6 +19,22 @@ export const becomePhotographerAsync = createAsyncThunk('becPhotog', async (cred
   const response = await becomePhotographer(credentials);
   return response.data;
 });
+
+
+
+export const updatePhotographerAsync = createAsyncThunk(
+  'updatePhotographer', 
+  async (credentials: { photographerId: number, user: number, about: string, profile_image: string }) => {
+    console.log("doing updatePhotographerAsync");
+    // Make the API call to update the photographer
+    const response = await updatePhotographer(credentials);
+    // Return the data from the response
+    return response.data;
+  }
+);
+
+
+
 
 const becomePhotographerSlice = createSlice({
   name: 'becomePhotographer',

@@ -11,13 +11,16 @@ export function fetchImages(albumId: number) {
   return axios.get(MY_SERVER);
 }
 
-
-export function fetchImagesBySess(albumId: number) {
-  const MY_SERVER = `http://127.0.0.1:8000/session_album/${albumId}/images/`;
+// this one
+export function fetchVideosBySess(albumId: number, page: number = 1) {
+  const MY_SERVER = `http://127.0.0.1:8000/videos_by_seess/${albumId}/?page=${page}`;
   return axios.get(MY_SERVER);
 }
 
-
+export function fetchImagesBySess(albumId: number, page: number = 1) {
+  const MY_SERVER = `http://127.0.0.1:8000/session_album/${albumId}/images/?page=${page}`;
+  return axios.get(MY_SERVER);
+}
 
 
 
@@ -33,7 +36,3 @@ export function fetchWatermarkedVideos(albumId: number) {
 }
 
 
-export function fetchVideosBySess(albumId: number) {
-  const MY_SERVER = `http://127.0.0.1:8000/videos_by_seess/${albumId}/`;
-  return axios.get(MY_SERVER);
-}

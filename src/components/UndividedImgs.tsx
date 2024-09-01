@@ -1,11 +1,11 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useAppDispatch } from '../app/hooks';
-import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, CardMedia } from '@mui/material';
+import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, CardMedia, Typography, Button } from '@mui/material';
 import { AspectRatio } from '@mui/joy';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
-import { selectImg } from '../slicers/ImagesSlice';
+import { fetchImagesBySessAsync, selectImg, selectNextImages, selectPreviousImages } from '../slicers/ImagesSlice';
 import { addToCart_singleImages, calculatePriceForImages, fetchPricesBySessionAlbumId, removeCartType, removeFromCart_singleImages, removeSessAlbumOfCart, selectCart, selectSessAlbumOfCart, setCartType, setSessAlbumOfCart } from '../slicers/cartSlice'; // Import the actions and selectors from the cart slice
 import { teal } from '@mui/material/colors';
 import SessAlbumDetails from './SessAlbumDetails';
@@ -17,6 +17,9 @@ const UndividedImgs: React.FC = () => {
   const cart = useSelector(selectCart);
   const sessAlbumOfCart = useSelector(selectSessAlbumOfCart);
   const selectedSessAlbum = useSelector(selectSelectedSessAlbum);
+  const Prices = useSelector((state: any) => state.cart.prices);
+  const nextPage = useSelector(selectNextImages);
+  const previousPage = useSelector(selectPreviousImages);
 
 
   interface Img {
@@ -55,9 +58,61 @@ const UndividedImgs: React.FC = () => {
     dispatch(calculatePriceForImages());
   };
 
+
+
+
+  const handleNextPage = () => {
+    if (nextPage) {
+      const page = new URL(nextPage).searchParams.get('page');
+      dispatch(
+        fetchImagesBySessAsync({
+          albumId: selectedSessAlbum!.id,
+          page: parseInt(page || '1', 10),
+        })
+      );
+    }
+  };
+  
+  const handlePreviousPage = () => {
+    if (previousPage) {
+      const page = new URL(previousPage).searchParams.get('page');
+      dispatch(
+        fetchImagesBySessAsync({
+          albumId: selectedSessAlbum!.id,
+          page: parseInt(page || '1', 10),
+        })
+      );
+    }
+  };
+
+
+
   return (
     <div>
       <SessAlbumDetails></SessAlbumDetails>
+
+
+      {Prices &&(
+        <Box sx={{ padding: '16px', backgroundColor: '#f9f9f9', borderRadius: '8px', margin: '20px' }}>
+          <Typography>
+            Price Details:
+          </Typography>
+          <Typography>
+            For 1-5 images: {Prices.price_1_to_5} $
+          </Typography>
+          <Typography>
+            For 6-20 images: {Prices.price_6_to_20} $
+          </Typography>
+          <Typography>
+            For 21-50 images: {Prices.price_21_to_50} $
+          </Typography>
+          <Typography>
+            For 51+ images: {Prices.price_51_plus} $
+          </Typography>
+        </Box>
+      )}
+
+
       
       <ImageList variant="masonry" cols={3} gap={8} sx={{ margin: '20px' }}>
         {imgs.map((img) => {
@@ -106,6 +161,16 @@ const UndividedImgs: React.FC = () => {
           );
         })}
       </ImageList>
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+        <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
+          Previous
+        </Button>
+        <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
+          Next
+        </Button>
+      </Box>
+      
     </div>
   );
 };

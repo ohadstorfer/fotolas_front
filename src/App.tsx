@@ -34,6 +34,8 @@ import UndividedImgs from './components/UndividedImgs';
 import DashboardSurferImages from './components/DashboardSurfer';
 import DashboardSurfer from './components/DashboardSurfer';
 import PleaseWorkVideoS3 from './components/PleaseWorkVideoS3';
+import PleaseWorkneww from './components/PleaseWorkneww';
+import DashboardPhotographer from './components/DashboardPhotographer';
 
 function App() {
   const router = createBrowserRouter(
@@ -55,11 +57,14 @@ function App() {
       <Route path="/AllWidgets" element={<AllWidgets />} />
       <Route path="/FileUploadComponent" element={<FileUploadComponent />} />
       <Route path="/PleaseWork" element={<PleaseWork />} />
+      <Route path="/PleaseWorkneww" element={<PleaseWorkneww />} />
       <Route path="/PleaseWorkVideoCloudinary" element={<PleaseWorkVideoCloudinary />} />
+      <Route path="/PleaseWorkVideoS3" element={<PleaseWorkVideoS3 />} />
       <Route path="/Cart" element={<Cart />} />
       <Route path="/Video" element={<Video />} />
       <Route path="/UndividedImgs" element={<UndividedImgs />} />
       <Route path="/DashboardSurfer" element={<DashboardSurfer />} />
+      <Route path="/DashboardPhotographer" element={<DashboardPhotographer />} />
 
     </Route>
     )
@@ -82,8 +87,11 @@ const Root = () => {
 
   <div style={{ marginTop: '80px', padding: '0px' }}>  
    
-    <DashboardSurferImages></DashboardSurferImages>
-    {/* <Outlet ></Outlet> */}
+
+    <Outlet ></Outlet>
+    {/* <DashboardSurferImages></DashboardSurferImages> */}
+    {/* <DashboardPhotographer></DashboardPhotographer> */}
+    {/* <PleaseWorkneww></PleaseWorkneww> */}
     {/* <hr></hr> */}
     {/* <BecomePhotographer></BecomePhotographer> */}
     {/* <PleaseWork></PleaseWork> */}
@@ -92,6 +100,9 @@ const Root = () => {
     {/* <PleaseWorkVideoCloudinary></PleaseWorkVideoCloudinary> */}
     {/* <UploadWidget></UploadWidget> */}
     {/* <PleaseWorkVideoS3></PleaseWorkVideoS3> */}
+    {/* <CreatSessAlbum></CreatSessAlbum> */}
+    {/* <CreatePricesForVideos></CreatePricesForVideos> */}
+    {/* <CreatePrices></CreatePrices> */}
   </div>
   </>
   )

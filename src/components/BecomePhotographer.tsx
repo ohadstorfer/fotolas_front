@@ -179,7 +179,7 @@ export default function UserCard() {
           {imagePreview && (<img src={imagePreview} alt='profileImg' />)}
         </AspectRatio>
         <CardContent>
-          <input type="file" accept="image/png,image/jpeg" name="image" onChange={handleImageChange} />
+          <input type="file" accept="image/*" name="image" onChange={handleImageChange} />
           <TextField
             margin="normal"
             required

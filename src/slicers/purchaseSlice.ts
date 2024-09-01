@@ -4,12 +4,35 @@ import { createPurchase, createPurchaseItem, createPurchaseWithImages, createPur
 interface PurchaseState {
   purchaseCreated: boolean;
   purchaseItemCreated: boolean;
-  photographerPurchases: any[];
+  photographerPurchases: purchase[];
   surferPurchases: any;
   purchasedImages: {};
   purchasedVideos: {};
   error: string | null;
 }
+
+
+interface purchase {
+  id: number;
+  order_date: Date;
+  photographer: number;
+  surfer: number;
+  total_price: number;
+  total_item_quantity: number;
+  SessionAlbum: number;
+  sessDate: Date;
+  spot_name: string;
+  photographer_name: string;
+  surfer_name: string;
+}
+
+interface purchaseItem {
+  id: number;
+  PurchaseId: number;
+  Img: number;
+  Video: number;
+}
+
 
 const initialState: PurchaseState = {
   purchaseCreated: false,
@@ -29,7 +52,7 @@ const initialState: PurchaseState = {
 
 export const createPurchaseWithImagesAsync = createAsyncThunk(
   'purchase/createWithImages',
-  async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, image_ids: number[] }) => {
+  async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string ,photographer_name: string, surfer_name: string,  image_ids: number[] }) => {
     const response = await createPurchaseWithImages(purchaseData);
     return response.data;
   }
@@ -37,7 +60,7 @@ export const createPurchaseWithImagesAsync = createAsyncThunk(
 
 export const createPurchaseWithVideosAsync = createAsyncThunk(
   'purchase/createWithVideos',
-  async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, video_ids: number[] }) => {
+  async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string, photographer_name: string, surfer_name: string, video_ids: number[] }) => {
     const response = await createPurchaseWithVideos(purchaseData);
     return response.data;
   }
@@ -45,7 +68,7 @@ export const createPurchaseWithVideosAsync = createAsyncThunk(
 
 export const createPurchaseWithWavesAsync = createAsyncThunk(
   'purchase/createWithWaves',
-  async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, wave_ids: number[] }) => {
+  async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string, photographer_name: string, surfer_name: string, wave_ids: number[] }) => {
     const response = await createPurchaseWithWaves(purchaseData);
     return response.data;
   }
@@ -73,9 +96,9 @@ export const createPurchaseItemAsync = createAsyncThunk(
 
 export const fetchPhotographerPurchasesAsync = createAsyncThunk(
   'purchase/fetchByPhotographer',
-  async (photographerUserId: number) => {
-    const response = await fetchPurchasesByPhotographer(photographerUserId);
-    return response.data;
+  async (photographerUserName: string) => {
+    const response = await fetchPurchasesByPhotographer(photographerUserName);
+    return response;
   }
 );
 
@@ -146,6 +169,8 @@ const purchaseSlice = createSlice({
       })
       .addCase(fetchPhotographerPurchasesAsync.fulfilled, (state, action) => {
         state.photographerPurchases = action.payload;
+        console.log(state.photographerPurchases);
+        
       })
       .addCase(fetchSurferPurchasesAsync.fulfilled, (state, action) => {
         state.surferPurchases = action.payload;

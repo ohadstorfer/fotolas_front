@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { selectNewSess } from '../slicers/sessAlbumSlice';
 import { useNavigate } from 'react-router-dom';
 import pica from 'pica';
+import ExifReader from 'exifreader';
 
 const Home = () => {
   const [files, setFiles] = useState<File[]>([]);
@@ -47,83 +48,78 @@ const Home = () => {
     fileInputRef.current?.click();
   };
 
-  const uploadWatermarkedFilesToS3 = async (files: File[], retryCount = 3) => {
-    try {
-      const response = await axios.get(`http://localhost:8000/presigned_urls_for_watermarked?num_urls=${files.length}`);
-      const presignedUrls = response.data.urls;
-
-      const uploadPromises = files.map(async (file, index) => {
-        const url = presignedUrls[index];
-        for (let attempt = 0; attempt < retryCount; attempt++) {
-          try {
-            await axios.put(url, file, {
-              headers: {
-                'Content-Type': file.type,
-              },
-            });
-            return url.split('?')[0];
-          } catch (err) {
-            if (attempt < retryCount - 1) {
-              console.warn(`Retrying upload for ${file.name}, attempt ${attempt + 1}`);
-            } else {
-              throw err;
-            }
-          }
-        }
-      });
-
-      const uploadedUrls = await Promise.all(uploadPromises);
-      console.log('All files uploaded successfully.');
-      return uploadedUrls;
-    } catch (error) {
-      console.error('Error uploading files:', error);
-      throw error;
-    }
-  };
 
 
 
 
 
-
-
-  const uploadOriginalFilesToS3 = async (files: File[], retryCount = 3) => {
-    try {
-      const response = await axios.get(`http://localhost:8000/presigned_urls_for_originals?num_urls=${files.length}`);
-      const presignedUrls = response.data.urls;
-
-      const uploadPromises = files.map(async (file, index) => {
-        const url = presignedUrls[index];
-        for (let attempt = 0; attempt < retryCount; attempt++) {
-          try {
-            await axios.put(url, file, {
-              headers: {
-                'Content-Type': file.type,
-              },
-            });
-            return url.split('?')[0];
-          } catch (err) {
-            if (attempt < retryCount - 1) {
-              console.warn(`Retrying upload for ${file.name}, attempt ${attempt + 1}`);
-            } else {
-              throw err;
-            }
-          }
-        }
-      });
-
-
+  // const extractExifData = async (file: File): Promise<string | null> => {
+  //   try {
+  //     const arrayBuffer = await file.arrayBuffer();
+  //     const tags = ExifReader.load(arrayBuffer);
+  //     const dateOriginal = tags['DateTimeOriginal']?.description || 
+  //                           tags['DateTimeDigitized']?.description || 
+  //                           tags['DateTime']?.description;
+  //     console.log(dateOriginal);
       
+  //     return dateOriginal || null;
+  //   } catch (error) {
+  //     console.error('Error extracting EXIF data:', error);
+  //     return null;
+  //   }
+  // };
 
-      const uploadedUrls = await Promise.all(uploadPromises);
-      console.log('All files uploaded successfully.');
-      return uploadedUrls;
+
+  const extractExifData = async (file: File): Promise<string> => {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const tags = ExifReader.load(arrayBuffer);
+      const dateOriginal = tags['DateTimeOriginal']?.description || 
+                            tags['DateTimeDigitized']?.description || 
+                            tags['DateTime']?.description;
+      console.log(dateOriginal);
+      
+      return dateOriginal || "null";
     } catch (error) {
-      console.error('Error uploading files:', error);
-      throw error;
+      console.error('Error extracting EXIF data:', error);
+      return "null";
     }
   };
 
+
+
+  
+  const uploadFilesToS3 = async (files: File[], urlType: string, retryCount = 3) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/presigned_urls_for_${urlType}?num_urls=${files.length}`);
+      const presignedUrls = response.data.urls;
+
+      const uploadPromises = files.map(async (file, index) => {
+        const url = presignedUrls[index];
+        for (let attempt = 0; attempt < retryCount; attempt++) {
+          try {
+            await axios.put(url, file, {
+              headers: {
+                'Content-Type': file.type,
+              },
+            });
+            return url.split('?')[0];
+          } catch (err) {
+            if (attempt < retryCount - 1) {
+              console.warn(`Retrying upload for ${file.name}, attempt ${attempt + 1}`);
+            } else {
+              throw err;
+            }
+          }
+        }
+      });
+
+      return await Promise.all(uploadPromises);
+    } catch (error) {
+      console.error(`Error uploading ${urlType} files:`, error);
+      throw error;
+    }
+  };
 
   const picaInstance = pica();
 
@@ -168,10 +164,9 @@ const Home = () => {
         } else {
           reject(new Error('Blob creation failed'));
         }
-      }, 'image/jpeg', 0.8); // Set JPEG quality to 0.1 for harder compression
+      }, 'image/jpeg', 0.8); // Set JPEG quality to 0.8 for compression
     });
   };
-  
 
   const createWatermarkedImage = async (file: File): Promise<File> => {
     try {
@@ -200,7 +195,7 @@ const Home = () => {
   
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   
-            // Resize the watermark image to 800x533
+            // Resize the watermark image to fit
             const watermarkCanvas = document.createElement('canvas');
             watermarkCanvas.width = targetWidth;
             watermarkCanvas.height = targetHeight;
@@ -233,7 +228,7 @@ const Home = () => {
               } else {
                 reject(new Error('Blob creation failed'));
               }
-            }, 'image/jpeg', 0.8); // Set JPEG quality to 0.1 for harder compression
+            }, 'image/jpeg', 0.8); // Set JPEG quality to 0.8 for compression
           } catch (error) {
             reject(error);
           }
@@ -249,82 +244,115 @@ const Home = () => {
     }
   };
 
-  const handleUpload = async () => {
-    if (files.length === 0) {
-      console.error('No files selected.');
-      return;
-    }
-
-    setUploading(true);
-    setError(null);
-
+  const createImagesAndWaves = async (originalUrls: string[], watermarkedUrls: string[], exifDates: string[] = []) => {
     try {
-      // Step 1: Upload original files to S3
-      const originalUploadedUrls = await uploadOriginalFilesToS3(files);
-
-      if (originalUploadedUrls.length === 0) {
-        throw new Error('Failed to upload original files.');
-      }
-
-      // Step 2: Compress the files
-      const compressedFiles = await Promise.all(files.map(file => compressImage(file)));
-
-      // Step 3: Create watermarked versions of the compressed files
-      const watermarkedFiles = await Promise.all(compressedFiles.map(file => createWatermarkedImage(file)));
-
-      // Step 4: Upload watermarked files to S3
-      const watermarkedUploadedUrls = await uploadWatermarkedFilesToS3(watermarkedFiles);
-
-      if (watermarkedUploadedUrls.length === 0) {
-        throw new Error('Failed to upload watermarked files.');
-      }
-
-      // Step 5: Create images and waves in the database
-      await createImagesAndWaves(originalUploadedUrls, watermarkedUploadedUrls);
-
-      // Navigate to the home route after successful creation of images and waves
-      navigate('/');
-    } catch (error) {
-      console.error('Upload process failed:', error);
-      setError('Failed to upload files. Please try again.');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const createImagesAndWaves = async (originalUrls: string[], watermarkedUrls: string[]) => {
-    try {
-      const response = await axios.post('http://localhost:8000/api/create_images_and_waves/', {
+      console.log({original_urls: originalUrls,
+        watermarked_urls: watermarkedUrls,
+        session_album: newSess,
+        exif_dates: exifDates});
+      
+      await axios.post('http://localhost:8000/api/create_images_and_waves/', {
         original_urls: originalUrls,
         watermarked_urls: watermarkedUrls,
         session_album: newSess,
+        exif_dates: exifDates
       });
-      console.log(response.data.message);
     } catch (error) {
       console.error('Error creating images and waves:', error);
       setError('Failed to create images and waves.');
     }
   };
 
-  return (
-    <div className="container">
-      <p>
-        <input
-          type="file"
-          ref={fileInputRef}
-          style={{ display: 'none' }}
-          onChange={handleFileChange}
-          multiple
-        />
-        <button onClick={onUploadClick}>Select files to upload</button>&nbsp;
-        or drag-and-drop files into this browser window.
-      </p>
 
-      <button onClick={handleUpload} disabled={uploading}>
+
+
+
+
+
+  const handleUpload = async () => {
+  if (files.length === 0) {
+    console.error('No files selected.');
+    return;
+  }
+
+  setUploading(true);
+  setError(null);
+
+  try {
+    const batchSize = 10; // Adjust batch size based on your system's performance
+    const allOriginalUploadedUrls = [];
+    const allWatermarkedUploadedUrls = [];
+    const allExifDates = [];
+
+    for (let i = 0; i < files.length; i += batchSize) {
+      const batch = files.slice(i, i + batchSize);
+
+      // Step 1: Start uploading original files to S3
+      const originalUploadPromise = uploadFilesToS3(batch, 'originals');
+
+      // Step 2: Extract EXIF data concurrently
+      const exifExtractionPromises = batch.map(file => extractExifData(file));
+      const exifDates = await Promise.all(exifExtractionPromises);
+      allExifDates.push(...exifDates);
+
+
+      // Wait for the original upload to complete
+      const originalUploadedUrls = await originalUploadPromise;
+
+      if (originalUploadedUrls.length === 0) {
+        throw new Error('Failed to upload original files.');
+      }
+      allOriginalUploadedUrls.push(...originalUploadedUrls);
+
+      // Step 3: Compress the files
+      const compressedFiles = await Promise.all(batch.map(file => compressImage(file)));
+
+      // Step 4: Create watermarked versions of the compressed files
+      const watermarkedFiles = await Promise.all(compressedFiles.map(file => createWatermarkedImage(file)));
+
+      // Step 5: Upload watermarked files to S3
+      const watermarkedUploadedUrls = await uploadFilesToS3(watermarkedFiles, 'watermarked');
+
+      if (watermarkedUploadedUrls.length === 0) {
+        throw new Error('Failed to upload watermarked files.');
+      }
+      allWatermarkedUploadedUrls.push(...watermarkedUploadedUrls);
+    }
+
+    // Step 6: Create images and waves (after all batches are processed)
+    await createImagesAndWaves(allOriginalUploadedUrls, allWatermarkedUploadedUrls, allExifDates);
+
+    console.log('All files uploaded and processed successfully');
+    setFiles([]);
+    navigate('/');
+  } catch (error) {
+    console.error('Error during upload process:', error);
+    setError('Upload failed. Please try again.');
+  } finally {
+    setUploading(false);
+  }
+};
+
+
+
+
+
+  return (
+    <div>
+      <h1>Image Uploader</h1>
+      <button onClick={onUploadClick}>Choose Files</button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+      <button onClick={handleUpload} disabled={uploading || files.length === 0}>
         {uploading ? 'Uploading...' : 'Upload'}
       </button>
-
-      {error && <div className="error-message">{error}</div>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 };

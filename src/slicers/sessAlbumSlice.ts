@@ -17,6 +17,7 @@ interface sess {
   photographer_profile_image: string;
   videos: boolean;
   dividedToWaves: boolean;
+  active: boolean;
 }
 
 interface sessAlbumState {
@@ -26,8 +27,19 @@ interface sessAlbumState {
   prices: {}| null;
   videos: boolean;
   dividedToWaves: boolean;
+  next: string | null;
+  previous: string | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
 }
+
+
+interface FetchParams {
+  filterType?: string;
+  filterId?: number;
+  page?: number;      // Pagination parameter for page number
+  pageSize?: number; // Pagination parameter for page size
+}
+
 
 const selectedSessAlbum = sessionStorage.getItem('selectedSessAlbum');
 
@@ -39,8 +51,12 @@ const initialState: sessAlbumState = {
   dividedToWaves: false,
   status: 'idle',
   selectedSessAlbum: selectedSessAlbum ? JSON.parse(selectedSessAlbum) : [],
+  next: null,
+  previous: null,
   
 };
+
+
 
 export const calculateTimeAgo = (dateString: Date) => {
   const date = new Date(dateString);
@@ -49,33 +65,46 @@ export const calculateTimeAgo = (dateString: Date) => {
 
 
 
-export const sessGetDataAsync = createAsyncThunk<sess[], { filterType?: string, filterId?: number }>(
+export const sessGetDataAsync = createAsyncThunk<
+  { data: sess[], next: string | null, previous: string | null },  // Adjusted return type
+  FetchParams
+>(
   'sessAlbum/fetchImages',
-  async ({ filterType, filterId }: { filterType?: string, filterId?: number } = {}) => {
+  async ({ filterType, filterId, page = 1, pageSize = 21 }: FetchParams) => {
     let response;
 
     switch (filterType) {
       case 'photographer':
         if (filterId !== undefined) {
-          response = await sessAlbumsByPhotographer(filterId);
-        } else {console.log("filter id is undefined");}
+          response = await sessAlbumsByPhotographer(filterId, page, pageSize);
+        } else {
+          console.log("filter id is undefined");
+          response = { data: [] }; // Provide an empty default response if filterId is undefined
+        }
         break;
       case 'spot':
         if (filterId !== undefined) {
-          response = await sessAlbumsBySpot(filterId);
-        } else {}
+          response = await sessAlbumsBySpot(filterId, page, pageSize);
+        } else {
+          response = { data: [] }; // Provide an empty default response if filterId is undefined
+        }
         break;
       default:
-        response = await allSessAlbum();
+        response = await allSessAlbum(page, pageSize); // Pass pagination parameters here
         break;
     }
 
     const responseData = response?.data || [];
+    const data = responseData.results || []; // Adjust according to the structure of your paginated response
 
-    return responseData.map((item: { sessDate: Date }) => ({
-      ...item,
-      timeAgo: calculateTimeAgo(item.sessDate),
-    }));
+    return {
+      data: data.map((item: { sessDate: Date }) => ({
+        ...item,
+        timeAgo: calculateTimeAgo(item.sessDate),
+      })),
+      next: response.data.next || null,
+      previous: response.data.previous || null,
+    };
   }
 );
 
@@ -121,13 +150,20 @@ export const sessAlbumSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(sessGetDataAsync.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(sessGetDataAsync.fulfilled, (state, action) => {
-        state.sess = action.payload;
-        state.status = 'succeeded';
-      })
+    .addCase(sessGetDataAsync.pending, (state) => {
+      state.status = 'loading';
+    })
+    .addCase(sessGetDataAsync.fulfilled, (state, action) => {
+      console.log(action.payload);
+      
+      state.sess = action.payload.data; // Adjust based on your API response
+      state.next = action.payload.next;
+      state.previous = action.payload.previous;
+      state.status = 'succeeded';
+    })
+    .addCase(sessGetDataAsync.rejected, (state) => {
+      state.status = 'failed';
+    })
 
 
 
@@ -181,5 +217,7 @@ export const selectPrices = (state: { sessAlbum: sessAlbumState }) => state.sess
 export const selectVideos = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.videos;
 export const selectDividedToWaves = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.dividedToWaves;
 export const selectSelectedSessAlbum = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.selectedSessAlbum;
+export const selectNextPage = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.next;
+export const selectPreviousPage = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.previous;
 
 export default sessAlbumSlice.reducer;

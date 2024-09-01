@@ -22,20 +22,21 @@ interface imagesState {
   imgs: Img[];
   videos: Video[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
-  cart: number[]; // Array of album IDs in the cart
-  cartTotalImages: number; // Total number of images in the cart
+  cart: number[];
+  cartTotalImages: number;
   cartTotalPrice: number;
   prices: any;
   error: string | null;
+  nextImages: string | null;
+  previousImages: string | null;
+  nextVideos: string | null;
+  previousVideos: string | null;
 }
-
 
 const initialCart = sessionStorage.getItem('cart');
 const initialCartTotalImages = sessionStorage.getItem('cartTotalImages');
 const initialCartTotalPrice = sessionStorage.getItem('cartTotalPrice');
 const initialPrices = sessionStorage.getItem('prices');
-
-
 
 const initialState: imagesState = {
   imgs: [],
@@ -45,6 +46,10 @@ const initialState: imagesState = {
   cartTotalPrice: initialCartTotalPrice ? JSON.parse(initialCartTotalPrice) : 0,
   prices : initialPrices ? JSON.parse(initialPrices) : 0,
   status: 'idle',
+  nextImages: null,
+  previousImages: null,
+  nextVideos: null,
+  previousVideos: null,
   error: null,
 };
 
@@ -62,36 +67,47 @@ export const fetchImagesAsync = createAsyncThunk<Img[], number>('images/fetchIma
   return response.data;
 });
 
-export const fetchImagesBySessAsync = createAsyncThunk<Img[], number>('images/fetchImages', async (albumId: number) => {
-  const response = await fetchImagesBySess(albumId);
-  return response.data;
+export const fetchImagesBySessAsync = createAsyncThunk<
+  { images: Img[]; next: string | null; previous: string | null },
+  { albumId: number; page?: number }
+>('images/fetchImagesBySess', async ({ albumId, page = 1 }) => {
+  const response = await fetchImagesBySess(albumId, page);
+  return {
+    images: response.data.results,
+    next: response.data.next,
+    previous: response.data.previous,
+  };
 });
 
-export const fetchVideosBySessionAsync = createAsyncThunk<Video[], number>(
-  'images/fetchVideosBySession',
-  async (albumId: number) => {
-    const response = await fetchVideosBySess(albumId)
-    return response.data;
-  }
-);
+export const fetchVideosBySessionAsync = createAsyncThunk<
+  { videos: Video[]; next: string | null; previous: string | null },
+  { albumId: number; page?: number }
+>('images/fetchVideosBySession', async ({ albumId, page = 1 }) => {
+  const response = await fetchVideosBySess(albumId, page);
+  return {
+    videos: response.data.results,
+    next: response.data.next,
+    previous: response.data.previous,
+  };
+});
 
 export const imagesSlice = createSlice({
   name: 'images',
   initialState,
   reducers: {
-    addToCart: (state, action: PayloadAction<{ imgId: number, imageCount: number }>) => {
+    addToCart: (state, action: PayloadAction<{ imgId: number; imageCount: number }>) => {
       if (!state.cart.includes(action.payload.imgId)) {
         state.cart.push(action.payload.imgId);
         state.cartTotalImages += action.payload.imageCount;
-        sessionStorage.setItem('cart', JSON.stringify(state.cart)); // Save to session storage
-        sessionStorage.setItem('cartTotalImages', JSON.stringify(state.cartTotalImages)); // Save to session storage
+        sessionStorage.setItem('cart', JSON.stringify(state.cart));
+        sessionStorage.setItem('cartTotalImages', JSON.stringify(state.cartTotalImages));
       }
     },
-    removeFromCart: (state, action: PayloadAction<{ imgId: number, imageCount: number }>) => {
+    removeFromCart: (state, action: PayloadAction<{ imgId: number; imageCount: number }>) => {
       state.cart = state.cart.filter((id) => id !== action.payload.imgId);
       state.cartTotalImages -= action.payload.imageCount;
-      sessionStorage.setItem('cart', JSON.stringify(state.cart)); // Save to session storage
-      sessionStorage.setItem('cartTotalImages', JSON.stringify(state.cartTotalImages)); // Save to session storage
+      sessionStorage.setItem('cart', JSON.stringify(state.cart));
+      sessionStorage.setItem('cartTotalImages', JSON.stringify(state.cartTotalImages));
     },
     updateTotalPrice: (state, action: PayloadAction<number>) => {
       state.cartTotalPrice = action.payload;
@@ -99,7 +115,7 @@ export const imagesSlice = createSlice({
     },
     setPrices: (state, action: PayloadAction<any>) => {
       state.prices = action.payload;
-      sessionStorage.setItem('prices', JSON.stringify(state.prices)); // Save prices to session storage
+      sessionStorage.setItem('prices', JSON.stringify(state.prices));
     },
     resetImages: (state) => {
       state.imgs = [];
@@ -132,13 +148,29 @@ export const imagesSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || 'Failed to fetch images';
       })
+      .addCase(fetchImagesBySessAsync.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(fetchImagesBySessAsync.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.imgs = action.payload.images;
+        state.nextImages = action.payload.next;
+        state.previousImages = action.payload.previous;
+      })
+      .addCase(fetchImagesBySessAsync.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Failed to fetch images by session';
+      })
       .addCase(fetchVideosBySessionAsync.pending, (state) => {
         state.status = 'loading';
         state.error = null;
       })
-      .addCase(fetchVideosBySessionAsync.fulfilled, (state, action: PayloadAction<Video[]>) => {
+      .addCase(fetchVideosBySessionAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.videos = action.payload;
+        state.videos = action.payload.videos;
+        state.nextVideos = action.payload.next;
+        state.previousVideos = action.payload.previous;
       })
       .addCase(fetchVideosBySessionAsync.rejected, (state, action) => {
         state.status = 'failed';
@@ -154,6 +186,9 @@ export const selectCartTotalPrice_IMAGES = (state: { images: imagesState }) => s
 export const selectPrices_IMAGES = (state: { images: imagesState }) => state.images.prices;
 export const selectStatus = (state: { images: imagesState }) => state.images.status;
 export const selectError = (state: { images: imagesState }) => state.images.error;
-
+export const selectNextImages = (state: { images: imagesState }) => state.images.nextImages;
+export const selectPreviousImages = (state: { images: imagesState }) => state.images.previousImages;
+export const selectNextVideos = (state: { images: imagesState }) => state.images.nextVideos;
+export const selectPreviousVideos = (state: { images: imagesState }) => state.images.previousVideos;
 
 export default imagesSlice.reducer;

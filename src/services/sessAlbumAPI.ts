@@ -1,24 +1,34 @@
 import axios from 'axios';
 
-export function allSessAlbum() {
-   
+export function allSessAlbum(page: number = 1, pageSize: number = 21) {
   const MY_SERVER = 'http://127.0.0.1:8000/session-albums-with-details/';
-  return axios.get(MY_SERVER);
+  return axios.get(MY_SERVER, {
+    params: {
+      page,
+      page_size: pageSize,
+    },
+  });
 }
 
 
-export function sessAlbumsByPhotographer(photographerId: number) {
-
+export function sessAlbumsByPhotographer(photographerId: number, page: number = 1, pageSize: number = 21) {
   const MY_SERVER = `http://127.0.0.1:8000/session-albums-by-photographer/${photographerId}/`;
-  return axios.get(MY_SERVER);
+  return axios.get(MY_SERVER, {
+    params: {
+      page,
+      page_size: pageSize,
+    },
+  });
 }
 
-
-
-export function sessAlbumsBySpot(spotId: number) {
-
+export function sessAlbumsBySpot(spotId: number, page: number = 1, pageSize: number = 21) {
   const MY_SERVER = `http://127.0.0.1:8000/session-albums-by-spot/${spotId}/`;
-  return axios.get(MY_SERVER);
+  return axios.get(MY_SERVER, {
+    params: {
+      page,
+      page_size: pageSize,
+    },
+  });
 }
 
 

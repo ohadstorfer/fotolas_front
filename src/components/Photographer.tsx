@@ -86,19 +86,13 @@ export default function UserCard() {
               <Typography level="body-xs" fontWeight="lg">
                 Albums
               </Typography>
-              <Typography fontWeight="lg">34</Typography>
-            </div>
-            <div>
-              <Typography level="body-xs" fontWeight="lg">
-                Followers
-              </Typography>
-              <Typography fontWeight="lg">{photographer && photographer.followers_count}</Typography>
+              <Typography fontWeight="lg">{photographer && photographer.session_album_count}</Typography>
             </div>
             <div>
               <Typography level="body-xs" fontWeight="lg">
                 Spots
               </Typography>
-              <Typography fontWeight="lg">9</Typography>
+              <Typography fontWeight="lg">{photographer && photographer.unique_spots_count}</Typography>
             </div>
           </Sheet>
           <Box sx={{ display: 'flex', gap: 1.5, '& > button': { flex: 1 } }}>

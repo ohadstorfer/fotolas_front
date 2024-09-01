@@ -164,7 +164,9 @@ export default function UserCard() {
   }, [newSess, navigate]);
 
   useEffect(() => {
+    if(imageUrl){
     handleSubmit();
+    }
   }, [imageUrl]);
 
   const handleSubmit222222 = async (e: FormEvent<HTMLFormElement>) => {
@@ -186,6 +188,8 @@ export default function UserCard() {
       }
       setimageUrl(imageUrl);
       console.log('imageUrl: ', imageUrl);
+      // handleSubmit();
+      
     } catch (error) {
       console.error(error);
     } finally {
@@ -202,10 +206,22 @@ export default function UserCard() {
   };
 
   const handleSubmit = async () => {
-    if (!selectedDate || !selectedSpot) {
-      console.error('Please select a date and a spot.');
+    if (!value) {
+      console.error('Please select either Images or Videos.');
+      alert('Please select either Images or Videos.');
       return;
     }
+    if (!imageUrl) {
+      console.error('Please upload a cover image for your album.');
+      alert('Please upload a cover image for your album.');
+      return;
+    }
+    if (!selectedDate || !selectedSpot) {
+      console.error('Please select a date and a spot.');
+      alert('Please select a date and a spot.');
+      return;
+    }
+   
 
     const formattedDate = selectedDate?.toJSON();
     const credentials = {
@@ -306,10 +322,12 @@ export default function UserCard() {
             </Box>
 
             <Box sx={{ display: 'flex', gap: 1.5, '& > button': { flex: 1 } }}>
-              <Button type="submit" fullWidth sx={{ backgroundColor: teal[400], color: 'white' }}>
-                Submit
+              <Button disabled={isLoading} type="submit" fullWidth sx={{ backgroundColor: teal[400], color: 'white' }}>
+              {isLoading ? 'Uploading...' : 'Upload Image'}
               </Button>
             </Box>
+
+            
           </CardContent>
         </Card>
       </Box>

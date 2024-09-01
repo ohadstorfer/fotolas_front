@@ -12,18 +12,24 @@ export const createPurchase = async (purchaseData: { photographer: number, surfe
 export const createPurchaseItem = async (purchaseItemData: { PurchaseId: number, Img: number }) => {
   return await axios.post(`${API_BASE_URL}/purchase-items/`, purchaseItemData);
 };
+// ******************************************************************************************************************************************************
+
+
+
+
+
 
 // New function for creating a purchase with images
-export const createPurchaseWithImages = async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, image_ids: number[] }) => {
+export const createPurchaseWithImages = async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string, photographer_name: string, surfer_name: string, image_ids: number[] }) => {
   return await axios.post(`${API_BASE_URL}/create-purchase-with-images/`, purchaseData);
 };
 
 // New function for creating a purchase with videos
-export const createPurchaseWithVideos = async (purchaseData: {  photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, video_ids: number[] }) => {
+export const createPurchaseWithVideos = async (purchaseData: {  photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string, photographer_name: string, surfer_name: string, video_ids: number[] }) => {
   return await axios.post(`${API_BASE_URL}/create-purchase-with-videos/`, purchaseData);
 };
 
-export const createPurchaseWithWaves = async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, wave_ids: number[] }) => {
+export const createPurchaseWithWaves = async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string, photographer_name: string, surfer_name: string, wave_ids: number[] }) => {
   return await axios.post(`${API_BASE_URL}/create-purchase-with-waves/`, purchaseData);
 };
 
@@ -37,8 +43,10 @@ export const fetchPurchaseItemCreated = async (purchaseItemId: number) => {
   return response.data.purchaseItemCreated;
 };
 
-export const fetchPurchasesByPhotographer = async (photographerUserId: number) => {
-  const response = await axios.get(`http://localhost:8000/api/purchases/photographer/${photographerUserId}/`);
+export const fetchPurchasesByPhotographer = async (photographerUserName: string) => {
+  const response = await axios.get(`http://localhost:8000/purchases/photographer/${photographerUserName}/`);
+  console.log(response.data);
+  
   return response.data;
 };
 

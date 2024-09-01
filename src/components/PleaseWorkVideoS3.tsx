@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import Compress from 'compress.js';
 import { useSelector } from 'react-redux';
 import { selectNewSess } from '../slicers/sessAlbumSlice';
 import { useNavigate } from 'react-router-dom';
@@ -12,29 +11,6 @@ const PleaseWorkcopy = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const newSess = useSelector(selectNewSess);
   const navigate = useNavigate();
-  const [watermarkImg, setWatermarkImg] = useState<HTMLImageElement | null>(null);
-
-  useEffect(() => {
-    const fetchWatermark = async () => {
-      try {
-        const watermarkUrl = 'http://res.cloudinary.com/dauupwecm/image/upload/v1716428098/nyb5atdbyazvl2ja93ow.png';
-        const img = new Image();
-        img.src = watermarkUrl;
-        img.crossOrigin = 'Anonymous';
-
-        await new Promise<void>((resolve, reject) => {
-          img.onload = () => resolve();
-          img.onerror = reject;
-        });
-
-        setWatermarkImg(img);
-      } catch (error) {
-        console.error('Error fetching watermark image:', error);
-      }
-    };
-
-    fetchWatermark();
-  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -54,6 +30,8 @@ const PleaseWorkcopy = () => {
 
       const uploadPromises = files.map(async (file, index) => {
         const url = presignedUrls[index];
+        console.log(url);
+        
         for (let attempt = 0; attempt < retryCount; attempt++) {
           try {
             await axios.put(url, file, {
@@ -81,108 +59,41 @@ const PleaseWorkcopy = () => {
     }
   };
 
-  const compressFiles = async (files: File[]): Promise<File[]> => {
-    const compress = new Compress();
-    const options = {
- // the max size in MB, defaults to 2MB
-      quality: 0.75, // the quality of the image, max is 1,
-      maxWidth: 800, // the max width of the output image, defaults to 1920px
-      maxHeight: 533, // the max height of the output image, defaults to 1920px
-      resize: true, // defaults to true, set false if you do not want to resize the image width and height
-    };
-
-    const compressedFilesData = await compress.compress(files, options);
-
-    return compressedFilesData.map((c) => {
-      const base64str = c.data;
-      const videoExt = c.ext;
-      return Compress.convertBase64ToFile(base64str, videoExt);
-    });
-  };
-
-  const createWatermarkedVideo = async (file: File): Promise<File> => {
-    if (!watermarkImg) {
-      throw new Error('Watermark image not loaded');
-    }
-
-    return new Promise<File>((resolve, reject) => {
-      console.log('Type of file:', typeof file);
-      console.log('Instance of File:', file instanceof File);
-      console.log('File object:', file);
-
-      const img = new Image();
-      const objectUrl = URL.createObjectURL(file);
-      console.log('objectUrl:', objectUrl);
-
-      img.src = objectUrl;
-      img.crossOrigin = 'Anonymous';
-
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          return reject(new Error('Canvas context not available'));
-        }
-
-        ctx.drawImage(img, 0, 0);
-        ctx.drawImage(watermarkImg, 0, 0, img.width, img.height);
-
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const watermarkedFile = new File([blob], `watermarked_${file.name}`, { type: 'image/jpeg' });
-            URL.revokeObjectURL(objectUrl);  // Clean up object URL
-            resolve(watermarkedFile);
-          } else {
-            URL.revokeObjectURL(objectUrl);  // Clean up object URL
-            reject(new Error('Blob creation failed'));
-          }
-        }, 'image/jpeg');
-      };
-
-      img.onerror = (error) => {
-        URL.revokeObjectURL(objectUrl);  // Clean up object URL
-        reject(error);
-      };
-    });
-  };
-
   const handleUpload = async () => {
     if (files.length === 0) {
       console.error('No files selected.');
       return;
     }
-
+  
     setUploading(true);
     setError(null);
-
+  
     try {
       // Step 1: Upload original files to S3
       const originalUploadedUrls = await uploadFilesToS3(files, 'http://localhost:8000/presigned_urls_for_original_videos');
-
+  
       if (originalUploadedUrls.length === 0) {
         throw new Error('Failed to upload original files.');
       }
-
-      // Step 2: Compress the files
-      const compressedFiles = await compressFiles(files);
-
-      // Step 3: Create watermarked versions of the compressed files
-      const watermarkedFiles = await Promise.all(compressedFiles.map((file) => createWatermarkedVideo(file)));
-
-      // Step 4: Upload watermarked files to S3
-      const watermarkedUploadedUrls = await uploadFilesToS3(watermarkedFiles, 'http://localhost:8000/presigned_urls_for_watermarked_videos');
-
-      if (watermarkedUploadedUrls.length === 0) {
-        throw new Error('Failed to upload watermarked files.');
-      }
-
-      // Step 5: Create images and waves in the database
-      await createImagesAndWaves(originalUploadedUrls, watermarkedUploadedUrls);
-
-      // Navigate to the home route after successful creation of images and waves
+  
+      // Step 2: Generate watermarked URLs
+      const watermarkedUploadedUrls = originalUploadedUrls.map(url => {
+        const filename = url.split('/').pop();
+        const transformedFilename = filename.replace(/\.[^/.]+$/, ".mp4-tuvsconverted.mp4");
+        return url.replace('surfingram-original-video', 'surfingram-transformed-video').replace(filename, transformedFilename);
+      });
+  
+      // Step 3: Generate img URLs
+      const imgUrls = originalUploadedUrls.map(url => {
+        const filename = url.split('/').pop();
+        const imgFilename = filename.replace(/\.[^/.]+$/, ".mp4-tuvsconverted.0000000.jpg");
+        return url.replace('surfingram-original-video', 'surfingram-transformed-video').replace(filename, imgFilename);
+      });
+  
+      // Step 4: Send URLs to the backend
+      await createVideos(originalUploadedUrls, watermarkedUploadedUrls, imgUrls);
+  
+      // Navigate to the home route after successful creation of videos
       navigate('/');
     } catch (error) {
       console.error('Upload process failed:', error);
@@ -192,17 +103,23 @@ const PleaseWorkcopy = () => {
     }
   };
 
-  const createImagesAndWaves = async (originalUrls: string[], watermarkedUrls: string[]) => {
+  const createVideos = async (originalUrls: string[], watermarkedUrls: string[], imgUrls: string[]) => {
     try {
-      const response = await axios.post('http://localhost:8000/api/create_images_and_waves/', {
-        original_urls: originalUrls,
-        watermarked_urls: watermarkedUrls,
-        session_album: newSess,
+      console.log({video: originalUrls,
+        WatermarkedVideo: watermarkedUrls,
+        img: imgUrls,
+        SessionAlbum: newSess});
+      
+      const response = await axios.post('http://localhost:8000/create-multuple-videos/', {
+        video: originalUrls,
+        WatermarkedVideo: watermarkedUrls,
+        img: imgUrls,
+        SessionAlbum: newSess,
       });
       console.log(response.data.message);
     } catch (error) {
-      console.error('Error creating images and waves:', error);
-      setError('Failed to create images and waves.');
+      console.error('Error creating videos:', error);
+      setError('Failed to create videos.');
     }
   };
 
@@ -211,6 +128,7 @@ const PleaseWorkcopy = () => {
       <p>
         <input
           type="file"
+          accept="video/*"
           ref={fileInputRef}
           style={{ display: 'none' }}
           onChange={handleFileChange}

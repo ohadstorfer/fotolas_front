@@ -148,10 +148,14 @@ const Cart: React.FC = () => {
     console.log("handlePurchaseForImages");
     
     const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
+    const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
     const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
     const total_price = cartTotalPrice;
     const total_item_quantity = cartTotalItems;
     const session_album_id = sessAlbumOfCart!.id;
+    const sessDate = sessAlbumOfCart!.sessDate;
+    const spot_name = sessAlbumOfCart!.spot_name;
+    const photographer_name = sessAlbumOfCart!.photographer_name;
     const imageIds = cartOfSingleImages.map((img) => img.id);
 
     const purchaseData = {
@@ -161,6 +165,10 @@ const Cart: React.FC = () => {
       total_item_quantity,
       session_album_id,
       image_ids: imageIds,
+      sessDate: sessDate,
+      spot_name: spot_name,
+      photographer_name: photographer_name,
+      surfer_name: surfer_name,
     };
     console.log(purchaseData);
 
@@ -174,10 +182,14 @@ const handlePurchaseForVideos = async () => {
     console.log("handlePurchaseForVideos");
     
     const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
+    const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
     const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
     const total_price = cartTotalPrice;
     const total_item_quantity = cartTotalItems;
     const session_album_id = sessAlbumOfCart!.id;
+    const sessDate = sessAlbumOfCart!.sessDate;
+    const spot_name = sessAlbumOfCart!.spot_name;
+    const photographer_name = sessAlbumOfCart!.photographer_name;
     const videoIds = cartOfVideos.map((video) => video.id);
 
     const purchaseData = {
@@ -187,6 +199,10 @@ const handlePurchaseForVideos = async () => {
       total_item_quantity,
       session_album_id,
       video_ids: videoIds,
+      sessDate: sessDate,
+      spot_name: spot_name,
+      photographer_name: photographer_name,
+      surfer_name: surfer_name,
     };
     console.log(purchaseData);
 
@@ -200,10 +216,14 @@ const handlePurchaseForWaves = async () => {
   console.log("handlePurchaseForImages");
   
   const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
+  const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
   const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
   const total_price = cartTotalPrice;
   const total_item_quantity = cartTotalItems;
   const session_album_id = sessAlbumOfCart!.id;
+  const sessDate = sessAlbumOfCart!.sessDate;
+  const spot_name = sessAlbumOfCart!.spot_name;
+  const photographer_name = sessAlbumOfCart!.photographer_name;
   const wave_ids  = wavesInCart.map((wave) => wave.id);
 
   const purchaseData = {
@@ -213,6 +233,10 @@ const handlePurchaseForWaves = async () => {
     total_item_quantity,
     session_album_id,
     wave_ids : wave_ids ,
+    sessDate: sessDate,
+    spot_name: spot_name,
+    photographer_name: photographer_name,
+    surfer_name: surfer_name,
   };
   console.log(purchaseData);
 

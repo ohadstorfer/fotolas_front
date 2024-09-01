@@ -17,6 +17,8 @@ interface perAlbumState {
   cartTotalPrice: number;
   wavesInCart: personalAlbum[]; // Array to store fetched waves
   prices: any;
+  next: string | null;
+  previous: string | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
 }
 
@@ -33,14 +35,25 @@ const initialState: perAlbumState = {
   cartTotalPrice: initialCartTotalPrice ? JSON.parse(initialCartTotalPrice) : 0,
   wavesInCart: [],
   prices : initialPrices ? JSON.parse(initialPrices) : 0,
+  next: null,
+  previous: null,
   status: 'idle',
 };
 
-export const getDataAsync = createAsyncThunk<personalAlbum[], number>(
+export const getDataAsync = createAsyncThunk<
+  { albums: personalAlbum[]; next: string | null; previous: string | null },
+  { albumId: number; page: number; pageSize: number }
+>(
   'perAlbum/fetchPersonalAlbums',
-  async (albumId: number) => {
-    const response = await fetchPersonalAlbums(albumId);
-    return Array.isArray(response.data) ? response.data : [response.data];
+  async ({ albumId, page, pageSize }) => {
+    const response = await fetchPersonalAlbums(albumId, page, pageSize);
+    console.log(response);
+    
+    return {
+      albums: response.data.results,
+      next: response.data.next,
+      previous: response.data.previous,
+    };
   }
 );
 
@@ -114,16 +127,20 @@ export const perAlbumSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getDataAsync.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(getDataAsync.fulfilled, (state, action) => {
-        state.albums = action.payload.map((album) => ({
-          ...album,
-          image_count: album.image_count,
-        }));
-        state.status = 'succeeded';
-      })
+    .addCase(getDataAsync.pending, (state) => {
+      state.status = 'loading';
+    })
+    .addCase(getDataAsync.fulfilled, (state, action) => {
+      console.log(action.payload);
+
+      state.albums = action.payload.albums;
+      state.next = action.payload.next;
+      state.previous = action.payload.previous;
+      state.status = 'succeeded';
+    })
+    .addCase(getDataAsync.rejected, (state) => {
+      state.status = 'failed';
+    })
       .addCase(createPerAlbumAsync.pending, (state) => {
         state.status = 'loading';
       })
@@ -167,6 +184,8 @@ export const selectWavesInCart_WAVES = (state: { perAlbum: perAlbumState }) => s
 export const selectCartTotalImages_WAVES = (state: { perAlbum: perAlbumState }) => state.perAlbum.cartTotalImages;
 export const selectCartTotalPrice_WAVES = (state: { perAlbum: perAlbumState }) => state.perAlbum.cartTotalPrice;
 export const selectPrices_WAVES = (state: { perAlbum: perAlbumState }) => state.perAlbum.prices;
+export const selectNextPageWaves = (state: { perAlbum: perAlbumState }) => state.perAlbum.next;
+export const selectPreviousPageWaves = (state: { perAlbum: perAlbumState }) => state.perAlbum.previous;
 
 
 export default perAlbumSlice.reducer;

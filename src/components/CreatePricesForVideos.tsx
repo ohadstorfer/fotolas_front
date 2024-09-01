@@ -37,7 +37,7 @@ export default function UserCard() {
     console.log('prices from the component 1: ', prices);
     if (prices) {
       console.log('prices from the component 2: ', prices);
-      navigate('/PleaseWorkVideoCloudinary')
+      navigate('/PleaseWorkVideoS3')
     }
   }, [prices]);
 
@@ -45,14 +45,53 @@ export default function UserCard() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-
+  
+    const price_1_to_5_str = data.get("price_1_to_5");
+    const price_6_to_15_str = data.get("price_6_to_15");
+    const price_16_plus_str = data.get("price_16_plus");
+  
+    // Check if any field is empty or not a valid number
+    if (
+      !price_1_to_5_str ||
+      !price_6_to_15_str ||
+      !price_16_plus_str ||
+      isNaN(Number(price_1_to_5_str)) ||
+      isNaN(Number(price_6_to_15_str)) ||
+      isNaN(Number(price_16_plus_str))
+    ) {
+      alert("Please add a value for all fields.");
+      return;
+    }
+  
     const credentials = {
       session_album: Number(newSess),
-      price_1_to_5: Number(data.get("price_1_to_5")),
-      price_6_to_15: Number(data.get("price_6_to_15")),
-      price_16_plus: Number(data.get("price_16_plus")),
+      price_1_to_5: Number(price_1_to_5_str),
+      price_6_to_15: Number(price_6_to_15_str),
+      price_16_plus: Number(price_16_plus_str),
     };
-
+  
+    // Price validation scenarios
+    if (credentials.price_1_to_5 > credentials.price_6_to_15) {
+      const confirm1 = window.confirm(
+        "The price for 1 to 5 videos is higher than the price for 6 to 15 videos. Are you sure you want to proceed?"
+      );
+      if (!confirm1) return;
+    }
+  
+    if (credentials.price_6_to_15 > credentials.price_16_plus) {
+      const confirm2 = window.confirm(
+        "The price for 6 to 15 videos is higher than the price for 16 or more videos. Are you sure you want to proceed?"
+      );
+      if (!confirm2) return;
+    }
+  
+    if (credentials.price_1_to_5 > credentials.price_16_plus) {
+      const confirm3 = window.confirm(
+        "The price for 1 to 5 videos is higher than the price for 16 or more videos. Are you sure you want to proceed?"
+      );
+      if (!confirm3) return;
+    }
+  
     try {
       console.log(credentials);
       await dispatch(updatePricesForVideosAsync(credentials));
