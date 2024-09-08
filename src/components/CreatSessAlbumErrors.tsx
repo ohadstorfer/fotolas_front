@@ -15,7 +15,7 @@ import { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import SessAlbum from './SessAlbum';
 import { createSessAlbumAsync, removeNewPrices, removeNewSess, selectNewSess, selectVideos, sessGetDataAsync } from '../slicers/sessAlbumSlice';
 import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/profilePtgSlice';
-import { TextField } from '@mui/material';
+import { TextField, useMediaQuery } from '@mui/material';
 import UploadButton from './UpdButton';
 import { loginAsync, selectLoggedIn, selectToken } from '../slicers/sighnInSlice';
 import { becomePhotographerAsync } from '../slicers/becomePhotographerSlice';
@@ -35,6 +35,12 @@ import { selectUser } from '../slicers/userSlice';
 import Stepper from '@mui/joy/Stepper';
 import Step from '@mui/joy/Step';
 import StepIndicator from '@mui/joy/StepIndicator';
+import { Alert } from '@mui/joy';
+import WarningIcon from '@mui/icons-material/Warning';
+
+
+
+
 
 const picaInstance = pica();
 
@@ -144,6 +150,9 @@ export default function UserCard() {
   const videos = useSelector(selectVideos);
   const [value, setValue] = React.useState<string | number>('');
   const [open, setOpen] = React.useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const isMobile = useMediaQuery('(max-width:600px)'); // Detect mobile screen size
+
 
   
 
@@ -235,9 +244,21 @@ export default function UserCard() {
     e.preventDefault();
     setIsLoading(true);
 
-    if (!selectedDate || !selectedSpot) {
-      console.error('Please select a date and a spot.');
-      alert('Please select a date and a spot.');
+    if (!selectedSpot) {
+      console.error('Please select a spot.');
+      alert('Please select a spot.');
+      setIsLoading(false);
+      return;
+    }
+    if (!selectedDate) {
+      console.error('Please select a date.');
+      alert('Please select a date.');
+      setIsLoading(false);
+      return;
+    }
+    if (!value) {
+      console.error('Please select either Images or Videos.');
+      alert('Please select either Images or Videos.');
       setIsLoading(false);
       return;
     }
@@ -289,19 +310,19 @@ export default function UserCard() {
 
   const handleSubmit = async () => {
 
-    if (!value) {
-      console.error('Please select either Images or Videos.');
-      alert('Please select either Images or Videos.');
-      return;
-    }
-    if (!imageUrl) {
-      console.error('Please upload a cover image for your album.');
-      alert('Please upload a cover image for your album.');
-      return;
-    }
-    if (!selectedDate || !selectedSpot) {
-      console.error('Please select a date and a spot.');
-      alert('Please select a date and a spot.');
+    // if (!value) {
+    //   console.error('Please select either Images or Videos.');
+    //   alert('Please select either Images or Videos.');
+    //   return;
+    // }
+    // if (!imageUrl) {
+    //   console.error('Please upload a cover image for your album.');
+    //   alert('Please upload a cover image for your album.');
+    //   return;
+    // }
+    if (!selectedDate) {
+      console.error('Please select a date.');
+      alert('Please select a date.');
       return;
     }
 
@@ -340,7 +361,7 @@ export default function UserCard() {
     <>
 
 
-      <Stepper sx={{ width: '100%' }}>
+      <Stepper  sx={{ width: '100%' , marginBottom: '40px',}}>
         <Step
           orientation="vertical"
           indicator={<StepIndicator variant="solid" sx={{ backgroundColor: teal[400], color: 'white' }}>1</StepIndicator>}
@@ -363,8 +384,103 @@ export default function UserCard() {
 
 
 
-      <div>
-        <FormControl sx={{ m: 1, minWidth: 200 }}>
+      <Alert
+      variant="outlined"
+      color="warning"
+      startDecorator={<WarningIcon />}
+      sx={{
+        
+        maxWidth: isMobile ? '90%' : '370px', // 90% width on mobile, 400px on larger screens
+        margin: '0 auto', // Center horizontally
+        textAlign: 'center',
+      }}
+    >
+      <Typography>
+        Please double check before you continue. Session details can not be changed later.
+      </Typography>
+    </Alert>
+
+
+      <Box component="form"
+        noValidate
+        onSubmit={handleSubmit222222}
+        encType="multipart/form-data" sx={{margin: 'auto', marginTop: '16px' }}>
+
+      <Stepper orientation="vertical" sx={{ width: 300 , margin: 'auto', marginTop: '1px'}}>
+
+
+      <Step
+  indicator={
+    <StepIndicator sx={{ marginRight: '16px', fontSize: '12px' }}>
+      Cover Image
+    </StepIndicator>
+  }
+>
+  <input
+    type="file"
+    style={{
+      width: '270px',      // Set width explicitly
+      height: 'auto', 
+      padding: '12px 0',     // Set height as auto (or a specific value if needed)
+      border: '1px solid #ccc', // Add a border to make it visible
+      cursor: 'pointer'    // Change the cursor style to pointer for better UX
+    }}
+    accept="image/png,image/jpeg"
+    name="image"
+    onChange={handleImageChange}
+  />
+</Step>
+      
+      <Step>{imagePreview && <img src={imagePreview} alt="profileImg" style={{ width: '270px', height: 'auto' }} />}</Step>
+
+
+              
+
+        <Step indicator={<StepIndicator sx={{ marginRight: '16px' }}>Date</StepIndicator>} > <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DateTimePicker
+              sx={{ width: 270 }}
+                value={selectedDate}
+                onChange={(newDate) => setSelectedDate(newDate)}
+              />
+            </LocalizationProvider></Step>
+
+
+          
+      
+
+
+
+      <Step indicator={<StepIndicator sx={{ marginRight: '16px' }}>Spot</StepIndicator>}>
+      <Autocomplete
+      disablePortal
+      onChange={(event, newValue) => setSelectedSpot(newValue)}
+      id="combo-box-demo"
+      options={allSpots}
+      getOptionLabel={(spot) => spot.name}
+      value={selectedSpot}
+      onInputChange={(event, newInputValue) => setSearchValue(newInputValue)}
+      renderInput={(params) => <TextField {...params} label="Spot" />}
+      renderOption={(props, option) => (
+        <li {...props} key={option.name}>
+          {option.name}
+        </li>
+      )}
+      noOptionsText={
+        searchValue ? (
+          <Box onClick={handleAddSpotClick} sx={{ cursor: 'pointer', color: 'primary.main', p: 1 }}>
+            Click here for creating a new spot
+          </Box>
+        ) : (
+          <Typography sx={{ p: 1 }}>No options</Typography>
+        )
+      }
+    /></Step>
+
+
+
+
+        <Step indicator={<StepIndicator sx={{ marginRight: '16px',fontSize: '12px' }}>Images or Videos</StepIndicator>}>
+          <FormControl sx={{ width: 270 }}>
           <InputLabel id="demo-controlled-open-select-label">Images or Videos</InputLabel>
           <Select
             labelId="demo-controlled-open-select-label"
@@ -379,79 +495,30 @@ export default function UserCard() {
             <MenuItem value={10}>Images</MenuItem>
             <MenuItem value={20}>Videos</MenuItem>
           </Select>
-        </FormControl>
-      </div>
+        </FormControl></Step>
 
-      <Box
-        component="form"
-        noValidate
-        onSubmit={handleSubmit222222}
-        encType="multipart/form-data"
-        sx={{
-          width: '50%',
-          margin: 'auto',
-          marginTop: '16px',
-        }}
-      >
-        <Card
-          orientation="horizontal"
-          sx={{
-            width: '100%',
-            flexWrap: 'wrap',
-            [`& > *`]: {
-              '--stack-point': '500px',
-              minWidth: 'clamp(0px, (calc(var(--stack-point) - 2 * var(--Card-padding) - 2 * var(--variant-borderWidth, 0px)) + 1px - 100%) * 999, 100%)',
-            },
-            borderRadius: '16px',
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
-          }}
-        >
-          <AspectRatio flex ratio="1" maxHeight={182} sx={{ minWidth: 182 }}>
-            {imagePreview && <img src={imagePreview} alt="profileImg" />}
-          </AspectRatio>
-          <CardContent>
-            <input type="file" accept="image/png,image/jpeg" name="image" onChange={handleImageChange} />
+      
+      </Stepper>
 
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DateTimePicker
-                value={selectedDate}
-                onChange={(newDate) => setSelectedDate(newDate)}
-              />
-            </LocalizationProvider>
 
-            <Box sx={{ display: 'flex', p: 1.5, gap: 1.5, '& > button': { flex: 1 } }}>
-              <Autocomplete
-                disablePortal
-                onChange={(event, newValue) => setSelectedSpot(newValue)}
-                id="combo-box-demo"
-                options={allSpots}
-                getOptionLabel={(spot) => spot.name} // Specify how to get the label from each spot object
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="Spot" />}
-                value={selectedSpot}
-              />
-              <Button
-                type="button"
-                onClick={handleAddSpotClick}
-                sx={{ backgroundColor: teal[400], color: 'white' }}
-              >
-                Add a spot
-              </Button>
-            </Box>
-
-            <Box sx={{ display: 'flex', gap: 1.5, '& > button': { flex: 1 } }}>
-              <Button size="md" color="danger" onClick={handleCancelUpload}>
+            <Box sx={{ gap: 8, marginTop: '16px' }}>
+              <Button size="md" color="danger" onClick={handleCancelUpload} sx={{ mr: 2 }}>
                 Cancle
               </Button>
-              <Button disabled={isLoading} type="submit" fullWidth sx={{ backgroundColor: teal[400], color: 'white' }}>
+              <Button disabled={isLoading} type="submit"  sx={{ backgroundColor: teal[400], color: 'white' }}>
                 {isLoading ? 'Uploading...' : 'Continue'}
               </Button>
             </Box>
 
 
-          </CardContent>
-        </Card>
+
+            
+
       </Box>
+
+
+
+      
 
       {/* Render CreateSpot conditionally */}
       {showCreateSpot && <CreateSpot />}

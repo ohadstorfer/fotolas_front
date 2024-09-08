@@ -1,7 +1,7 @@
 // sessAlbumSlice.ts
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { formatDistanceToNow } from 'date-fns';  // Import from date-fns
-import { allSessAlbum, createSessAlbum, sessAlbumsByPhotographer, sessAlbumsBySpot, updatePrices,updatePricesForVideos } from '../services/sessAlbumAPI';
+import { allSessAlbum, createSessAlbum, sessAlbumsByPhotographer, sessAlbumsBySpot, sessById, updatePrices,updatePricesForVideos } from '../services/sessAlbumAPI';
 
 interface sess {
   id: number;
@@ -23,8 +23,9 @@ interface sess {
 interface sessAlbumState {
   sess: sess[];
   selectedSessAlbum: sess | null;
-  newSess:number | null;
-  prices: {}| null;
+  newSess:sess | null;
+  newSessDetails:sess | null;
+  newPrices: {}| null;
   videos: boolean;
   dividedToWaves: boolean;
   next: string | null;
@@ -40,17 +41,19 @@ interface FetchParams {
   pageSize?: number; // Pagination parameter for page size
 }
 
-
-const selectedSessAlbum = sessionStorage.getItem('selectedSessAlbum');
+const initialNewSess = sessionStorage.getItem('newSess');
+const initialNewPrices = sessionStorage.getItem('newPrices');
+const initialSelectedSessAlbum = sessionStorage.getItem('selectedSessAlbum');
 
 const initialState: sessAlbumState = {
   sess: [],
-  newSess:null,
-  prices:null,
+  newSess: initialNewSess ? JSON.parse(initialNewSess) : null,
+  newSessDetails: null,
+  newPrices: initialNewPrices ? JSON.parse(initialNewPrices) : null,
   videos: false,
   dividedToWaves: false,
   status: 'idle',
-  selectedSessAlbum: selectedSessAlbum ? JSON.parse(selectedSessAlbum) : [],
+  selectedSessAlbum: initialSelectedSessAlbum ? JSON.parse(initialSelectedSessAlbum) : [],
   next: null,
   previous: null,
   
@@ -111,6 +114,19 @@ export const sessGetDataAsync = createAsyncThunk<
 
 
 
+export const fetchSessAlbumByIdAsync = createAsyncThunk(
+  'sessAlbum/fetchSessAlbumById',
+  async (session_album: number) => {
+    const response = await sessById(session_album);
+    return response.data;
+  }
+);
+
+
+
+
+
+
 export const createSessAlbumAsync = createAsyncThunk(
   'sessAlbum/createSessAlbum',
   async (credentials: { sessDate: Date, spot: number, photographer: number, cover_image: string, videos: boolean }) => {
@@ -147,6 +163,17 @@ export const sessAlbumSlice = createSlice({
       state.selectedSessAlbum = null;
       sessionStorage.removeItem('selectedSessAlbum');
     },
+    removeNewSess: (state) => {
+      state.newSess = null;
+      sessionStorage.removeItem('newSess');
+    },
+    removeNewSessDetails: (state) => {
+      state.newSessDetails = null;
+    },
+    removeNewPrices: (state) => {
+      state.newPrices = null;
+      sessionStorage.removeItem('newPrices');
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -167,11 +194,30 @@ export const sessAlbumSlice = createSlice({
 
 
 
+
+
+    .addCase(fetchSessAlbumByIdAsync.pending, (state) => {
+      state.status = 'loading';
+    })
+    .addCase(fetchSessAlbumByIdAsync.fulfilled, (state, action) => {
+      state.newSessDetails = action.payload;  // Update newSessDetails with the response
+      sessionStorage.setItem('newSessDetails', JSON.stringify(state.newSessDetails));  // Optionally store it in sessionStorage
+      console.log(state.newSessDetails);  // Log the details
+      state.status = 'succeeded';
+    })
+    .addCase(fetchSessAlbumByIdAsync.rejected, (state, action) => {
+      state.status = 'failed';
+    })
+
+
+
+
       .addCase(createSessAlbumAsync.pending, (state) => {
         state.status = 'loading'
       })
       .addCase(createSessAlbumAsync.fulfilled, (state, action) => {
-        state.newSess = action.payload.id;
+        state.newSess = action.payload;
+        sessionStorage.setItem('newSess', JSON.stringify(state.newSess));
         action.payload.videos == true ? state.videos = true : state.videos = false;
         console.log(state.newSess);
         
@@ -186,8 +232,9 @@ export const sessAlbumSlice = createSlice({
         state.status = 'loading'
       })
       .addCase(updatePricesAsync.fulfilled, (state, action) => {
-        state.prices = action.payload;
-        console.log("prices in the slicer: ", state.prices);
+        state.newPrices = action.payload;
+        sessionStorage.setItem('newPrices', JSON.stringify(state.newPrices));
+        console.log("prices in the slicer: ", state.newPrices);
         
         state.status = 'succeeded';
       })
@@ -198,8 +245,9 @@ export const sessAlbumSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(updatePricesForVideosAsync.fulfilled, (state, action) => {
-        state.prices = action.payload;
-        console.log("prices, from the slicer: " , state.prices);
+        state.newPrices = action.payload;
+        sessionStorage.setItem('newPrices', JSON.stringify(state.newPrices));
+        console.log("prices, from the slicer: " , state.newPrices);
         state.status = 'succeeded';
       })
       .addCase(updatePricesForVideosAsync.rejected, (state) => {
@@ -209,11 +257,12 @@ export const sessAlbumSlice = createSlice({
   },
 });
 
-export const {setSelectedSessAlbum, removeSelectedSessAlbum} = sessAlbumSlice.actions;
+export const {setSelectedSessAlbum, removeSelectedSessAlbum , removeNewSess , removeNewPrices, removeNewSessDetails} = sessAlbumSlice.actions;
 
 export const selectSessAlbums = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.sess;
 export const selectNewSess = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.newSess;
-export const selectPrices = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.prices;
+export const selectNewSessDetails = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.newSessDetails;
+export const selectNewPrices = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.newPrices;
 export const selectVideos = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.videos;
 export const selectDividedToWaves = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.dividedToWaves;
 export const selectSelectedSessAlbum = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.selectedSessAlbum;

@@ -20,7 +20,6 @@ export default function EditProfilePtg() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const photographer = useSelector(selectProfilePhotographer);
-  const { userId } = useParams();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);

@@ -19,7 +19,7 @@ import teal from '@mui/material/colors/teal';
 import { GiSurferVan } from "react-icons/gi";
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../app/hooks';
-import { logout, parseJwt, selectToken } from '../slicers/sighnInSlice';
+import { logout, parseJwt, selectLoggedIn, selectToken } from '../slicers/sighnInSlice';
 import { Avatar } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/profilePtgSlice';
@@ -98,22 +98,23 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
 export default function PrimarySearchAppBar() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const storedToken = localStorage.getItem("token");
-  const token = storedToken ? JSON.parse(storedToken) : null;
+  // const storedToken = localStorage.getItem("token");
+  // const token = storedToken ? JSON.parse(storedToken) : null;
   const photographer = useSelector(selectProfilePhotographer);
   const user = useSelector(selectUser)
-  const slicerToken = useSelector(selectToken)
-  const isLoggedIn = useSelector(selectToken)
+  const isLoggedIn = useSelector(selectLoggedIn)
   const newPhotographer= useSelector(selectBecomePhotographer)
   const sessAlbum = useSelector(selectSessAlbums);
   const totalImages = useSelector(selectCartTotalItems)
   const refreshNavbar = useSelector(selectRefreshNavbar)
-  const surferId = JSON.parse(localStorage.getItem('token') || '{}').id;
+  const conectedUser = useSelector(selectToken)
+  const surferId = Number(conectedUser?.id);
 
-
+  
   useEffect(() => {
-    dispatch(getUserById(Number(token?.id)));
-    dispatch(getPhotographerByUserId(Number(token?.id)));
+    dispatch(getUserById(Number(conectedUser?.id)));
+    // if(conectedUser?.is_photographer){dispatch(getPhotographerByUserId(Number(conectedUser?.id)));}
+    dispatch(getPhotographerByUserId(Number(conectedUser?.id)));
   }
     , [refreshNavbar, isLoggedIn,newPhotographer]);
 
@@ -169,17 +170,17 @@ export default function PrimarySearchAppBar() {
 
   const PhotographerClick = () => {
     handleMenuClose()
-    navigate(`/ProfilePtg/${token.id}`);
+    navigate("/ProfilePtg");
   };
 
   const BecomePhotographerClick = () => {
     handleMenuClose()
-    navigate(`/BecomePhotographer/${token.id}`);
+    navigate("/BecomePhotographer");
   };
 
   const SurferDashboardClick = () => {
     handleMenuClose()
-    console.log(surferId);
+    console.log(conectedUser?.id);
     dispatch(fetchSurferPurchasedItemsAsync(surferId));
     navigate(`/DashboardSurfer`);
   };

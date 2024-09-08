@@ -14,6 +14,7 @@ import uploadAlbumReducer from '../slicers/uploadPerAlbum';
 import purchaseSliceReducer from'../slicers/purchaseSlice';
 import cartSliceReducer from '../slicers/cartSlice';
 
+
 export const store = configureStore({
   reducer: {
     counter: counterReducer,
@@ -30,6 +31,7 @@ export const store = configureStore({
     becomePhotographer: becomePhotographerReducer,
     uploadAlbum: uploadAlbumReducer, // Corrected name
     purchase: purchaseSliceReducer,
+    
 
   },
 });

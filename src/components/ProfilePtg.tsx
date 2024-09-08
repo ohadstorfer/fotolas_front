@@ -19,40 +19,70 @@ import { IoMdAddCircleOutline } from "react-icons/io";
 import { FaHistory } from "react-icons/fa";
 import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/profilePtgSlice';
 import { styled } from '@mui/material';
+import { selectLoggedIn, selectToken } from '../slicers/sighnInSlice';
+import Alert from '@mui/material/Alert';
+import { selectUser } from '../slicers/userSlice';
 
 
 export default function UserCard() {
   const dispatch = useAppDispatch();
   const navigate  = useNavigate();
   const photographer = useSelector(selectProfilePhotographer);
-  const { userId } = useParams();
+  const conectedUser = useSelector(selectToken)
+  const user = useSelector(selectUser)
+  const isLoggedIn = useSelector(selectLoggedIn)
   const [loading, setLoading] = useState(true);
-  
+  const [error, setError] = useState(false);
+
 
   useEffect(() => {
-    if (userId) {
-      dispatch(getPhotographerByUserId(Number(userId)));
-      // dispatch(sessGetDataAsync({ filterType: "photographer", filterId: Number(userId) }))
-      //   .then(() => setLoading(false))
-      //   .catch(() => setLoading(false));
+    console.log(isLoggedIn);
+    console.log(user?.is_photographer);
+    console.log(conectedUser);
+    if (!isLoggedIn || !user?.is_photographer || !conectedUser) {
+      setError(true);
+      navigate(`/`);
+    } else {
+      dispatch(getPhotographerByUserId(Number(conectedUser.id)));
     }
-  }, [dispatch, userId]);
+  }, [dispatch, isLoggedIn, user, navigate, conectedUser]);
+
+
+
+
+  
+  // Set error if the connected user does not match the photographer's user
+  useEffect(() => {
+    if (photographer) {
+      setLoading(false);
+    }
+  }, [photographer]);
+
 
   const editProfilePtgClick = () => {
-    navigate(`/EditProfilePtg/${photographer?.id}`);
+    navigate("/EditProfilePtg");
   };
   const dashboardClick = () => {
-    navigate(`/DashboardPhotographer/`);
+    navigate(`/DashboardPhotographer`);
   };
 
   const addAlbum = () => {
-    navigate(`/CreatSessAlbum`);
+    navigate(`/ProtectedRoutesCreatSessAlbumcopy`);
+    // navigate(`/CreatSessAlbum`);
+    
   };
   
   
 
+  if (loading) {
+    return (
+      <Button loading>Default</Button>
+      
+    );
+  }
+
   return (
-    <><Box
+    <Box
       sx={{
         width: '50%',
         margin: 'auto',
@@ -64,21 +94,16 @@ export default function UserCard() {
         sx={{
           width: '100%',
           flexWrap: 'wrap',
-          [`& > *`]: {
-            '--stack-point': '500px',
-            minWidth: 'clamp(0px, (calc(var(--stack-point) - 2 * var(--Card-padding) - 2 * var(--variant-borderWidth, 0px)) + 1px - 100%) * 999, 100%)',
-          },
-
-
-          borderRadius: '16px', // Add rounded corners for a modern look
-          boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)', // Add a subtle shadow
+          borderRadius: '16px',
+          boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
         }}
       >
         <AspectRatio flex ratio="1" maxHeight={182} sx={{ minWidth: 182 }}>
           <img
             src={photographer?.profile_image}
             loading="lazy"
-            alt="" />
+            alt=""
+          />
         </AspectRatio>
         <CardContent>
           <Typography fontSize="xl" fontWeight="lg">
@@ -123,15 +148,7 @@ export default function UserCard() {
             </Button>
           </Box>
         </CardContent>
-
       </Card>
-
-
-
     </Box>
-    {/* <Box>{!loading && photographer?.id && <SessAlbum filterType="photographer" filterId={photographer.id} />}</Box> */}
-    </>
-    
-
   );
 }

@@ -4,7 +4,7 @@ import Navbar from './components/Navbar';
 import PerAlbum from './components/PerAlbum';
 import Photographer from './components/Photographer';
 import SessAlbum from './components/SessAlbum';
-import { createBrowserRouter, createRoutesFromElements, Link, Outlet, Route, RouterProvider }from 'react-router-dom'
+import { createBrowserRouter, createRoutesFromElements, Link, Outlet, Route, RouterProvider, useLocation }from 'react-router-dom'
 import Spot from './components/Spot';
 import SignInSide from './components/SignInSide';
 import SignUp from './components/SignUp';
@@ -36,6 +36,13 @@ import DashboardSurfer from './components/DashboardSurfer';
 import PleaseWorkVideoS3 from './components/PleaseWorkVideoS3';
 import PleaseWorkneww from './components/PleaseWorkneww';
 import DashboardPhotographer from './components/DashboardPhotographer';
+import ProtectedRoutesPhotographers from './utils/ProtectedRoutesPhotographers';
+import ProtectedRoutesCreatSessAlbumcopy from './components/ProtectedRoutesCreatSessAlbumcopy';
+import PleaseWorkErrors from './components/PleaseWorkErrors';
+import CreatSessAlbumErrors from './components/CreatSessAlbumErrors';
+import Successfull from './components/Successfull';
+import PleaseWorkVideoS3Errors from './components/PleaseWorkVideoS3Errors';
+import FailedUpload from './components/FailedUpload';
 
 function App() {
   const router = createBrowserRouter(
@@ -45,26 +52,37 @@ function App() {
       <Route path="/PerAlbum" element={<PerAlbum />} />
       <Route path="/Images" element={<Images />} />
       <Route path="/Photographer/:photographerId" element={<Photographer />} />
-      <Route path="/ProfilePtg/:userId" element={<ProfilePhotographer />} />
-      <Route path="/EditProfilePtg/:photographerId" element={<EditProfilePtg />} />
-      <Route path="/BecomePhotographer/:userId" element={<BecomePhotographer />} />
       <Route path="/Spot/:spotId" element={<Spot />} />
       <Route path="/SignIn" element={<SignInSide />} />
       <Route path="/SignUp" element={<SignUp />} />
-      <Route path="/CreatePrices" element={<CreatePrices />} />
-      <Route path="/CreatePricesForVideos" element={<CreatePricesForVideos />} />
-      <Route path="/CreatSessAlbum" element={<CreatSessAlbum />} />
       <Route path="/AllWidgets" element={<AllWidgets />} />
       <Route path="/FileUploadComponent" element={<FileUploadComponent />} />
-      <Route path="/PleaseWork" element={<PleaseWork />} />
-      <Route path="/PleaseWorkneww" element={<PleaseWorkneww />} />
-      <Route path="/PleaseWorkVideoCloudinary" element={<PleaseWorkVideoCloudinary />} />
-      <Route path="/PleaseWorkVideoS3" element={<PleaseWorkVideoS3 />} />
       <Route path="/Cart" element={<Cart />} />
       <Route path="/Video" element={<Video />} />
       <Route path="/UndividedImgs" element={<UndividedImgs />} />
       <Route path="/DashboardSurfer" element={<DashboardSurfer />} />
-      <Route path="/DashboardPhotographer" element={<DashboardPhotographer />} />
+      <Route path="/BecomePhotographer" element={<BecomePhotographer />} />
+      
+
+      <Route element={<ProtectedRoutesPhotographers />}>
+        <Route path="/ProfilePtg" element={<ProfilePhotographer />} />
+        <Route path="/EditProfilePtg" element={<EditProfilePtg />} />
+        <Route path="/CreatePrices" element={<CreatePrices />} />
+        <Route path="/CreatePricesForVideos" element={<CreatePricesForVideos />} />
+        <Route path="/PleaseWork" element={<PleaseWork />} />
+        <Route path="/PleaseWorkneww" element={<PleaseWorkneww />} />
+        <Route path="/PleaseWorkVideoCloudinary" element={<PleaseWorkVideoCloudinary />} />
+        <Route path="/PleaseWorkVideoS3" element={<PleaseWorkVideoS3 />} />
+        <Route path="/PleaseWorkVideoS3Errors" element={<PleaseWorkVideoS3Errors />} />
+        <Route path="/PleaseWorkErrors" element={<PleaseWorkErrors />} />
+        <Route path="/DashboardPhotographer" element={<DashboardPhotographer />} />
+        <Route path="/CreatSessAlbum" element={<CreatSessAlbum />} />
+        <Route path="/CreatSessAlbumErrors" element={<CreatSessAlbumErrors />} />
+        <Route path="/ProtectedRoutesCreatSessAlbumcopy" element={<ProtectedRoutesCreatSessAlbumcopy />} />
+        <Route path="/Successfull" element={<Successfull />} />
+        <Route path="/FailedUpload" element={<FailedUpload />} />
+
+      </Route>
 
     </Route>
     )
@@ -79,20 +97,33 @@ function App() {
 
 
 const Root = () => {
+  const location = useLocation();
+
+  const hideNavbarRoutes = [
+    '/PleaseWorkVideoS3',
+    '/PleaseWorkneww',
+    '/PleaseWorkErrors',
+    '/PleaseWorkVideoS3Errors',
+    // '/ProtectedRoutesCreatSessAlbumcopy',
+  ];
+  const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
+
+
   return( 
     <>
   <div>
-    <Navbar></Navbar> 
+  {!shouldHideNavbar && <Navbar />}
   </div>
 
   <div style={{ marginTop: '80px', padding: '0px' }}>  
    
 
-    <Outlet ></Outlet>
+    {/* <Outlet ></Outlet> */}
+    {/* <Successfull></Successfull> */}
     {/* <DashboardSurferImages></DashboardSurferImages> */}
     {/* <DashboardPhotographer></DashboardPhotographer> */}
     {/* <PleaseWorkneww></PleaseWorkneww> */}
-    {/* <hr></hr> */}
+    
     {/* <BecomePhotographer></BecomePhotographer> */}
     {/* <PleaseWork></PleaseWork> */}
     {/* <UploadImage></UploadImage> */}
@@ -103,6 +134,12 @@ const Root = () => {
     {/* <CreatSessAlbum></CreatSessAlbum> */}
     {/* <CreatePricesForVideos></CreatePricesForVideos> */}
     {/* <CreatePrices></CreatePrices> */}
+    {/* <PleaseWorkneww></PleaseWorkneww> */}
+    {/* <CreatSessAlbumErrors></CreatSessAlbumErrors> */}
+    {/* <FailedUpload></FailedUpload> */}
+    <PleaseWorkErrors></PleaseWorkErrors>
+    <hr></hr>
+    <PleaseWorkVideoS3Errors></PleaseWorkVideoS3Errors>
   </div>
   </>
   )

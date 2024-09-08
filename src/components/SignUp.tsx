@@ -13,12 +13,12 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAppDispatch } from '../app/hooks';
-import { refreshNavbar, selectCredentials, selectSignUP, setCredentials, signUpAsync } from '../slicers/signUpSlice';
+import { refreshNavbar, selectCredentials, selectRefreshNavbar, selectSignUP, setCredentials, signUpAsync } from '../slicers/signUpSlice';
 import { teal } from '@mui/material/colors';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginAsync, selectToken } from '../slicers/sighnInSlice';
+import { loginAsync, selectLoggedIn, selectToken } from '../slicers/sighnInSlice';
 
 
 function Copyright(props: any) {
@@ -40,22 +40,21 @@ const defaultTheme = createTheme();
 export default function SignUp() {
   const navigate = useNavigate();
   const isLoggedIn = useSelector(selectSignUP)
-  const isLoggedIn222 = useSelector(selectToken)
+  const isLoggedIn222 = useSelector(selectLoggedIn)
   const credentials = useSelector(selectCredentials)
   const dispatch = useAppDispatch();
-
+  const refreshNavbarbool = useSelector(selectRefreshNavbar)
 
 
 
 
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isLoggedIn222) {
       navigate('/');
     }
-
   }
-    , [isLoggedIn, ]);
+    , [isLoggedIn222, ]);
 
 
 

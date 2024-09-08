@@ -17,7 +17,7 @@ import { sessGetDataAsync } from '../slicers/sessAlbumSlice';
 import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/profilePtgSlice';
 import { TextField } from '@mui/material';
 import UploadButton from './UpdButton';
-import { loginAsync } from '../slicers/sighnInSlice';
+import { loginAsync, selectToken } from '../slicers/sighnInSlice';
 import { becomePhotographerAsync, selectBecomePhotographer } from '../slicers/becomePhotographerSlice';
 import { selectUser } from '../slicers/userSlice';
 import axios from 'axios';
@@ -28,7 +28,7 @@ export default function UserCard() {
   const navigate = useNavigate();
   const photographer = useSelector(selectProfilePhotographer);
   const newPhotographer = useSelector(selectBecomePhotographer);
-  const { userId } = useParams();
+  const conectedUser = useSelector(selectToken)
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -135,7 +135,7 @@ export default function UserCard() {
   const handleSubmit = async () => {
     const credentials = {
       about: String(about),
-      user: Number(userId),
+      user: Number(conectedUser!.id),
       profile_image: String(imageUrl),
     };
 

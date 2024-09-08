@@ -1,29 +1,35 @@
-// sighnInSlice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { login } from '../services/sighnInAPI';
 
+interface Token {
+  access: string;
+  refresh: string;
+  id: string;      // Adjust type if necessary
+  fullName: string;
+  email: string; 
+  is_photographer: boolean;
+}
 
 interface SignInState {
-  token: string | null;
+  token: Token | null;
   loggedIn: boolean;
   error: string | null;
 }
 
 
+const initialToken = localStorage.getItem('token');
+const initialLoggedIn = !!initialToken;
+
 const initialState: SignInState = {
-  token: "",
-  loggedIn: false,
+  token: initialToken ? JSON.parse(initialToken) : null,
+  loggedIn: initialLoggedIn? initialLoggedIn : false,
   error: null,
 };
-
-
-
 
 export const loginAsync = createAsyncThunk('signIn/login', async (credentials: { email: string, password: string }) => {
   const response = await login(credentials);
   return response.data;
 });
-
 
 const signInSlice = createSlice({
   name: 'signIn',
@@ -36,20 +42,11 @@ const signInSlice = createSlice({
       localStorage.removeItem("token");
       state.loggedIn = false;
     },
+    // Optional: If you need to parse the JWT manually, you might adjust this
     parseJwt: (state) => {
       const token = state.token;
-      if (token && typeof token === 'string') {
-        const tokenParts = token.split('.');
-        if (tokenParts.length === 3) {
-          const base64Url = tokenParts[1];
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-          }).join(''));
-          const parsedPayload = JSON.parse(jsonPayload);
-
-          console.log(parsedPayload.access);
-        }
+      if (token) {
+        console.log(token.access);  // Access properties directly
       }
     },
   },
@@ -61,9 +58,9 @@ const signInSlice = createSlice({
       })
       .addCase(loginAsync.fulfilled, (state, action) => {
         console.log("logging in");
-        state.token = JSON.stringify(action.payload);
+        state.token = action.payload;  // Assuming action.payload is of type Token
         state.loggedIn = true;
-        localStorage.setItem("token", (state.token));
+        localStorage.setItem("token", JSON.stringify(action.payload)); // Store as string
         state.error = null;
       })
       .addCase(loginAsync.rejected, (state, action) => {
@@ -74,7 +71,6 @@ const signInSlice = createSlice({
 });
 
 export const { logout, parseJwt } = signInSlice.actions;
-export const selectToken = (state: { signIn: SignInState }) => state.signIn.loggedIn;
+export const selectToken = (state: { signIn: SignInState }) => state.signIn.token;
+export const selectLoggedIn = (state: { signIn: SignInState }) => state.signIn.loggedIn;
 export default signInSlice.reducer;
-
-

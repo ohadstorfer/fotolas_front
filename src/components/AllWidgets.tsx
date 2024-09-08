@@ -20,7 +20,7 @@ const AllWidgets = () => {
 
   useEffect(() => {
     if (newSessId !== null) {
-      dispatch(updatePricesAsync(newSessId) as any);
+      // dispatch(updatePricesAsync(newSessId) as any);
     }
   }, [status]);
 
@@ -33,12 +33,12 @@ const AllWidgets = () => {
 
 
   const credentials = {
-    session_album_id: newSessId as number,
+    // session_album_id: newSessId.id,
     images_arrays: albums as string[][],
   };
 
   const uploadAlbum = () => {
-    dispatch(lastAPIAsync(credentials) as any);
+    // dispatch(lastAPIAsync(credentials) as any);
   };
 
   const addWidget = () => {

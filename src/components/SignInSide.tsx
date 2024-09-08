@@ -13,13 +13,14 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAppDispatch } from '../app/hooks';
-import { loginAsync, selectToken } from '../slicers/sighnInSlice';
+import { loginAsync, selectLoggedIn, selectToken } from '../slicers/sighnInSlice';
 import { teal } from '@mui/material/colors';
 import { useNavigate } from 'react-router-dom';
 import { getUserById } from '../slicers/userSlice';
 import { getPhotographerByUserId } from '../slicers/profilePtgSlice';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { refreshNavbar } from '../slicers/signUpSlice';
 
 function Copyright(props: any) {
   return (
@@ -42,12 +43,16 @@ export default function SignInSide() {
     const navigate  = useNavigate();
     const storedToken = localStorage.getItem("token");
     const token = storedToken ? JSON.parse(storedToken) : null;
-    const isLoggedIn = useSelector(selectToken)
+    const conectedUser = useSelector(selectToken)
+    const isLoggedIn = useSelector(selectLoggedIn)
 
 
 
     useEffect(() => {
-      if (isLoggedIn===true) { navigate('/'); }
+      if (isLoggedIn===true) { 
+        dispatch(refreshNavbar());
+        navigate('/'); 
+      }
     }, [isLoggedIn]);
 
 

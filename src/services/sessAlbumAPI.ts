@@ -11,6 +11,11 @@ export function allSessAlbum(page: number = 1, pageSize: number = 21) {
 }
 
 
+export function sessById(session_album: number) {
+  const MY_SERVER = `http://127.0.0.1:8000/session-albums-with-details-by-id/${session_album}/`;
+  return axios.get(MY_SERVER);
+}
+
 export function sessAlbumsByPhotographer(photographerId: number, page: number = 1, pageSize: number = 21) {
   const MY_SERVER = `http://127.0.0.1:8000/session-albums-by-photographer/${photographerId}/`;
   return axios.get(MY_SERVER, {

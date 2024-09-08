@@ -16,6 +16,13 @@ import { Button, Typography, useMediaQuery } from '@mui/material';
 import { Alert } from '@mui/joy';
 import WarningIcon from '@mui/icons-material/Warning';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import Box from '@mui/joy/Box';
+import CircularProgress from '@mui/joy/CircularProgress';
+import LinearProgress from '@mui/joy/LinearProgress';
+import Warning from '@mui/icons-material/Warning';
+import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
+import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
+import ReportIcon from '@mui/icons-material/Report';
 
 
 
@@ -26,6 +33,9 @@ const Home = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [fileInfo, setFileInfo] = useState<string | null>(null);
+  const [NetworkError, setNetworkError] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const newSess = useSelector(selectNewSess);
   const navigate = useNavigate();
@@ -40,13 +50,24 @@ const Home = () => {
       e.preventDefault();
       e.returnValue = ''; // This line triggers the browser's default warning dialog
     };
-
     window.addEventListener('beforeunload', handleBeforeUnload);
-
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload); // Clean up
     };
   }, [dispatch]);
+
+
+
+
+  useEffect(() => {
+    return () => {
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+      }
+    };
+  }, []);
+
+
 
 
 
@@ -100,11 +121,16 @@ const Home = () => {
     if (e.target.files) {
       const fileList = Array.from(e.target.files);
       const invalidFiles: string[] = [];
+      const maxFileSize = 20 * 1024 * 1024 * 1024; // 20 GB in bytes
+      let totalSize = 0;
 
       // Define the number of bytes to read from the start of the file
       const bytesToRead = 4100; // You can adjust this if needed
 
       for (const file of fileList) {
+        // Accumulate the total size of the files
+        totalSize += file.size;
+
         // Read the first `bytesToRead` bytes of the file
         const buffer = await file.slice(0, bytesToRead).arrayBuffer();
         const type = await fileTypeFromBuffer(new Uint8Array(buffer));
@@ -115,16 +141,23 @@ const Home = () => {
         }
       }
 
-      if (invalidFiles.length > 0) {
-        setError(`Please select only JPEG or PNG images. Invalid files: ${invalidFiles.join(', ')}`);
+      const totalSizeInGB = (totalSize / (1024 * 1024 * 1024)).toFixed(3);
+      setFileInfo(`${fileList.length} images, ${totalSizeInGB} GB`);
+
+      // Check if the total file size exceeds the limit
+      if (totalSize > maxFileSize) {
+        setFileError('You can only upload up to 20 GB limit. Please select fewer images.');
+        setFiles([]); // Clear the files if the total size exceeds the limit
+      } else if (invalidFiles.length > 0) {
+        setFileError(`Please select only JPEG or PNG images. Invalid files: ${invalidFiles.join(', ')}`);
         setFiles([]); // Clear the files if any are invalid
       } else {
-        setError(null);
+        setFileError(null);
         setFiles(fileList); // Update state with valid files
+
       }
     }
   };
-
 
 
 
@@ -156,9 +189,9 @@ const Home = () => {
 
 
 
-  
 
-  
+
+
 
 
 
@@ -314,9 +347,11 @@ const Home = () => {
         session_album: newSess?.id,
         exif_dates: exifDates
       });
+      return true;
     } catch (error) {
       console.error('Error creating images and waves:', error);
       setError('Failed to create images and waves.');
+      return false;
     }
   };
 
@@ -331,132 +366,179 @@ const Home = () => {
 
   let retryTimeout: ReturnType<typeof setTimeout> | null = null;
 
-const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 5) => {
-  console.log(`Starting upload for ${files.length} ${urlType} files`);
+  const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 3) => {
+    console.log(`Starting upload for ${files.length} ${urlType} files`);
+    
 
-  try {
-    const response = await axios.get(`http://localhost:8000/presigned_urls_for_${urlType}?num_urls=${files.length}`);
-    const presignedUrls = response.data.urls;
-    console.log(`Received presigned URLs for ${urlType} files`);
+    try {
+      const response = await axios.get(`http://localhost:8000/presigned_urls_for_${urlType}?num_urls=${files.length}`);
+      const presignedUrls = response.data.urls;
+      console.log(`Received presigned URLs for ${urlType} files`);
 
-    const uploadPromises = files.map((file, index) => {
-      const url = presignedUrls[index];
-      let attempt = 0;
+      const uploadPromises = files.map((file, index) => {
+        const url = presignedUrls[index];
+        let attempt = 0;
 
-      const uploadWithRetry = async (): Promise<string> => {
-        try {
-          console.log(`Attempting to upload ${file.name} to S3 (${urlType}), attempt ${attempt + 1}`);
-          await axios.put(url, file, {
-            headers: {
-              'Content-Type': file.type,
-            },
-          });
-          console.log(`${file.name} uploaded successfully to ${urlType}`);
-          return url.split('?')[0];
-        } catch (error) {
-          attempt++;
-          if (attempt >= maxRetries) {
-            console.error(`Failed to upload ${file.name} after ${maxRetries} attempts`);
-            throw new Error(`Failed to upload ${file.name} after ${maxRetries} attempts.`);
-          }
-
-          const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
-          console.warn(`Retrying upload for ${file.name}, attempt ${attempt} with a delay of ${delay}ms`);
-
-          return new Promise<string>((resolve, reject) => {
-            const retryUpload = async () => {
-              if (navigator.onLine) {
-                try {
-                  const result = await uploadWithRetry();
-                  resolve(result);
-                } catch (err) {
-                  reject(err);
+        const uploadWithRetry = async (): Promise<string> => {
+          try {
+            console.log(`Attempting to upload ${file.name} to S3 (${urlType}), attempt ${attempt + 1}`);
+            await axios.put(url, file, {
+              headers: {
+                'Content-Type': file.type,
+              },
+            });
+            console.log(`${file.name} uploaded successfully to ${urlType}`);
+            return url.split('?')[0];
+          } catch (error) {
+            if (axios.isAxiosError(error)) {
+              // Handle network errors separately
+              if (error.code === 'ECONNABORTED' || error.message === 'Network Error' ||
+                error.response?.status === 408 || !navigator.onLine) {
+                console.log('Network error occurred. Retrying...');
+                if (navigator.onLine) {
+                  attempt++;
                 }
+
+                if (attempt >= maxRetries) {
+                  console.error(`Failed to upload ${file.name} after ${maxRetries} attempts`);
+                  throw new Error(`Failed to upload ${file.name} after ${maxRetries} attempts.`);
+                }
+
+                const delay = 100;
+                console.warn(`Retrying upload for ${file.name}, attempt ${attempt} with a delay of ${delay}ms`);
+
+                return new Promise<string>((resolve, reject) => {
+                  const retryUpload = async () => {
+                    if (navigator.onLine) {
+                      try {
+                        const result = await uploadWithRetry();
+                        resolve(result);
+                      } catch (err) {
+                        reject(err);
+                      }
+                    } else {
+                      console.log('User is offline, waiting for connection restoration.');
+                      setError('Network error: Waiting for connection to resume.');
+                      setNetworkError(true);
+                      clearTimeout(retryTimeout as ReturnType<typeof setTimeout>);
+
+                      const connectionRestoredListener = async () => {
+                        console.log('Connection restored, resuming upload.');
+                        setNetworkError(false);
+                        window.removeEventListener('online', connectionRestoredListener);
+                        try {
+                          const result = await uploadWithRetry();
+                          resolve(result);
+                        } catch (err) {
+                          reject(err);
+                        }
+                      };
+
+                      window.addEventListener('online', connectionRestoredListener);
+
+                      retryTimeout = setTimeout(() => {
+                        if (navigator.onLine) {
+                          console.log('Connection restored, resuming upload.');
+                          setNetworkError(false);
+                          window.removeEventListener('online', connectionRestoredListener);
+                          uploadWithRetry().then(resolve).catch(reject);
+                        } else {
+                          console.log('Still offline, waiting for the connection to resume.');
+                        }
+                      }, delay);
+                    }
+                  };
+
+                  retryUpload();
+                });
               } else {
-                console.log('User is offline, retrying when connection is back.');
-                clearTimeout(retryTimeout as ReturnType<typeof setTimeout>); // Clear any previous timeouts
-
-                // Add an event listener for when the connection is restored
-                const connectionRestoredListener = async () => {
-                  console.log('Connection restored, resuming upload.');
-                  window.removeEventListener('online', connectionRestoredListener);
-                  try {
-                    const result = await uploadWithRetry();
-                    resolve(result);
-                  } catch (err) {
-                    reject(err);
-                  }
-                };
-
-                window.addEventListener('online', connectionRestoredListener);
-
-                // Schedule a retry with exponential backoff
-                retryTimeout = setTimeout(() => {
-                  if (navigator.onLine) {
-                    console.log('Connection restored, resuming upload.');
-                    window.removeEventListener('online', connectionRestoredListener);
-                    uploadWithRetry().then(resolve).catch(reject);
-                  } else {
-                    console.log('Still offline, waiting for the connection to resume.');
-                  }
-                }, delay);
+                // For non-network errors, stop the upload process
+                console.error(`Non-network error encountered during upload:`, error);
+                setError('Upload failed due to an unexpected error. Please try again later.');
+                throw new Error('Stopping upload due to an unexpected error.');
               }
-            };
+            } else if (error instanceof Error) {
+              // Handle other generic errors
+              console.error(`Unexpected error encountered during upload:`, error.message);
+              throw error;
+            } else {
+              console.error('An unknown error occurred during the upload process');
+              throw new Error('An unknown error occurred during the upload process.');
+            }
+          }
+        };
 
-            retryUpload();
-          });
-        }
-      };
+        return uploadWithRetry();
+      });
 
-      return uploadWithRetry();
-    });
+      const results = await Promise.all(uploadPromises);
+      console.log(`All ${urlType} files uploaded successfully`);
+      return results;
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(`Error uploading ${urlType} files:`, error.message);
+        throw error;
+      } else {
+        console.error('An unknown error occurred while uploading files');
+        throw new Error('An unknown error occurred while uploading files.');
+      }
+    }
+  };
 
-    const results = await Promise.all(uploadPromises);
-    console.log(`All ${urlType} files uploaded successfully`);
-    return results;
-  } catch (error) {
-    console.error(`Error uploading ${urlType} files:`, error);
-    throw error;
-  }
-};
-  
+
+
+
+  // Example handleUpload function with error handling for both network and non-network errors
   const handleUpload = async () => {
+    // Show confirmation dialog to the user
+  const confirmUpload = window.confirm(
+    "After the upload process starts, you cannot make changes. Do you want to continue?"
+  );
+  // If the user cancels, exit the function
+  if (!confirmUpload) {
+    console.log('Upload canceled by the user.');
+    return;
+  }
+
+
+
+  
     if (files.length === 0) {
       console.error('No files selected.');
       return;
     }
-  
+
     setUploading(true);
     setError(null);
     console.log('Starting file upload process');
-  
+
     try {
       const batchSize = 10;
       const allOriginalUploadedUrls: string[] = [];
       const allWatermarkedUploadedUrls: string[] = [];
       const allExifDates: any[] = [];
-  
+
       for (let i = 0; i < files.length; i += batchSize) {
         const batch = files.slice(i, i + batchSize);
         console.log(`Processing batch of ${batch.length} files`);
-  
+
         // Upload original files
         const originalUploadPromise = uploadFilesToS3(batch, 'originals');
         const exifExtractionPromises = batch.map(file => {
           console.log(`Extracting EXIF data for ${file.name}`);
           return extractExifData(file);
         });
-  
+
         const exifDates = await Promise.all(exifExtractionPromises);
         console.log('EXIF data extraction complete');
         allExifDates.push(...exifDates);
-  
+
         const originalUploadedUrls = await originalUploadPromise;
         console.log('Original images uploaded successfully:', originalUploadedUrls);
         allOriginalUploadedUrls.push(...originalUploadedUrls);
-  
+
         console.log('Starting compression and watermarking for the batch');
-        
+
         // Compress and watermark images
         const compressedFiles = await Promise.all(batch.map(async (file) => {
           try {
@@ -469,7 +551,7 @@ const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 5) =
             throw error;
           }
         }));
-  
+
         const watermarkedFiles = await Promise.all(compressedFiles.map(async (file) => {
           try {
             console.log(`Creating watermark for ${file.name}`);
@@ -481,45 +563,40 @@ const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 5) =
             throw error;
           }
         }));
-  
+
         console.log(`Uploading ${watermarkedFiles.length} watermarked files to S3`);
         const watermarkedUploadedUrls = await uploadFilesToS3(watermarkedFiles, 'watermarked');
         console.log('Watermarked images uploaded successfully:', watermarkedUploadedUrls);
         allWatermarkedUploadedUrls.push(...watermarkedUploadedUrls);
       }
-  
+
       // Filter undefined urls before calling the create function
       const validOriginalUrls = allOriginalUploadedUrls.filter((url): url is string => !!url);
       const validWatermarkedUrls = allWatermarkedUploadedUrls.filter((url): url is string => !!url);
-  
+
       console.log('Calling createImagesAndWaves with valid URLs and EXIF dates');
-      await createImagesAndWaves(validOriginalUrls, validWatermarkedUrls, allExifDates);
-  
-      setUploading(false);
-      console.log('Upload process completed successfully');
-      alert('Upload successful!');
+      const ImagesCreatedSuccessfully = await createImagesAndWaves(validOriginalUrls, validWatermarkedUrls, allExifDates);
+
+      if (ImagesCreatedSuccessfully) {
+        console.log('Upload process completed successfully');
+        setUploading(false);
+        navigate('/Successfull');
+      } else {
+        setUploading(false);
+        navigate('/FailedUpload');
+      }
     } catch (error) {
       console.error('Upload failed:', error);
-      alert('Network error. Please reconnect within 5 minutes or the upload will be canceled.');
-  
-      // Retry connection every second
-      const checkConnection = setInterval(() => {
-        if (navigator.onLine) {
-          console.log('Connection restored');
-          clearInterval(checkConnection);
+      if (error instanceof Error) {
+        if (error.message.includes('Network error')) {
+          setError('Network error: Please reconnect to continue the upload process.');
+        } else {
+          navigate('/FailedUpload'); // Navigate to /FailedUpload if not a network error
         }
-      }, 1000); // Check every second for reconnection
-  
-      setTimeout(() => {
-        clearInterval(checkConnection);
-        setUploading(false);
-        setFiles([]); // Clear files if reconnection fails
-        dispatch(removeNewSess());
-        dispatch(removeNewPrices());
-        dispatch(removeNewSessDetails());
-        navigate('/');
-        console.log('Upload canceled after 5 minutes');
-      }, 5 * 60 * 1000); // 5 minutes timeout
+      } else {
+        navigate('/FailedUpload'); // Navigate to /FailedUpload for non-Error objects
+      }
+      setUploading(false);
     }
   };
 
@@ -568,7 +645,47 @@ const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 5) =
           </Typography>
         </Alert>
       )}
-      {!uploading && (
+
+
+
+
+
+
+
+
+
+
+
+
+      {!uploading && files.length === 0 && (
+        <>
+          <Button onClick={onUploadClick} startIcon={<AddAPhotoIcon />} >Select Images </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+          />
+        </>
+      )}
+
+
+
+
+      {fileInfo && (
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 'bold', marginTop: 2, marginBottom: 2 }}
+        >
+          {fileInfo}
+        </Typography>
+      )}
+
+
+
+      {!uploading && files.length > 0 && (
         <Alert
           variant="outlined"
           color="warning"
@@ -577,6 +694,7 @@ const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 5) =
             maxWidth: isMobile ? '90%' : '420px',
             margin: '0 auto', // Center horizontally
             textAlign: 'center',
+            marginTop: 2, marginBottom: 2
           }}
         >
           <Typography>
@@ -588,30 +706,40 @@ const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 5) =
 
 
 
+      {!uploading && files.length > 0 && (
+        <>
+          <Button onClick={onUploadClick} startIcon={<ChangeCircleIcon />} sx={{ marginBottom: '100px' }} >Change Images </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+          />
+        </>
+      )}
+
+      <br></br>
 
 
 
 
-      <h1>Image Uploader</h1>
-      <button onClick={onUploadClick}>Select Images</button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        accept="image/*"
-        onChange={handleFileChange}
-        style={{ display: 'none' }}
-      />
 
 
 
-      {files.length > 0 && (
+
+
+
+
+      {files.length > 0 && !uploading && (
         <Button onClick={handleUpload} disabled={uploading}
           component="label"
           role={undefined}
           variant="contained"
           tabIndex={-1}
           startIcon={<CloudUploadIcon />}
+          size="large"
           sx={{ backgroundColor: teal[400], color: 'white' }}
         >
           {uploading ? 'Uploading...' : 'Upload'}
@@ -619,9 +747,111 @@ const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 5) =
       )}
 
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
 
-<br></br>
+
+
+      {/* <Alert
+        variant="outlined"
+        color="danger"
+        startDecorator={<ReportIcon />}
+        sx={{
+          maxWidth: isMobile ? '90%' : '420px',
+          margin: '0 auto', // Center horizontally
+          textAlign: 'center',
+        }}
+      >
+        <Typography>
+        {fileError}
+        </Typography>
+      </Alert> */}
+
+
+
+
+      {fileError &&
+       <Alert
+       variant="outlined"
+       color="danger"
+       startDecorator={<ReportIcon />}
+       sx={{
+         maxWidth: isMobile ? '90%' : '420px',
+         margin: '0 auto', // Center horizontally
+         textAlign: 'center',
+       }}
+     >
+       <Typography>
+       {fileError}
+       </Typography>
+     </Alert>
+       }
+      {/* 88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888 */}
+
+      {NetworkError &&
+        <Alert
+          variant="soft"
+          color="danger"
+          invertedColors
+          startDecorator={
+            <CircularProgress size="lg" color="danger">
+              <Warning />
+            </CircularProgress>
+          }
+          sx={{
+            maxWidth: isMobile ? '90%' : '400px',
+            margin: '0 auto', // Center horizontally
+            textAlign: 'center',
+          }}
+        >
+          <Box sx={{ flex: 1 }}>
+            <Typography >Lost connection</Typography>
+            <Typography >
+              Please verify your network connection and try again.
+            </Typography>
+          </Box>
+        </Alert>
+      }
+
+
+
+
+      {uploading && !NetworkError &&
+        <Alert
+          variant="soft"
+          color="success"
+          invertedColors
+
+          sx={{
+            maxWidth: isMobile ? '90%' : '400px',
+            margin: '0 auto', // Center horizontally
+            textAlign: 'center',
+          }}
+        >
+          <Box sx={{ flex: 1 }}>
+            <Typography sx={{ fontSize: '25px' }}>
+              Uploading...
+            </Typography>
+          </Box>
+          <LinearProgress
+            variant="solid"
+            color="success"
+            value={40}
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              borderRadius: 0,
+            }}
+          />
+        </Alert>
+      }
+
+
+
+
+
+
+      <br></br>
 
       {!uploading && (
         <Button
@@ -629,7 +859,7 @@ const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 5) =
           color="error" // Change from "danger" to "error"
           onClick={handleCancelUpload}
           sx={{ marginTop: '100px' }}
-          >
+        >
           Cancel Upload
         </Button>
       )}
