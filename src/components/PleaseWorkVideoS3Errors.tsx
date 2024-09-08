@@ -31,6 +31,7 @@ const PleaseWorkcopy = () => {
   const [networkError, setNetworkError] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
   const [fileInfo, setFileInfo] = useState<string | null>(null);
+  const [timeEstimation, setTimeEstimation] = useState<string | null>(null);
   const [totalSize, setTotalSize] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const newSess = useSelector(selectNewSess);
@@ -97,9 +98,18 @@ const PleaseWorkcopy = () => {
         setFileError(`Please select only MP4, WebM, or MOV videos. Invalid files: ${invalidFiles.join(', ')}`);
         setFiles([]); // Clear the files if any are invalid
       } else {
-        setFileError(null);
-        setFiles(fileList); // Update state with valid files
-      }
+         // Calculate the estimated upload time
+         const uploadSpeedMbps = 20; // Upload speed in Mbps
+         const uploadSpeedBps = uploadSpeedMbps * 1_000_000; // Convert to bits per second
+         const totalSizeInBits = totalSize * 8; // Convert total size to bits
+         const estimatedTimeInSeconds = totalSizeInBits / uploadSpeedBps; // Calculate time in seconds
+         const estimatedTimeInMinutes = (estimatedTimeInSeconds / 60).toFixed(0); // Convert to minutes
+ 
+         // Set the time estimation message
+         setFileError(null);
+         setFiles(fileList); // Update state with valid files
+         setTimeEstimation (`Uploading this can take more than ${estimatedTimeInMinutes} minutes with a good internet connection.` )
+        }
     }
   };
 
@@ -240,7 +250,7 @@ const PleaseWorkcopy = () => {
   }
 
 
-  
+
     if (files.length === 0) {
       console.error('No files selected.');
       return;
@@ -408,7 +418,14 @@ const PleaseWorkcopy = () => {
 
       {!uploading && files.length === 0 && (
         <>
-          <Button onClick={onUploadClick} startIcon={<VideoCallIcon />} >Select Videos </Button>
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 'bold', marginTop: 2, marginBottom: 2 }}
+        >
+          You can upload up to 20 GB 
+        </Typography>
+
+          <Button onClick={onUploadClick} startIcon={<VideoCallIcon />} size="large">Select Videos </Button>
           <input
             ref={fileInputRef}
             type="file"
@@ -430,6 +447,16 @@ const PleaseWorkcopy = () => {
           {fileInfo}
         </Typography>
       )}
+      {timeEstimation && (
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 'bold', marginTop: 2, marginBottom: 2 }}
+        >
+          {timeEstimation}
+        </Typography>
+      )}
+
+      
 
 
 

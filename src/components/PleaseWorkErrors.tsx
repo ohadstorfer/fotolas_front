@@ -35,6 +35,7 @@ const Home = () => {
   const [error, setError] = useState<string | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
   const [fileInfo, setFileInfo] = useState<string | null>(null);
+  const [timeEstimation, setTimeEstimation] = useState<string | null>(null);
   const [NetworkError, setNetworkError] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const newSess = useSelector(selectNewSess);
@@ -152,9 +153,17 @@ const Home = () => {
         setFileError(`Please select only JPEG or PNG images. Invalid files: ${invalidFiles.join(', ')}`);
         setFiles([]); // Clear the files if any are invalid
       } else {
+        // Calculate the estimated upload time
+        const uploadSpeedMbps = 20; // Upload speed in Mbps
+        const uploadSpeedBps = uploadSpeedMbps * 1_000_000; // Convert to bits per second
+        const totalSizeInBits = totalSize * 8; // Convert total size to bits
+        const estimatedTimeInSeconds = totalSizeInBits / uploadSpeedBps; // Calculate time in seconds
+        const estimatedTimeInMinutes = (estimatedTimeInSeconds / 60).toFixed(2); // Convert to minutes
+
+        // Set the time estimation message
         setFileError(null);
         setFiles(fileList); // Update state with valid files
-
+        setTimeEstimation (`Uploading this can take more than ${estimatedTimeInMinutes} minutes with a good internet connection.` )
       }
     }
   };
@@ -502,7 +511,7 @@ const Home = () => {
 
 
 
-  
+
     if (files.length === 0) {
       console.error('No files selected.');
       return;
@@ -659,7 +668,13 @@ const Home = () => {
 
       {!uploading && files.length === 0 && (
         <>
-          <Button onClick={onUploadClick} startIcon={<AddAPhotoIcon />} >Select Images </Button>
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 'bold', marginTop: 2, marginBottom: 2 }}
+        >
+          You can upload up to 20 GB 
+        </Typography>
+          <Button onClick={onUploadClick} startIcon={<AddAPhotoIcon />} size="large">Select Images </Button>
           <input
             ref={fileInputRef}
             type="file"
@@ -680,6 +695,14 @@ const Home = () => {
           sx={{ fontWeight: 'bold', marginTop: 2, marginBottom: 2 }}
         >
           {fileInfo}
+        </Typography>
+      )}
+      {timeEstimation && (
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 'bold', marginTop: 2, marginBottom: 2 }}
+        >
+          {timeEstimation}
         </Typography>
       )}
 
