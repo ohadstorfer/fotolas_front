@@ -20,6 +20,7 @@ interface perAlbumState {
   next: string | null;
   previous: string | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  serverError: string | null;
 }
 
 const initialCart = sessionStorage.getItem('cart');
@@ -38,6 +39,7 @@ const initialState: perAlbumState = {
   next: null,
   previous: null,
   status: 'idle',
+  serverError: null,
 };
 
 export const getDataAsync = createAsyncThunk<
@@ -140,6 +142,7 @@ export const perAlbumSlice = createSlice({
     })
     .addCase(getDataAsync.rejected, (state) => {
       state.status = 'failed';
+      state.serverError = 'An error occurred';
     })
       .addCase(createPerAlbumAsync.pending, (state) => {
         state.status = 'loading';
@@ -186,6 +189,7 @@ export const selectCartTotalPrice_WAVES = (state: { perAlbum: perAlbumState }) =
 export const selectPrices_WAVES = (state: { perAlbum: perAlbumState }) => state.perAlbum.prices;
 export const selectNextPageWaves = (state: { perAlbum: perAlbumState }) => state.perAlbum.next;
 export const selectPreviousPageWaves = (state: { perAlbum: perAlbumState }) => state.perAlbum.previous;
+export const selectServerError = (state: { perAlbum: perAlbumState }) => state.perAlbum.serverError;
 
 
 export default perAlbumSlice.reducer;

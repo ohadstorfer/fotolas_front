@@ -11,6 +11,7 @@ import { removeNewPrices, removeNewSess, selectNewSess } from '../slicers/sessAl
 import { Alert } from '@mui/joy';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ReportIcon from '@mui/icons-material/Report';
+import { selectSpanish } from '../slicers/sighnInSlice';
 
 
 const FailedUpload = () => {
@@ -19,7 +20,7 @@ const FailedUpload = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const isMobile = useMediaQuery('(max-width:600px)');
-
+  const spanish = useSelector(selectSpanish)
 
 
 
@@ -53,16 +54,16 @@ const FailedUpload = () => {
     <div className="container">
       <Stepper sx={{ width: '100%' , marginBottom: '40px' }}>
         <Step orientation="vertical" indicator={<StepIndicator>1</StepIndicator>}>
-          Add Session Details
+        {spanish ? 'Agregar detalles de la sesión' : 'Add Session Details'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator>2</StepIndicator>}>
-          Set Prices
+        {spanish ? 'Establecer precios' : 'Set Prices'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator>3</StepIndicator>}>
-          Upload Videos
+        {spanish ? 'Subir imágenes' : 'Upload Images'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator variant="solid" color="danger">4</StepIndicator>}>
-          Failed
+        {spanish ? 'Fallido' : 'Failed'}
         </Step>
       </Stepper>
 
@@ -82,7 +83,7 @@ const FailedUpload = () => {
           }}
         >
           <Typography>
-          Upload failed due to an unexpected error. Please try again later.
+          {spanish ? 'Falló la carga debido a un error inesperado. Por favor, inténtalo de nuevo más tarde.' : 'Upload failed due to an unexpected error. Please try again later.'}
           </Typography>
         </Alert>
 
@@ -102,7 +103,7 @@ const FailedUpload = () => {
             }}
             onClick={handleNavigateHome}
           >
-            Go to Homepage
+            {spanish ? 'Ir a la página principal' : 'Go to Homepage'}
           </Button>
     </div>
   );

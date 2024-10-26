@@ -15,6 +15,7 @@ import { getSpotById, selectSpot } from '../slicers/spotSlice';
 import { useEffect, useState } from 'react';
 import { sessGetDataAsync } from '../slicers/sessAlbumSlice';
 import SessAlbum from './SessAlbum';
+import { useMediaQuery } from '@mui/material';
 
 export default function UserCard() {
   const dispatch = useAppDispatch();
@@ -23,6 +24,7 @@ export default function UserCard() {
   const spot = useSelector(selectSpot);
   const { spotId } = useParams();
   const [loading, setLoading] = useState(true);
+  const isMobile = useMediaQuery('(max-width:600px)');
   
   useEffect(() => {
     if (spotId) {
@@ -34,13 +36,19 @@ export default function UserCard() {
   }, [dispatch, spotId]);
 
   
+
+
+
+  
   return (
     <><Box
-      sx={{
-        width: '50%',
-        margin: 'auto',
-        marginTop: '16px',
-      }}
+    sx={{
+      width: isMobile ? '90%' : '30%',  // Width changes based on device
+      margin: '0 auto',
+      marginTop: '16px',
+      display: 'flex',  // Use flexbox to center content
+      justifyContent: 'center',  // Center horizontally
+    }}
     >
       <Card
         orientation="horizontal"
@@ -80,29 +88,10 @@ export default function UserCard() {
               <Typography level="body-xs" fontWeight="lg">
                 Albums
               </Typography>
-              <Typography fontWeight="lg">34</Typography>
+              <Typography fontWeight="lg">{spot?.session_album_count}</Typography>
             </div>
-            <div>
-              <Typography level="body-xs" fontWeight="lg">
-                Followers
-              </Typography>
-              <Typography fontWeight="lg">980</Typography>
-            </div>
-            <div>
-              <Typography level="body-xs" fontWeight="lg">
-                Photographers
-              </Typography>
-              <Typography fontWeight="lg">9</Typography>
-            </div>
+
           </Sheet>
-          <Box sx={{ display: 'flex', gap: 1.5, '& > button': { flex: 1 } }}>
-            <Button variant="outlined" color="neutral">
-              Copy Link
-            </Button>
-            <Button variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
-              Follow
-            </Button>
-          </Box>
         </CardContent>
       </Card>
     </Box>

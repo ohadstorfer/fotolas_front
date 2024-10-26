@@ -35,29 +35,49 @@ const ProtectedRoutesCreatSessAlbumcopy = () => {
     useEffect(() => {
 
         if (newSess) {
-            console.log("there is already a session");
             
-            // Check if newSess was updated less than 2 seconds ago
-            const updatedAt = new Date(newSess.updated_at).getTime();
-            const currentTime = new Date().getTime();
-            const timeDifference = currentTime - updatedAt;
-
-            if (timeDifference < 2000) { // 2000ms = 2 seconds
-                // If the album was updated less than 2 seconds ago, navigate automatically
-                if (newSess.videos) {
-                    navigate('/CreatePricesForVideos');
-                } else {
-                    navigate('/CreatePrices');
-                }
-            } else {
                 dispatch(fetchSessAlbumByIdAsync(newSess.id));
                 setShowDialog(true);
-            }
+            
         }else {
             console.log("there is already a session");
             navigate('/CreatSessAlbumErrors');
         }
     }, [newSess, dispatch, navigate]);
+
+
+
+
+    // useEffect(() => {
+
+    //     if (newSess) {
+    //         console.log("there is already a session");
+            
+    //         // Check if newSess was updated less than 2 seconds ago
+    //         const updatedAt = new Date(newSess.updated_at).getTime();
+    //         const currentTime = new Date().getTime();
+    //         const timeDifference = currentTime - updatedAt;
+
+    //         if (timeDifference < 2000) { // 2000ms = 2 seconds
+    //             // If the album was updated less than 2 seconds ago, navigate automatically
+    //             if (newSess.videos) {
+    //                 navigate('/CreatePricesForVideos');
+    //             } else {
+    //                 navigate('/CreatePrices');
+    //             }
+    //         } else {
+    //             dispatch(fetchSessAlbumByIdAsync(newSess.id));
+    //             setShowDialog(true);
+    //         }
+    //     }else {
+    //         console.log("there is already a session");
+    //         navigate('/CreatSessAlbumErrors');
+    //     }
+    // }, [newSess, dispatch, navigate]);
+
+
+
+
 
     const handleContinue = () => {
         setShowDialog(false);
@@ -67,6 +87,10 @@ const ProtectedRoutesCreatSessAlbumcopy = () => {
             navigate('/CreatePrices');
         }
     };
+
+
+
+
 
     const handleNewAlbum = () => {
         setShowDialog(false);

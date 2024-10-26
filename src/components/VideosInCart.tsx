@@ -7,7 +7,7 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import { selectSelectedSessAlbum } from '../slicers/sessAlbumSlice';
 import { fetchPricesBySessionAlbumId } from '../slicers/perAlbumSlice';
-import { addToCart_videos, selectCart, calculatePriceForVideos, removeFromCart_videos, removeSessAlbumOfCart, selectSessAlbumOfCart, setSessAlbumOfCart, fetchPricesForVideosBySessionAlbumId, setCartType, removeCartType } from '../slicers/cartSlice';
+import { addToCart_videos, selectCart, calculatePriceForVideos, removeFromCart_videos, removeSessAlbumOfCart, selectSessAlbumOfCart, setSessAlbumOfCart, fetchPricesForVideosBySessionAlbumId, setCartType, removeCartType, selectCartOfVideos } from '../slicers/cartSlice';
 import { useAppDispatch } from '../app/hooks';
 import { teal } from '@mui/material/colors';
 import SessAlbumDetails from './SessAlbumDetails';
@@ -21,8 +21,8 @@ interface Video {
   SessionAlbum: number;
 }
 
-const Video: React.FC = () => {
-  const videos = useSelector(selectVideos) as Video[];
+const VideosInCart: React.FC = () => {
+  const videos = useSelector(selectCartOfVideos) as Video[];
   const cart = useSelector(selectCart);
   const sessAlbumOfCart = useSelector(selectSessAlbumOfCart);
   const dispatch = useAppDispatch();
@@ -35,21 +35,19 @@ const Video: React.FC = () => {
 
 
 
-
-  useEffect(() => {
-    if (selectedSessAlbum) {
-      const albumId = selectedSessAlbum.id
-      dispatch(fetchVideosBySessionAsync({ albumId }));
-      dispatch(fetchPricesForVideosBySessionAlbumId(albumId));
-    }
-  }, [dispatch]);
+  // useEffect(() => {
+  //   if(selectedSessAlbum){
+  //     const albumId = selectedSessAlbum.id
+  //     dispatch(fetchVideosBySessionAsync({ albumId }));
+  //   }
+  // }, [dispatch]);
 
 
 
 
   const handleAddToCart = async (video: Video, sessionAlbum: number) => {
     if (sessAlbumOfCart && sessAlbumOfCart !== selectedSessAlbum) {
-      alert('Your cart already contains items from a different session. You can only add items from the same session to your cart.');
+      alert('You can only add waves from the same session album.');
       return;
     }
     if (!sessAlbumOfCart) {
@@ -67,19 +65,16 @@ const Video: React.FC = () => {
 
 
   const handleRemoveFromCart = (videoId: number) => {
-    // const confirmed = window.confirm('Remove this video from your cart?');
-    // if (confirmed) {
+    const confirmed = window.confirm('Remove this video from your cart?');
+    if (confirmed) {
       if (cart.length === 1) {
         dispatch(removeSessAlbumOfCart());
         dispatch(removeCartType());
       }
       dispatch(removeFromCart_videos({ videoId }));
       dispatch(calculatePriceForVideos());
-    // }
+    }
   };
-
-
-
 
   const handleVideoClick = (id: number) => {
     setActiveVideos((prev) => ({
@@ -120,14 +115,6 @@ const Video: React.FC = () => {
 
 
 
-
-
-
-
-
-
-
-
   return (
     <div>
       <SessAlbumDetails />
@@ -152,30 +139,20 @@ const Video: React.FC = () => {
 
 
 
-      <ImageList variant="standard" cols={isMobile ? 1 : 4} sx={{ margin: '20px'  }}>
+      <ImageList variant="standard" cols={isMobile ? 1 : 3} sx={{ margin: '20px' }}>
         {videos.map((video) => {
           const isInCart = cart.includes(video.id);
           const isActive = activeVideos[video.id];
 
           return (
             <ImageListItem key={video.id}>
-              <Card
-              sx={{
-                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)', // Shadow on all sides
-                borderRadius: '8px', // Optional: smooth corners
-              }}>
+              <Card>
                 <CardActionArea onClick={() => handleVideoClick(video.id)}>
                   <AspectRatio ratio="4/3">
                     {isActive ? (
                       <video controls src={video.WatermarkedVideo} />
                     ) : (
-                      <img
-                        src={video.img}
-                        alt={`Thumbnail for video ${video.id}`}
-                        onError={(e) => {
-                          e.currentTarget.src = video.img.replace('0000001', '0000000'); // Use fallback image on error
-                        }}
-                      />
+                      <img src={video.img} alt={`Thumbnail for video ${video.id}`} />
                     )}
                     <Box
                       sx={{
@@ -229,18 +206,11 @@ const Video: React.FC = () => {
       </ImageList>
 
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
-          Previous
-        </Button>
-        <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
-          Next
-        </Button>
-      </Box>
+      
 
 
     </div>
   );
 };
 
-export default Video;
+export default VideosInCart;

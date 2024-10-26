@@ -4,7 +4,7 @@ import Navbar from './components/Navbar';
 import PerAlbum from './components/PerAlbum';
 import Photographer from './components/Photographer';
 import SessAlbum from './components/SessAlbum';
-import { createBrowserRouter, createRoutesFromElements, Link, Outlet, Route, RouterProvider, useLocation }from 'react-router-dom'
+import { createBrowserRouter, createRoutesFromElements, Link, Outlet, Route, RouterProvider, useLocation } from 'react-router-dom'
 import Spot from './components/Spot';
 import SignInSide from './components/SignInSide';
 import SignUp from './components/SignUp';
@@ -43,55 +43,80 @@ import CreatSessAlbumErrors from './components/CreatSessAlbumErrors';
 import Successfull from './components/Successfull';
 import PleaseWorkVideoS3Errors from './components/PleaseWorkVideoS3Errors';
 import FailedUpload from './components/FailedUpload';
+import CartErrors from './components/CartErrors';
+import ResetPassword from './components/ResetPassword';
+import ResetPasswordStep2 from './components/ResetPasswordStep2';
+import ErrorBoundary from './utils/ErrorBoundary';
+import ErrorPage from './components/ErrorPage';
+import { Error } from '@mui/icons-material';
+import ServerErrorPage from './components/ServerErrorPage';
+import CoverImageHomePage from './components/CoverImageHomePage';
+import PhotographerNavbar from './components/PhotographerNavbar';
+import MyAlbums from './components/MyAlbums';
+
+
 
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="/" element={<Root />}>
-      <Route index element={<SessAlbum filterType="aaaaa" filterId={5} />} />
-      <Route path="/PerAlbum" element={<PerAlbum />} />
-      <Route path="/Images" element={<Images />} />
-      <Route path="/Photographer/:photographerId" element={<Photographer />} />
-      <Route path="/Spot/:spotId" element={<Spot />} />
-      <Route path="/SignIn" element={<SignInSide />} />
-      <Route path="/SignUp" element={<SignUp />} />
-      <Route path="/AllWidgets" element={<AllWidgets />} />
-      <Route path="/FileUploadComponent" element={<FileUploadComponent />} />
-      <Route path="/Cart" element={<Cart />} />
-      <Route path="/Video" element={<Video />} />
-      <Route path="/UndividedImgs" element={<UndividedImgs />} />
-      <Route path="/DashboardSurfer" element={<DashboardSurfer />} />
-      <Route path="/BecomePhotographer" element={<BecomePhotographer />} />
-      
 
-      <Route element={<ProtectedRoutesPhotographers />}>
-        <Route path="/ProfilePtg" element={<ProfilePhotographer />} />
-        <Route path="/EditProfilePtg" element={<EditProfilePtg />} />
-        <Route path="/CreatePrices" element={<CreatePrices />} />
-        <Route path="/CreatePricesForVideos" element={<CreatePricesForVideos />} />
-        <Route path="/PleaseWork" element={<PleaseWork />} />
-        <Route path="/PleaseWorkneww" element={<PleaseWorkneww />} />
-        <Route path="/PleaseWorkVideoCloudinary" element={<PleaseWorkVideoCloudinary />} />
-        <Route path="/PleaseWorkVideoS3" element={<PleaseWorkVideoS3 />} />
-        <Route path="/PleaseWorkVideoS3Errors" element={<PleaseWorkVideoS3Errors />} />
-        <Route path="/PleaseWorkErrors" element={<PleaseWorkErrors />} />
-        <Route path="/DashboardPhotographer" element={<DashboardPhotographer />} />
-        <Route path="/CreatSessAlbum" element={<CreatSessAlbum />} />
-        <Route path="/CreatSessAlbumErrors" element={<CreatSessAlbumErrors />} />
-        <Route path="/ProtectedRoutesCreatSessAlbumcopy" element={<ProtectedRoutesCreatSessAlbumcopy />} />
-        <Route path="/Successfull" element={<Successfull />} />
-        <Route path="/FailedUpload" element={<FailedUpload />} />
+      <Route path="/" element={<ErrorBoundary fallback={<ErrorPage />}><Root /></ErrorBoundary>}>
+        <Route index element={<SessAlbum filterType="aaaaa" filterId={5} />} />
+        <Route path="/PerAlbum" element={<PerAlbum />} />
+        <Route path="/Images" element={<Images />} />
+        <Route path="/Photographer/:photographerId" element={<Photographer />} />
+        <Route path="/Spot/:spotId" element={<Spot />} />
+        <Route path="/SignIn" element={<SignInSide />} />
+        <Route path="/SignUp" element={<SignUp />} />
+        <Route path="/AllWidgets" element={<AllWidgets />} />
+        <Route path="/FileUploadComponent" element={<FileUploadComponent />} />
+        <Route path="/Cart" element={<Cart />} />
+        <Route path="/CartErrors" element={<CartErrors />} />
+        <Route path="/Video" element={<Video />} />
+        <Route path="/UndividedImgs" element={<UndividedImgs />} />
+        <Route path="/DashboardSurfer" element={<DashboardSurfer />} />
+        <Route path="/BecomePhotographer" element={<BecomePhotographer />} />
+        <Route path="/RequestResetPassword" element={<ResetPassword />} />
+        <Route path="/reset-password/" element={<ResetPasswordStep2 />} />
+        <Route path="/ServerErrorPage" element={<ServerErrorPage />} />
+        <Route path="/CoverImageHomePage" element={<CoverImageHomePage />} />
+
+
+        <Route element={<ProtectedRoutesPhotographers />}>
+          <Route path="/ProfilePtg" element={<ProfilePhotographer />} />
+          <Route path="/EditProfilePtg" element={<EditProfilePtg />} />
+          <Route path="/CreatePrices" element={<CreatePrices />} />
+          <Route path="/CreatePricesForVideos" element={<CreatePricesForVideos />} />
+          <Route path="/PleaseWork" element={<PleaseWork />} />
+          <Route path="/PleaseWorkneww" element={<PleaseWorkneww />} />
+          <Route path="/PleaseWorkVideoCloudinary" element={<PleaseWorkVideoCloudinary />} />
+          <Route path="/PleaseWorkVideoS3" element={<PleaseWorkVideoS3 />} />
+          <Route path="/PleaseWorkVideoS3Errors" element={<PleaseWorkVideoS3Errors />} />
+          <Route path="/PleaseWorkErrors" element={<PleaseWorkErrors />} />
+          <Route path="/DashboardPhotographer" element={<DashboardPhotographer />} />
+          <Route path="/CreatSessAlbum" element={<CreatSessAlbum />} />
+          <Route path="/CreatSessAlbumErrors" element={<CreatSessAlbumErrors />} />
+          <Route path="/ProtectedRoutesCreatSessAlbumcopy" element={<ProtectedRoutesCreatSessAlbumcopy />} />
+          <Route path="/Successfull" element={<Successfull />} />
+          <Route path="/FailedUpload" element={<FailedUpload />} />
+          <Route path="/MyAlbums" element={<MyAlbums />} />
+
+
+        </Route>
 
       </Route>
 
-    </Route>
     )
   );
-  
+
   return (
+
     <div className="App">
-      <RouterProvider router={router}/>
+
+      <RouterProvider router={router} />
+
     </div>
+
   );
 }
 
@@ -108,40 +133,70 @@ const Root = () => {
   ];
   const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
 
+  const showCoverImage = [
+    '/',
+  ];
+  const shouldShowCoverImage = showCoverImage.includes(location.pathname);
 
-  return( 
+  const showPhotographerNavbar = [
+    '/DashboardPhotographer',
+    '/CreatSessAlbumErrors',
+    '/EditProfilePtg',
+    '/ProfilePtg',
+    '/MyAlbums',
+    '/FailedUpload',
+  ];
+  const shouldShowPhotographerNavbar = showPhotographerNavbar.includes(location.pathname);
+
+
+
+  return (
     <>
-  <div>
-  {!shouldHideNavbar && <Navbar />}
-  </div>
+      <div>
+        {!shouldHideNavbar && <Navbar />}
+        {shouldShowPhotographerNavbar && <PhotographerNavbar />}
+      </div>
 
-  <div style={{ marginTop: '80px', padding: '0px' }}>  
-   
+      {shouldShowCoverImage &&
+        <div style={{ marginTop: '70px', padding: '0px' }}>
+          <CoverImageHomePage />
+        </div>
+      }
 
-    {/* <Outlet ></Outlet> */}
-    {/* <Successfull></Successfull> */}
-    {/* <DashboardSurferImages></DashboardSurferImages> */}
-    {/* <DashboardPhotographer></DashboardPhotographer> */}
-    {/* <PleaseWorkneww></PleaseWorkneww> */}
-    
-    {/* <BecomePhotographer></BecomePhotographer> */}
-    {/* <PleaseWork></PleaseWork> */}
-    {/* <UploadImage></UploadImage> */}
-    {/* <hr></hr> */}
-    {/* <PleaseWorkVideoCloudinary></PleaseWorkVideoCloudinary> */}
-    {/* <UploadWidget></UploadWidget> */}
-    {/* <PleaseWorkVideoS3></PleaseWorkVideoS3> */}
-    {/* <CreatSessAlbum></CreatSessAlbum> */}
-    {/* <CreatePricesForVideos></CreatePricesForVideos> */}
-    {/* <CreatePrices></CreatePrices> */}
-    {/* <PleaseWorkneww></PleaseWorkneww> */}
-    {/* <CreatSessAlbumErrors></CreatSessAlbumErrors> */}
-    {/* <FailedUpload></FailedUpload> */}
-    <PleaseWorkErrors></PleaseWorkErrors>
-    <hr></hr>
-    <PleaseWorkVideoS3Errors></PleaseWorkVideoS3Errors>
-  </div>
-  </>
+
+      <div
+        style={{
+          marginTop: shouldShowPhotographerNavbar ? '9px' : (!shouldShowCoverImage ? '80px' : '0px'),
+          padding: '0px'
+        }}
+      >
+
+
+        <div>
+          <Outlet />
+        </div>
+        {/* <ErrorPage></ErrorPage> */}
+        {/* <ResetPassword></ResetPassword> */}
+        {/* <ResetPasswordStep2></ResetPasswordStep2> */}
+        {/* <Successfull></Successfull> */}
+        {/* <DashboardSurferImages></DashboardSurferImages> */}
+        {/* <DashboardPhotographer></DashboardPhotographer> */}
+        {/* <PleaseWorkneww></PleaseWorkneww> */}
+        {/* <Cart></Cart> */}
+        {/* <BecomePhotographer></BecomePhotographer> */}
+        {/* <hr></hr> */}
+        {/* <CreatePricesForVideos></CreatePricesForVideos> */}
+        {/* <CreatePrices></CreatePrices> */}
+        {/* <CreatSessAlbumErrors></CreatSessAlbumErrors> */}
+        {/* <FailedUpload></FailedUpload> */}
+        {/* <PleaseWorkErrors></PleaseWorkErrors> */}
+        {/* <hr></hr> */}
+        {/* <PleaseWorkVideoS3Errors></PleaseWorkVideoS3Errors> */}
+        {/* <FailedUpload></FailedUpload> */}
+        {/* <SignUp></SignUp> */}
+
+      </div>
+    </>
   )
 }
 

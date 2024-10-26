@@ -31,6 +31,7 @@ interface purchaseItem {
   PurchaseId: number;
   Img: number;
   Video: number;
+  days_until_expiration: number;
 }
 
 
@@ -61,6 +62,8 @@ export const createPurchaseWithImagesAsync = createAsyncThunk(
 export const createPurchaseWithVideosAsync = createAsyncThunk(
   'purchase/createWithVideos',
   async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string, photographer_name: string, surfer_name: string, video_ids: number[] }) => {
+    console.log(purchaseData.video_ids);
+    
     const response = await createPurchaseWithVideos(purchaseData);
     return response.data;
   }

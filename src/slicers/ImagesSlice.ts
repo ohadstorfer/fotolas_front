@@ -53,9 +53,9 @@ const initialState: imagesState = {
   error: null,
 };
 
-export const resetImages = () => ({
-  type: 'images/resetImages',
-});
+// export const resetImages = () => ({
+//   type: 'images/resetImages',
+// });
 
 export const personalGetDataAsync = createAsyncThunk<Img[], number>('images/fetchwatermarked_photos', async (albumId: number) => {
   const response = await fetchwatermarked_photos(albumId);
@@ -178,6 +178,13 @@ export const imagesSlice = createSlice({
       });
   },
 });
+
+
+
+
+export const { resetImages } = imagesSlice.actions;
+
+
 
 export const selectImg = (state: { images: imagesState }) => state.images.imgs;
 export const selectVideos = (state: { images: imagesState }) => state.images.videos;

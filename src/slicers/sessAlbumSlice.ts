@@ -1,7 +1,7 @@
 // sessAlbumSlice.ts
 import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { formatDistanceToNow } from 'date-fns';  // Import from date-fns
-import { allSessAlbum, createSessAlbum, sessAlbumsByPhotographer, sessAlbumsBySpot, sessById, updatePrices,updatePricesForVideos } from '../services/sessAlbumAPI';
+import { allSessAlbum, createSessAlbum, deactivateSessionAlbum, sessAlbumsByPhotographer, sessAlbumsBySpot, sessById, updatePrices,updatePricesForVideos } from '../services/sessAlbumAPI';
+import { getPricesBySess } from '../services/perAlbumAPI';
 
 interface sess {
   id: number;
@@ -18,6 +18,8 @@ interface sess {
   videos: boolean;
   dividedToWaves: boolean;
   active: boolean;
+  expiration_date: Date;
+  days_until_expiration: number;
 }
 
 interface sessAlbumState {
@@ -26,6 +28,7 @@ interface sessAlbumState {
   newSess:sess | null;
   newSessDetails:sess | null;
   newPrices: {}| null;
+  pricesSelectedSessAlbum: any | null;
   videos: boolean;
   dividedToWaves: boolean;
   next: string | null;
@@ -44,6 +47,8 @@ interface FetchParams {
 const initialNewSess = sessionStorage.getItem('newSess');
 const initialNewPrices = sessionStorage.getItem('newPrices');
 const initialSelectedSessAlbum = sessionStorage.getItem('selectedSessAlbum');
+const initialPricesSelectedSessAlbum = sessionStorage.getItem('pricesSelectedSessAlbum');
+
 
 const initialState: sessAlbumState = {
   sess: [],
@@ -53,7 +58,8 @@ const initialState: sessAlbumState = {
   videos: false,
   dividedToWaves: false,
   status: 'idle',
-  selectedSessAlbum: initialSelectedSessAlbum ? JSON.parse(initialSelectedSessAlbum) : [],
+  selectedSessAlbum: initialSelectedSessAlbum ? JSON.parse(initialSelectedSessAlbum) : null,
+  pricesSelectedSessAlbum: initialPricesSelectedSessAlbum ? JSON.parse(initialPricesSelectedSessAlbum) : null,
   next: null,
   previous: null,
   
@@ -61,9 +67,54 @@ const initialState: sessAlbumState = {
 
 
 
-export const calculateTimeAgo = (dateString: Date) => {
-  const date = new Date(dateString);
-  return formatDistanceToNow(date, { addSuffix: true });
+export const fetchPricesBySessionAlbumId = createAsyncThunk(
+  'cart/fetchPricesBySessionAlbumId',
+  async (albumId: number) => {
+      const response = await getPricesBySess(albumId);
+      return response.data;
+  }
+);
+
+
+
+
+
+
+export const formatSessDate = (dateInput: string | Date) => {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  const optionsDate: Intl.DateTimeFormatOptions = {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  };
+  const optionsTime: Intl.DateTimeFormatOptions = {
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true, // 12-hour clock
+  };
+  const formattedDate = date.toLocaleDateString('en-GB', optionsDate);
+  const formattedTime = date.toLocaleTimeString('en-GB', optionsTime);
+  return `${formattedDate} , ${formattedTime}`;
+};
+
+
+
+
+export const shortFormatSessDate = (dateInput: string | Date) => {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  const optionsDate: Intl.DateTimeFormatOptions = {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+  };
+  const optionsTime: Intl.DateTimeFormatOptions = {
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: false, // 12-hour clock
+  };
+  const formattedDate = date.toLocaleDateString('en-GB', optionsDate);
+  const formattedTime = date.toLocaleTimeString('en-GB', optionsTime);
+  return `${formattedDate} , ${formattedTime}`;
 };
 
 
@@ -103,7 +154,7 @@ export const sessGetDataAsync = createAsyncThunk<
     return {
       data: data.map((item: { sessDate: Date }) => ({
         ...item,
-        timeAgo: calculateTimeAgo(item.sessDate),
+        formatSessDate: formatSessDate(String(item.sessDate)),
       })),
       next: response.data.next || null,
       previous: response.data.previous || null,
@@ -137,18 +188,31 @@ export const createSessAlbumAsync = createAsyncThunk(
 
 
 
-export const updatePricesAsync = createAsyncThunk('updatePrices', async (credentials: {session_album: number, price_1_to_5: number, price_6_to_20: number, price_21_to_50:number, price_51_plus:number  }) => {
+export const updatePricesAsync = createAsyncThunk('updatePrices', async (credentials: {session_album: number, price_1_to_5: number,  price_6_to_50:number, price_51_plus:number  }) => {
   console.log("updatePrices asynchronously");
   const response = await updatePrices(credentials);
   return response.data; 
 });
 
 
-export const updatePricesForVideosAsync = createAsyncThunk('updatePricesForVideos', async (credentials: {session_album: number, price_1_to_5: number, price_6_to_15: number, price_16_plus:number  }) => {
+export const updatePricesForVideosAsync = createAsyncThunk('updatePricesForVideos', async (credentials: {session_album: number, price_1_to_3: number, price_4_to_15: number, price_16_plus:number  }) => {
   console.log("updatePricesForVideos asynchronously");
   const response = await updatePricesForVideos(credentials);
   return response.data; 
 });
+
+
+
+
+// Create an async thunk for deactivating a session album
+export const deactivateSessionAlbumThunk = createAsyncThunk(
+  'sessionAlbum/deactivate',
+  async (sessionAlbumId: number) => {
+    const response = await deactivateSessionAlbum(sessionAlbumId);
+      return response; 
+  }
+);
+
 
 
 export const sessAlbumSlice = createSlice({
@@ -251,6 +315,18 @@ export const sessAlbumSlice = createSlice({
         state.status = 'succeeded';
       })
       .addCase(updatePricesForVideosAsync.rejected, (state) => {
+        state.status = 'failed';
+      })
+      .addCase(fetchPricesBySessionAlbumId.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchPricesBySessionAlbumId.fulfilled, (state, action) => {
+        state.pricesSelectedSessAlbum = action.payload;
+        console.log("state.prices: " , state.pricesSelectedSessAlbum);
+        
+        state.status = 'succeeded';
+      })
+      .addCase(fetchPricesBySessionAlbumId.rejected, (state) => {
         state.status = 'failed';
       });
       

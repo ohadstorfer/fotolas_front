@@ -23,6 +23,9 @@ import Warning from '@mui/icons-material/Warning';
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import ReportIcon from '@mui/icons-material/Report';
+import { selectSpanish, selectToken, toggleSpanish } from '../slicers/sighnInSlice';
+import { Dialog, DialogActions, DialogContent, DialogContentText } from '@mui/material';
+import ConfirmationDialog from './ConfirmationDialog';
 
 
 
@@ -43,6 +46,8 @@ const Home = () => {
   const dispatch = useAppDispatch();
   const [watermarkImg, setWatermarkImg] = useState<HTMLImageElement | null>(null);
   const isMobile = useMediaQuery('(max-width:600px)');
+  const spanish = useSelector(selectSpanish)
+  const [dialogOpen, setDialogOpen] = useState(false);
 
 
 
@@ -72,18 +77,27 @@ const Home = () => {
 
 
 
+  const setSpanish = () => {
+    dispatch(toggleSpanish());
+  };
+
 
 
 
   const handleCancelUpload = () => {
-    const confirmCancel = window.confirm('Are you sure you want to cancel the upload?');
+    setDialogOpen(true); // Open the dialog
+  };
 
-    if (confirmCancel) {
-      dispatch(removeNewSess());
-      dispatch(removeNewPrices());
-      dispatch(removeNewSessDetails());
-      navigate('/');
-    }
+  const handleDialogClose = () => {
+    setDialogOpen(false); // Close the dialog
+  };
+
+  const handleDialogConfirm = () => {
+    dispatch(removeNewSess());
+    dispatch(removeNewPrices());
+    dispatch(removeNewSessDetails());
+    navigate('/'); // Navigate after confirmation
+    setDialogOpen(false); // Close the dialog
   };
 
 
@@ -94,7 +108,7 @@ const Home = () => {
   useEffect(() => {
     const fetchWatermark = async () => {
       try {
-        const watermarkUrl = 'https://surfingram-watermarked.s3.us-east-2.amazonaws.com/surfingram-watermark.png';
+        const watermarkUrl = 'https://surfingram-profile-images.s3.us-east-2.amazonaws.com/picawave+watermark.png';
         const img = new Image();
         img.src = watermarkUrl;
         img.crossOrigin = 'Anonymous';
@@ -147,23 +161,32 @@ const Home = () => {
 
       // Check if the total file size exceeds the limit
       if (totalSize > maxFileSize) {
-        setFileError('You can only upload up to 20 GB limit. Please select fewer images.');
+        setFileError(spanish
+          ? 'Solo puedes subir hasta un límite de 20 GB. Por favor, selecciona menos imágenes.'
+          : 'You can upload a maximum of 20 GB. Please select fewer images.'
+        );
         setFiles([]); // Clear the files if the total size exceeds the limit
       } else if (invalidFiles.length > 0) {
-        setFileError(`Please select only JPEG or PNG images. Invalid files: ${invalidFiles.join(', ')}`);
+        setFileError(spanish
+          ? `Por favor, selecciona solo imágenes en formato JPEG o PNG. Archivos inválidos: ${invalidFiles.join(', ')}`
+          : `Please select only JPEG or PNG images. Invalid files: ${invalidFiles.join(', ')}`
+        );
         setFiles([]); // Clear the files if any are invalid
       } else {
         // Calculate the estimated upload time
         const uploadSpeedMbps = 20; // Upload speed in Mbps
         const uploadSpeedBps = uploadSpeedMbps * 1_000_000; // Convert to bits per second
-        const totalSizeInBits = totalSize * 8; // Convert total size to bits
+        const totalSizeInBits = totalSize * 8 * 1.5; // Convert total size to bits
         const estimatedTimeInSeconds = totalSizeInBits / uploadSpeedBps; // Calculate time in seconds
         const estimatedTimeInMinutes = (estimatedTimeInSeconds / 60).toFixed(2); // Convert to minutes
 
         // Set the time estimation message
         setFileError(null);
         setFiles(fileList); // Update state with valid files
-        setTimeEstimation (`Uploading this can take more than ${estimatedTimeInMinutes} minutes with a good internet connection.` )
+        setTimeEstimation(spanish
+          ? `Subir esto puede tardar más de ${estimatedTimeInMinutes} minutos con una buena conexión a Internet.`
+          : `Uploading this can take more than ${estimatedTimeInMinutes} minutes with a good internet connection.`
+        );
       }
     }
   };
@@ -283,9 +306,10 @@ const Home = () => {
               return reject(new Error('Canvas context not available'));
             }
 
+            // Draw the main image on the canvas
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-            // Resize the watermark image to fit
+            // Set up the watermark canvas for resizing
             const watermarkCanvas = document.createElement('canvas');
             watermarkCanvas.width = targetWidth;
             watermarkCanvas.height = targetHeight;
@@ -295,11 +319,17 @@ const Home = () => {
               return reject(new Error('Watermark canvas context not available'));
             }
 
+            // Draw the watermark image resized to fit the target dimensions
             watermarkCtx.drawImage(watermarkImg, 0, 0, targetWidth, targetHeight);
 
-            // Draw the resized watermark on the main canvas
+            // Apply the watermark with 50% opacity
+            ctx.globalAlpha = 0.5;  // Set global alpha to 50% opacity
             ctx.drawImage(watermarkCanvas, 0, 0);
 
+            // Reset the globalAlpha after drawing the watermark
+            ctx.globalAlpha = 1.0;
+
+            // Prepare for resizing the final image
             const offscreenCanvas = document.createElement('canvas');
             offscreenCanvas.width = canvas.width;
             offscreenCanvas.height = canvas.height;
@@ -341,6 +371,7 @@ const Home = () => {
 
 
 
+
   const createImagesAndWaves = async (originalUrls: string[], watermarkedUrls: string[], exifDates: string[] = []) => {
     try {
       console.log({
@@ -370,6 +401,18 @@ const Home = () => {
 
 
 
+  // Function to remove acceleration endpoint from URL
+  const removeAccelerationEndpoint = (url: string): string => {
+    return url.replace('s3-accelerate.amazonaws.com', 's3.amazonaws.com');
+  };
+
+
+
+
+
+
+
+
 
 
 
@@ -377,7 +420,7 @@ const Home = () => {
 
   const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 3) => {
     console.log(`Starting upload for ${files.length} ${urlType} files`);
-    
+
 
     try {
       const response = await axios.get(`http://localhost:8000/presigned_urls_for_${urlType}?num_urls=${files.length}`);
@@ -497,17 +540,10 @@ const Home = () => {
 
 
 
+
+
   // Example handleUpload function with error handling for both network and non-network errors
   const handleUpload = async () => {
-    // Show confirmation dialog to the user
-  const confirmUpload = window.confirm(
-    "After the upload process starts, you cannot make changes. Do you want to continue?"
-  );
-  // If the user cancels, exit the function
-  if (!confirmUpload) {
-    console.log('Upload canceled by the user.');
-    return;
-  }
 
 
 
@@ -579,9 +615,16 @@ const Home = () => {
         allWatermarkedUploadedUrls.push(...watermarkedUploadedUrls);
       }
 
-      // Filter undefined urls before calling the create function
-      const validOriginalUrls = allOriginalUploadedUrls.filter((url): url is string => !!url);
-      const validWatermarkedUrls = allWatermarkedUploadedUrls.filter((url): url is string => !!url);
+      // Filter and transform URLs
+      const validOriginalUrls = allOriginalUploadedUrls
+        .filter((url): url is string => !!url)
+        .map(removeAccelerationEndpoint);
+
+      const validWatermarkedUrls = allWatermarkedUploadedUrls
+        .filter((url): url is string => !!url)
+        .map(removeAccelerationEndpoint);
+
+
 
       console.log('Calling createImagesAndWaves with valid URLs and EXIF dates');
       const ImagesCreatedSuccessfully = await createImagesAndWaves(validOriginalUrls, validWatermarkedUrls, allExifDates);
@@ -589,6 +632,9 @@ const Home = () => {
       if (ImagesCreatedSuccessfully) {
         console.log('Upload process completed successfully');
         setUploading(false);
+        dispatch(removeNewSess());
+        dispatch(removeNewPrices());
+        dispatch(removeNewSessDetails());
         navigate('/Successfull');
       } else {
         setUploading(false);
@@ -618,19 +664,19 @@ const Home = () => {
 
       <Stepper sx={{ width: '100%', marginBottom: '40px' }}>
         <Step orientation="vertical" indicator={<StepIndicator>1</StepIndicator>}>
-          Add Session Details
+          {spanish ? 'Agregar detalles de la sesión' : 'Add Session Details'}
         </Step>
         <Step
           orientation="vertical"
           indicator={<StepIndicator>2</StepIndicator>}
         >
-          Set Prices
+          {spanish ? 'Establecer precios' : 'Set Prices'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator variant="solid" sx={{ backgroundColor: teal[400], color: 'white' }}>3</StepIndicator>}>
-          Upload Images
+          {spanish ? 'Subir imágenes' : 'Upload Images'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator variant="outlined">4</StepIndicator>}>
-          Done!
+          {spanish ? '¡Hecho!' : 'Done!'}
         </Step>
       </Stepper>
 
@@ -650,7 +696,7 @@ const Home = () => {
           }}
         >
           <Typography>
-            Do not leave the page or turn off your computer!
+            {spanish ? '¡No salgas de la página ni apagues tu computadora!' : 'Do not leave the page or turn off your computer!'}
           </Typography>
         </Alert>
       )}
@@ -668,13 +714,14 @@ const Home = () => {
 
       {!uploading && files.length === 0 && (
         <>
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 'bold', marginTop: 2, marginBottom: 2 }}
-        >
-          You can upload up to 20 GB 
-        </Typography>
-          <Button onClick={onUploadClick} startIcon={<AddAPhotoIcon />} size="large">Select Images </Button>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 'bold', marginTop: 2, marginBottom: 2 }}
+          >
+            {spanish ? 'Puedes subir hasta 20 GB' : 'You can upload up to 20 GB'}
+          </Typography>
+          <Button onClick={onUploadClick} startIcon={<AddAPhotoIcon />} size="large"> {spanish ? 'Seleccionar imágenes' : 'Select Images'}
+          </Button>
           <input
             ref={fileInputRef}
             type="file"
@@ -721,7 +768,7 @@ const Home = () => {
           }}
         >
           <Typography>
-            Make sure to select the right images. After the upload proccess starts, you can not make changes.
+            {spanish ? 'Por favor, asegúrate de seleccionar las imágenes correctas. Una vez que comience el proceso de carga, no se podrán hacer cambios.' : 'Please ensure you select the correct images. Once the upload process begins, changes cannot be made.'}
           </Typography>
         </Alert>
       )}
@@ -731,7 +778,7 @@ const Home = () => {
 
       {!uploading && files.length > 0 && (
         <>
-          <Button onClick={onUploadClick} startIcon={<ChangeCircleIcon />} sx={{ marginBottom: '100px' }} >Change Images </Button>
+          <Button onClick={onUploadClick} startIcon={<ChangeCircleIcon />} sx={{ marginBottom: '100px' }} >{spanish ? 'Cambiar imágenes' : 'Change Images'} </Button>
           <input
             ref={fileInputRef}
             type="file"
@@ -765,7 +812,7 @@ const Home = () => {
           size="large"
           sx={{ backgroundColor: teal[400], color: 'white' }}
         >
-          {uploading ? 'Uploading...' : 'Upload'}
+          {uploading ? (spanish ? 'Subiendo...' : 'Uploading...') : (spanish ? 'Cargar' : 'Upload')}
         </Button>
       )}
 
@@ -792,21 +839,21 @@ const Home = () => {
 
 
       {fileError &&
-       <Alert
-       variant="outlined"
-       color="danger"
-       startDecorator={<ReportIcon />}
-       sx={{
-         maxWidth: isMobile ? '90%' : '420px',
-         margin: '0 auto', // Center horizontally
-         textAlign: 'center',
-       }}
-     >
-       <Typography>
-       {fileError}
-       </Typography>
-     </Alert>
-       }
+        <Alert
+          variant="outlined"
+          color="danger"
+          startDecorator={<ReportIcon />}
+          sx={{
+            maxWidth: isMobile ? '90%' : '420px',
+            margin: '0 auto', // Center horizontally
+            textAlign: 'center',
+          }}
+        >
+          <Typography>
+            {fileError}
+          </Typography>
+        </Alert>
+      }
       {/* 88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888 */}
 
       {NetworkError &&
@@ -826,9 +873,9 @@ const Home = () => {
           }}
         >
           <Box sx={{ flex: 1 }}>
-            <Typography >Lost connection</Typography>
+            <Typography >{spanish ? 'Conexión perdida' : 'Lost connection'}</Typography>
             <Typography >
-              Please verify your network connection and try again.
+              {spanish ? 'El proceso de carga se reanudará automáticamente una vez que te reconectes a internet.' : 'The upload process will resume automatically once you reconnect to the internet.'}
             </Typography>
           </Box>
         </Alert>
@@ -851,7 +898,7 @@ const Home = () => {
         >
           <Box sx={{ flex: 1 }}>
             <Typography sx={{ fontSize: '25px' }}>
-              Uploading...
+              {spanish ? 'Cargando...' : ' Uploading...'}
             </Typography>
           </Box>
           <LinearProgress
@@ -883,9 +930,30 @@ const Home = () => {
           onClick={handleCancelUpload}
           sx={{ marginTop: '100px' }}
         >
-          Cancel Upload
+          {spanish ? 'Cancelar carga' : 'Cancel Upload'}
         </Button>
       )}
+
+
+
+
+
+
+
+
+
+
+
+
+      <ConfirmationDialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        onConfirm={handleDialogConfirm}
+        title={spanish ? 'Cancelar carga' : 'Cancel Upload'}
+        message={spanish ? '¿Estás seguro de que quieres cancelar la carga?' : 'Are you sure you want to cancel the upload?'}
+      />
+
+
 
 
 

@@ -22,14 +22,19 @@ import Avatar from '@mui/material/Avatar';
 import { IoImagesOutline } from 'react-icons/io5';
 import axios from 'axios';
 import Button from '@mui/material/Button';
-import { selectCart, calculatePriceForImages, calculatePriceForWaves, removeCartType, removeFromCart_singleImages, removeFromCart_waves, removeSessAlbumOfCart, removeFromCart_videos, selectCartOfVideos, selectCartOfSingleImages, selectSessAlbumOfCart } from '../slicers/cartSlice';
+import { selectCart, calculatePriceForImages, calculatePriceForWaves, removeCartType, removeFromCart_singleImages, removeFromCart_waves, removeSessAlbumOfCart, removeFromCart_videos, selectCartOfVideos, selectCartOfSingleImages, selectSessAlbumOfCart, selectWavesInCart, selectCartOfWaves, fetchPricesBySessionAlbumId, fetchPricesForVideosBySessionAlbumId } from '../slicers/cartSlice';
 import { selectImg, selectVideos } from '../slicers/ImagesSlice';
 import { AspectRatio } from '@mui/joy';
 import { createPurchaseAsync, createPurchaseItemAsync, createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync } from '../slicers/purchaseSlice';
+import Video from './Video';
+import VideosInCart from './VideosInCart';
+import UndividedImgsInCart from './UndividedImgsInCart';
+import PerAlbumInCart from './PerAlbumInCart';
+import SmartDisplayIcon from '@mui/icons-material/SmartDisplay';
 
 const Cart: React.FC = () => {
   const cart = useSelector(selectCart);
-  const wavesInCart = useSelector(selectWavesInCart_WAVES);
+  const wavesInCart = useSelector(selectCartOfWaves);
   const cartTotalPrice = useSelector((state: any) => state.cart.cartTotalPrice);
   const cartTotalImages = useSelector((state: any) => state.perAlbum.cartTotalImages);
   const cartTotalItems = useSelector((state: any) => state.cart.cartTotalItems);
@@ -47,14 +52,31 @@ const Cart: React.FC = () => {
 
 
 
-
-
-
   useEffect(() => {
-    if (cart.length > 0) {
+    if (cartType === "waves" && cart.length > 0) {
       dispatch(fetchWavesByListAsync(cart));
     }
   }, [dispatch, cart]);
+
+
+  
+
+  useEffect(() => {
+    if (cartType === "waves" && cart.length > 0 || cartType === "singleImages" && cart.length > 0 ) {
+      const albumId = sessAlbumOfCart!.id
+      dispatch(fetchPricesBySessionAlbumId(albumId));
+    }
+    if (cartType === "videos" && cart.length > 0) {
+      const albumId = sessAlbumOfCart!.id
+      dispatch(fetchPricesForVideosBySessionAlbumId(albumId));
+    }
+  }, [dispatch]);
+
+
+
+
+
+
 
   useEffect(() => {
     console.log('wavesInCart', wavesInCart);
@@ -71,6 +93,10 @@ const Cart: React.FC = () => {
     }
   }, [cart]);
 
+
+
+
+
   const fetchPricing = async (sessionAlbumId: number) => {
     const response = await axios.get(`http://127.0.0.1:8000/albums-prices-by-sess/${sessionAlbumId}/`);
     return response.data;
@@ -82,20 +108,20 @@ const Cart: React.FC = () => {
 
 
 
-  const calculatePrice = (totalImages: number) => {
-    if (!prices) return 0;
-    if (totalImages >= 1 && totalImages <= 5) return parseFloat(prices.price_1_to_5);
-    if (totalImages >= 6 && totalImages <= 20) return parseFloat(prices.price_6_to_20);
-    if (totalImages >= 21 && totalImages <= 50) return parseFloat(prices.price_21_to_50);
-    return parseFloat(prices.price_51_plus);
-  };
+  // const calculatePrice = (totalImages: number) => {
+  //   if (!prices) return 0;
+  //   if (totalImages >= 1 && totalImages <= 5) return parseFloat(prices.price_1_to_5);
+  //   if (totalImages >= 6 && totalImages <= 20) return parseFloat(prices.price_6_to_20);
+  //   if (totalImages >= 21 && totalImages <= 50) return parseFloat(prices.price_21_to_50);
+  //   return parseFloat(prices.price_51_plus);
+  // };
 
-  const handleRemoveFromCart = async (albumId: number, imageCount: number) => {
-    const totalPrice = calculatePrice(cartTotalImages - imageCount);
-    dispatch(removeFromCart({ albumId, imageCount }));
-    dispatch(removeWaveFromCart(albumId));
-    dispatch(updateTotalPrice(totalPrice));
-  };
+  // const handleRemoveFromCart = async (albumId: number, imageCount: number) => {
+  //   const totalPrice = calculatePrice(cartTotalImages - imageCount);
+  //   dispatch(removeFromCart({ albumId, imageCount }));
+  //   dispatch(removeWaveFromCart(albumId));
+  //   dispatch(updateTotalPrice(totalPrice));
+  // };
 
 
 
@@ -171,7 +197,7 @@ const Cart: React.FC = () => {
     const sessDate = sessAlbumOfCart!.sessDate;
     const spot_name = sessAlbumOfCart!.spot_name;
     const photographer_name = sessAlbumOfCart!.photographer_name;
-    const imageIds = cartOfSingleImages.map((img) => img.id);
+    const imageIds = cart
 
     const purchaseData = {
       photographer_id,
@@ -205,7 +231,7 @@ const handlePurchaseForVideos = async () => {
     const sessDate = sessAlbumOfCart!.sessDate;
     const spot_name = sessAlbumOfCart!.spot_name;
     const photographer_name = sessAlbumOfCart!.photographer_name;
-    const videoIds = cartOfVideos.map((video) => video.id);
+    const videoIds = cart
 
     const purchaseData = {
       photographer_id,
@@ -239,7 +265,7 @@ const handlePurchaseForWaves = async () => {
   const sessDate = sessAlbumOfCart!.sessDate;
   const spot_name = sessAlbumOfCart!.spot_name;
   const photographer_name = sessAlbumOfCart!.photographer_name;
-  const wave_ids  = wavesInCart.map((wave) => wave.id);
+  const wave_ids  = cart;
 
   const purchaseData = {
     photographer_id,
@@ -265,7 +291,8 @@ const handlePurchaseForWaves = async () => {
       {cartType === "videos" && (
         <>
           <div>
-            <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
+          <h2> {cartTotalItems} Videos <SmartDisplayIcon style={{ color: 'black' }} /></h2>
+          <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
           </div>
           <Button variant="contained" color="primary" onClick={handlePurchaseForVideos}>
             Pay
@@ -278,42 +305,7 @@ const handlePurchaseForWaves = async () => {
 
 
 
-          <ImageList variant="masonry" cols={8} gap={5} sx={{ margin: '20px' }}>
-            {cartOfVideos.map((video) => (
-              <ImageListItem key={video.id}>
-                <Card>
-                {/* <Card sx={{ maxWidth: 150 }}> */}
-                  <CardActionArea>
-                  <AspectRatio ratio="4/3">
-                  <video controls height="100" src={video.WatermarkedVideo} style={{ width: '100%' }} />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        p: 1,
-                        bgcolor: 'rgba(0, 0, 0, 0.6)',
-                        borderRadius: '8px 0 0 0',
-                      }}
-                    >
-
-                      <IconButton
-                        sx={{ color: teal[100], p: 0.5 }}
-                        aria-label="remove from cart"
-                        onClick={() => handleRemoveFromCartVideos(video.id)}
-                      >
-                        <RemoveShoppingCartIcon style={{ fontSize: '1rem' }} />
-                      </IconButton>
-                    </Box>
-                    </AspectRatio>
-                  </CardActionArea>
-                </Card>
-              </ImageListItem>
-            ))}
-          </ImageList>
+          <VideosInCart></VideosInCart>
         </>
       )}
 
@@ -323,8 +315,11 @@ const handlePurchaseForWaves = async () => {
 {cartType === "waves" && (
         <>
           <div>
-            <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
+          <h2>{cartTotalItems} Images <IoImagesOutline style={{ color: 'black' }} /></h2>
+          <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
           </div>
+
+          {/* cartTotalImages */}
           <Button variant="contained" color="primary" onClick={handlePurchaseForWaves}>
             Pay
           </Button>
@@ -338,49 +333,7 @@ const handlePurchaseForWaves = async () => {
 
 
 
-          <ImageList variant="masonry" cols={8} gap={5} sx={{ margin: '20px' }}>
-            {wavesInCart.map((personalAlbum) => (
-              <ImageListItem key={personalAlbum.id}>
-                <Card sx={{ maxWidth: 150 }}>
-                  <CardActionArea>
-                    <CardMedia
-                      component="img"
-                      height="100"
-                      image={personalAlbum.cover_image}
-                      alt={`Image ${personalAlbum.id}`}
-                    />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5,
-                        p: 0.5,
-                        bgcolor: 'rgba(0, 0, 0, 0.6)',
-                        borderRadius: '8px 0 0 0',
-                      }}
-                    >
-                      <Avatar sx={{ bgcolor: teal[100], width: 30, height: 30 }}>
-                        <span style={{ marginRight: '2px', fontSize: '0.75rem', color: 'black' }}>
-                          {personalAlbum.image_count}
-                        </span>
-                        <IoImagesOutline style={{ color: 'black', fontSize: '0.75rem' }} />
-                      </Avatar>
-                      <IconButton
-                        sx={{ color: teal[100], p: 0.5 }}
-                        aria-label="remove from cart"
-                        onClick={() => handleRemoveFromCartWaves(personalAlbum.id, personalAlbum.image_count)}
-                      >
-                        <RemoveShoppingCartIcon style={{ fontSize: '1rem' }} />
-                      </IconButton>
-                    </Box>
-                  </CardActionArea>
-                </Card>
-              </ImageListItem>
-            ))}
-          </ImageList>
+          <PerAlbumInCart></PerAlbumInCart>
         </>
       )}
 
@@ -389,7 +342,8 @@ const handlePurchaseForWaves = async () => {
 {cartType === "singleImages" && (
         <>
           <div>
-            <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
+          <h2>{cartTotalItems} Images <IoImagesOutline style={{ color: 'black' }} /></h2>
+          <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
           </div>
           <Button variant="contained" color="primary" onClick={handlePurchaseForImages}>
             Pay
@@ -404,47 +358,7 @@ const handlePurchaseForWaves = async () => {
 
 
 
-          <ImageList variant="masonry" cols={8} gap={5} sx={{ margin: '20px' }}>
-            {cartOfSingleImages.map((img) => (
-              <ImageListItem key={img.id}>
-                <Card>
-                {/* <Card sx={{ maxWidth: 150 }}> */}
-                  <CardActionArea>
-                  <AspectRatio ratio="4/3">
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={img.WatermarkedPhoto} // Use the image URL from your Redux store
-                    alt={`Image ${img.id}`}
-                  />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        p: 1,
-                        bgcolor: 'rgba(0, 0, 0, 0.6)',
-                        borderRadius: '8px 0 0 0',
-                      }}
-                    >
-
-                      <IconButton
-                        sx={{ color: teal[100], p: 0.5 }}
-                        aria-label="remove from cart"
-                        onClick={() => handleRemoveFromCartSingleImages(img.id)}
-                      >
-                        <RemoveShoppingCartIcon style={{ fontSize: '1rem' }} />
-                      </IconButton>
-                    </Box>
-                    </AspectRatio>
-                  </CardActionArea>
-                </Card>
-              </ImageListItem>
-            ))}
-          </ImageList>
+          <UndividedImgsInCart></UndividedImgsInCart>
         </>
       )}
 

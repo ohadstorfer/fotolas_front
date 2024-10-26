@@ -18,7 +18,7 @@ import { MdModeEdit } from "react-icons/md";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { FaHistory } from "react-icons/fa";
 import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/profilePtgSlice';
-import { styled } from '@mui/material';
+import { styled, useMediaQuery } from '@mui/material';
 import { selectLoggedIn, selectToken } from '../slicers/sighnInSlice';
 import Alert from '@mui/material/Alert';
 import { selectUser } from '../slicers/userSlice';
@@ -33,6 +33,10 @@ export default function UserCard() {
   const isLoggedIn = useSelector(selectLoggedIn)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const isMobile = useMediaQuery('(max-width:600px)');
+  const token = useSelector(selectToken)
+  //                 'Authorization': `Bearer ${token}`
+
 
 
   useEffect(() => {
@@ -43,7 +47,11 @@ export default function UserCard() {
       setError(true);
       navigate(`/`);
     } else {
-      dispatch(getPhotographerByUserId(Number(conectedUser.id)));
+      const accessToken = token?.access
+      const tokenString = typeof accessToken === 'string' ? accessToken : JSON.stringify(accessToken || '');
+      const tokenValue = tokenString.replace(/"/g, '');
+
+      dispatch(getPhotographerByUserId({ userId: Number(conectedUser.id), token: tokenValue }));
     }
   }, [dispatch, isLoggedIn, user, navigate, conectedUser]);
 
@@ -84,9 +92,11 @@ export default function UserCard() {
   return (
     <Box
       sx={{
-        width: '50%',
-        margin: 'auto',
+        width: isMobile ? '90%' : '50%',  // Width changes based on device
+        margin: '0 auto',
         marginTop: '16px',
+        display: 'flex',  // Use flexbox to center content
+        justifyContent: 'center',  // Center horizontally
       }}
     >
       <Card
@@ -136,7 +146,7 @@ export default function UserCard() {
               <Typography fontWeight="lg">{photographer && photographer.unique_spots_count}</Typography>
             </div>
           </Sheet>
-          <Box sx={{ display: 'flex', gap: 1.5, '& > button': { flex: 1 } }}>
+          {/* <Box sx={{ display: 'flex', gap: 1.5, '& > button': { flex: 1 } }}>
             <Button onClick={dashboardClick} variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
               History  <FaHistory />
             </Button>
@@ -146,7 +156,7 @@ export default function UserCard() {
             <Button onClick={editProfilePtgClick} variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
               Edit Profile <MdModeEdit />
             </Button>
-          </Box>
+          </Box> */}
         </CardContent>
       </Card>
     </Box>

@@ -11,6 +11,7 @@ import { useAppDispatch } from '../app/hooks';
 import { removeNewPrices, removeNewSess, selectNewSess } from '../slicers/sessAlbumSlice';
 import { Alert } from '@mui/joy';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { selectSpanish } from '../slicers/sighnInSlice';
 
 
 const Successfull = () => {
@@ -19,7 +20,7 @@ const Successfull = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const isMobile = useMediaQuery('(max-width:600px)');
-
+  const spanish = useSelector(selectSpanish)
 
 
 
@@ -53,16 +54,16 @@ const Successfull = () => {
     <div className="container">
       <Stepper sx={{ width: '100%' , marginBottom: '40px' }}>
         <Step orientation="vertical" indicator={<StepIndicator>1</StepIndicator>}>
-          Add Session Details
+        {spanish ? 'Agregar detalles de la sesión' : 'Add Session Details'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator>2</StepIndicator>}>
-          Set Prices
+        {spanish ? 'Establecer precios' : 'Set Prices'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator>3</StepIndicator>}>
-          Upload Videos
+        {spanish ? 'Subir imágenes' : 'Upload Images'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator variant="solid" sx={{ backgroundColor: teal[400], color: 'white' }}>4</StepIndicator>}>
-          Done!
+        {spanish ? '¡Hecho!' : 'Done!'}
         </Step>
       </Stepper>
 
@@ -81,7 +82,7 @@ const Successfull = () => {
           }}
         >
           <Typography>
-          Your album has been created successfully and is now available to watch on our homepage!
+          {spanish ? '¡Tu álbum ha sido creado exitosamente y ahora está disponible para ver en nuestra página principal!' : 'Your album has been created successfully and is now available to watch on our homepage!'}
           </Typography>
         </Alert>
 
@@ -96,7 +97,7 @@ const Successfull = () => {
             }}
             onClick={handleNavigateHome}
           >
-            Go to Homepage
+            {spanish ? 'Ir a la página principal' : 'Go to Homepage'}
           </Button>
     </div>
   );

@@ -8,19 +8,22 @@ import Avatar from '@mui/joy/Avatar';
 import Typography from '@mui/joy/Typography';
 import Link from '@mui/joy/Link';
 import { useAppDispatch } from '../app/hooks';
-import { calculateTimeAgo, selectNextPage, selectPreviousPage, selectSessAlbums, sessGetDataAsync, setSelectedSessAlbum } from '../slicers/sessAlbumSlice';
-import { getDataAsync } from '../slicers/perAlbumSlice';
+import { formatSessDate, selectNextPage, selectPreviousPage, selectSessAlbums, sessGetDataAsync, setSelectedSessAlbum } from '../slicers/sessAlbumSlice';
+import { fetchPricesForVideosBySessionAlbumId, getDataAsync } from '../slicers/perAlbumSlice';
 import { AspectRatio } from '@mui/joy';
 import { TiLocation } from 'react-icons/ti';
-import { teal } from '@mui/material/colors';
+import { teal, red } from '@mui/material/colors';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
-import { useNavigate  } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { selectPhotographer } from '../slicers/photographerSlice';
 import { getSpotById, selectAllSpots } from '../slicers/spotSlice';
-import {  fetchImagesAsync, fetchImagesBySessAsync, fetchVideosBySessionAsync } from '../slicers/ImagesSlice';
+import { fetchImagesAsync, fetchImagesBySessAsync, fetchVideosBySessionAsync } from '../slicers/ImagesSlice';
 import { fetchPricesBySessionAlbumId, setSessAlbumOfCart } from '../slicers/cartSlice';
-import { Autocomplete, Button, TextField } from '@mui/material';
+import { Autocomplete, Button, TextField, useMediaQuery } from '@mui/material';
+import SmartDisplayIcon from '@mui/icons-material/SmartDisplay';
+import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
+import AutoDeleteIcon from '@mui/icons-material/AutoDelete';
 
 interface SessAlbumProps {
   filterType: string;
@@ -40,6 +43,8 @@ interface sess {
   photographer_profile_image: string;
   videos: boolean;
   dividedToWaves: boolean;
+  expiration_date: Date;
+  days_until_expiration: number;
 }
 
 const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
@@ -48,37 +53,42 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
   const allSpots = useSelector(selectAllSpots);
   const nextPage = useSelector(selectNextPage);
   const previousPage = useSelector(selectPreviousPage);
+  const isMobile = useMediaQuery('(max-width:600px)');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+
+
+
 
   useEffect(() => {
     dispatch(sessGetDataAsync({ filterType, filterId }));
   }, [dispatch, filterType, filterId]);
 
   const handleCardClickImg = async (albumId: number) => {
-    dispatch(getDataAsync({ albumId, page: 1, pageSize: 21 }));
-    await dispatch(fetchPricesBySessionAlbumId(albumId));
+    // dispatch(getDataAsync({ albumId, page: 1, pageSize: 21 }));
+    // await dispatch(fetchPricesBySessionAlbumId(albumId));
     navigate('/PerAlbum');
   };
 
   const handleCardClickVideo = async (albumId: number) => {
-    dispatch(fetchVideosBySessionAsync({ albumId }));
-    await dispatch(fetchPricesBySessionAlbumId(albumId));
+    // dispatch(fetchVideosBySessionAsync({ albumId }));
+    // await dispatch(fetchPricesForVideosBySessionAlbumId(albumId));
     navigate('/Video');
   };
-  
+
   const handleCardClickSingleImages = async (albumId: number) => {
     dispatch(fetchImagesBySessAsync({ albumId }));
-    await dispatch(fetchPricesBySessionAlbumId(albumId));
+    // await dispatch(fetchPricesBySessionAlbumId(albumId));
     navigate('/UndividedImgs');
   };
 
 
   const handleCardClick = (sessAlbum: any) => {
-    if (sessAlbum.videos) {     
-      console.log("videos: ", sessAlbum.videos); 
+    if (sessAlbum.videos) {
+      console.log("videos: ", sessAlbum.videos);
       handleCardClickVideo(sessAlbum.id);
-    } 
+    }
     else if (sessAlbum.dividedToWaves) {
       console.log("dividedToWaves: ", sessAlbum.dividedToWaves);
       handleCardClickImg(sessAlbum.id);
@@ -95,6 +105,8 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
     navigate(`/Spot/${spotId}`);
   };
 
+
+
   const handlePhotographerClick = (photographerId: number) => {
     navigate(`/Photographer/${photographerId}`);
   };
@@ -104,51 +116,72 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
 
 
   const handleNextPage = () => {
-  if (nextPage) {
-    const page = new URL(nextPage).searchParams.get('page');
-    dispatch(sessGetDataAsync({
-      filterType,
-      filterId,
-      page: parseInt(page || '1', 10),
-      pageSize: 21,
-    }));
-  }
-};
+    if (nextPage) {
+      const page = new URL(nextPage).searchParams.get('page');
+      dispatch(sessGetDataAsync({
+        filterType,
+        filterId,
+        page: parseInt(page || '1', 10),
+        pageSize: 21,
+      }));
+    }
+  };
 
-const handlePreviousPage = () => {
-  if (previousPage) {
-    const page = new URL(previousPage).searchParams.get('page');
-    dispatch(sessGetDataAsync({
-      filterType,
-      filterId,
-      page: parseInt(page || '1', 10),
-      pageSize: 21,
-    }));
-  }
-};
+  const handlePreviousPage = () => {
+    if (previousPage) {
+      const page = new URL(previousPage).searchParams.get('page');
+      dispatch(sessGetDataAsync({
+        filterType,
+        filterId,
+        page: parseInt(page || '1', 10),
+        pageSize: 21,
+      }));
+    }
+  };
+
+
+
 
 
 
 
 
   return (
-    <><Box sx={{ display: 'flex',justifyContent: 'center', alignItems: 'center', p: 1.5, gap: 1.5, '& > button': { flex: 1 } }}>
-      <Autocomplete
-                disablePortal
-                onChange={(event, newValue) => setSelectedSpot(newValue)}
-                id="combo-box-demo"
-                options={allSpots}
-                getOptionLabel={(spot) => spot.name} // Specify how to get the label from each spot object
-                sx={{ width: 300 }}
-                renderInput={(params) => <TextField {...params} label="Spot" />}
-                value={selectedSpot}
-              />
+    <>
+      {/* <Box
+      sx={{
+        width: '100%',  // Ensure full width
+        height: 'auto', // Adjust height automatically based on the image ratio
+      }}
+    >
+      <img
+        src={isMobile ? `${process.env.PUBLIC_URL}/COVER.png` : `${process.env.PUBLIC_URL}/COVERslim.png`}
+        alt="Cover"
+        style={{
+          width: '100%',
+          height: 'auto',
+          objectFit: 'cover', // Ensures the image covers the space
+        }}
+      />
+    </Box> */}
 
-    </Box><div>
-        <ImageList variant="masonry" cols={3} gap={8} sx={{ marginRight: '20px', marginLeft: '20px', marginBottom: '20px', marginTop: '20px' }}>
+
+
+      {/* <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center',  gap: 1.5, '& > button': { flex: 1 }, maxWidth: isMobile ? '100%' : '90%', }}>
+
+
+    </Box> */}
+      <div>
+        <ImageList variant="standard" cols={isMobile ? 1 : 4} gap={8} sx={{ marginRight: '20px', marginLeft: '20px', marginBottom: '20px' }}>
           {sessAlbum.map((sessAlbum) => (
             <ImageListItem key={sessAlbum.id}>
-              <Card>
+              <Card
+                sx={{
+                  boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)', // Shadow on all sides
+                  borderRadius: '8px', // Optional: smooth corners
+                  border: '1px solid rgba(0, 0, 0, 0.4)',
+                }}
+              >
                 <CardActionArea onClick={() => handleCardClick(sessAlbum)}>
                   <AspectRatio ratio="4/3">
                     <CardMedia
@@ -156,21 +189,138 @@ const handlePreviousPage = () => {
                       height="200"
                       image={sessAlbum.cover_image}
                       alt={`Image ${sessAlbum.id}`} />
+                    <Box
+                      sx={{
+                        position: 'relative',        // Set position to relative for positioning child elements
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',    // Center content horizontally
+                        alignItems: 'center',        // Center content vertically
+                        p: 1,
+                        bgcolor: 'rgba(0, 0, 0, 0.5)',
+                        borderRadius: '0 0 0px 0',
+                        textAlign: 'center',         // Ensure the text is centered
+                      }}
+                    >
+                      {/* Icons positioned absolutely at the top left corner */}
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 0, // Set top position for > 5 days
+                          left: 0, // Move to the left if > 5 days
+                          // right: sessAlbum.days_until_expiration > 3 ? 'auto' : 12, // Keep it on the right for <= 5 days
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: isMobile ? 0.4 : 1,
+                          p: 1,
+                          bgcolor: 'rgba(0, 0, 0, 0.0)',
+                        }}
+                      >
+
+                        <span
+                          style={{
+                            color: 'white',           // Make the text white
+                            fontSize: isMobile ? '10px' : '14px',  // Adjust font size
+                            fontWeight: 'bold',       // Make the text bold
+                            cursor: 'pointer'         // Make the span clickable
+                          }}
+                        >
+                          {sessAlbum.videos ? <SmartDisplayIcon /> : <PhotoLibraryIcon />}
+                        </span>
+                      </Box>
+
+
+
+
+                      {/* Conditional rendering of the icon and text */}
+                      {sessAlbum.days_until_expiration <= 3 && (
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            top: 0,
+                            right: 9,
+                            display: 'flex',
+                            alignItems: 'center',
+                            p: 1,
+                            bgcolor: 'rgba(0, 0, 0, 0.0)',
+                          }}
+                        >
+
+                          {sessAlbum.days_until_expiration === 0 ? (
+                            <span style={{ color: red[500], fontSize: isMobile ? '14px' : '16px', fontWeight: 'bold' }}>
+                              Last Day
+                            </span>
+                          ) : (
+                            // <div style={{ lineHeight: '0.8' }}>
+                            // <span style={{ color: 'white', fontSize: isMobile ? '14px' : '16px', fontWeight: 'bold' }}>
+                            //   {sessAlbum.days_until_expiration} <br style={{ lineHeight: '0.6' }} /> {sessAlbum.days_until_expiration === 1 ? 'day' : 'days'}
+                            // </span>
+                            // </div>
+                            <div style={{ lineHeight: '0.7' }}>
+                              <span style={{ color: 'white', fontSize: isMobile ? '12px' : '12px', fontWeight: 'bold', marginRight: '5px' }}>
+                                {sessAlbum.days_until_expiration}  {sessAlbum.days_until_expiration === 1 ? 'day' : 'days'}  <br style={{ lineHeight: '0.8' }} /> remaining
+                              </span>
+                            </div>
+
+                          )}
+
+
+                          {sessAlbum.days_until_expiration <= 3 && (
+                            <AutoDeleteIcon
+                              style={{
+                                color: sessAlbum.days_until_expiration === 0 ? red[500] : 'white',
+                                fontSize: isMobile ? '20px' : '20px',
+                                cursor: 'pointer',
+                              }}
+                            />
+                          )}
+
+
+                        </Box>
+                      )}
+
+
+
+
+                      {/* Spot name centered */}
+
+                      <span
+                        onClick={(event) => {
+                          event.stopPropagation(); // Prevent the click event from bubbling up to the card
+                          handleSpotClick(sessAlbum.spot);
+                        }}
+                        style={{
+                          color: 'white',           // Make the text white
+                          fontSize: '18px',  // Adjust font size
+                          fontWeight: 'bold',       // Make the text bold
+                          cursor: 'pointer',        // Make the span clickable
+                        }}
+                      >
+                        {sessAlbum.spot_name}
+                      </span>
+                    </Box>
                   </AspectRatio>
                 </CardActionArea>
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', bgcolor: teal[400] }}>
-                  <span onClick={() => handlePhotographerClick(sessAlbum.photographer)}>
-                    <Avatar src={sessAlbum.photographer_profile_image}></Avatar>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', bgcolor: teal[400], boxShadow: '0 -8px 8px rgba(0, 0, 0, 0.4)', position: 'relative', }}>
+                  <span
+                    onClick={() => handlePhotographerClick(sessAlbum.photographer)}
+                    style={{
+                      display: 'inline-flex', // Ensure the span behaves as a block container for the avatar
+                      padding: '4px',        // Adjust the padding as needed
+                      cursor: 'pointer',     // Optional: change the cursor to pointer to indicate it's clickable
+                    }}
+                  >
+                    <Avatar src={sessAlbum.photographer_profile_image} />
                   </span>
-                  <Typography sx={{ fontSize: 'sm', fontWeight: 'md' }}>
-                    <span onClick={() => handlePhotographerClick(sessAlbum.photographer)}>
+                  <Typography sx={{ fontSize: 'md', fontWeight: 'md' }}>
+                    <span onClick={() => handlePhotographerClick(sessAlbum.photographer)} style={{ cursor: 'pointer', }}>
                       {sessAlbum.photographer_name}
                     </span>
                   </Typography>
-                  <Typography sx={{ fontSize: 'sm', fontWeight: 'md', marginLeft: 'auto' }}>
-                    {calculateTimeAgo(new Date(sessAlbum.sessDate))}
+                  <Typography sx={{ fontSize: 'md', fontWeight: 'md', marginLeft: 'auto', marginRight: '8px' }}>
+                    {formatSessDate(sessAlbum.sessDate)}
                   </Typography>
-                  <Link
+                  {/* <Link
                     sx={{
                       fontSize: 'sm',
                       fontWeight: 'md',
@@ -183,20 +333,20 @@ const handlePreviousPage = () => {
                     <span onClick={() => handleSpotClick(sessAlbum.spot)}>
                       {sessAlbum.spot_name}
                     </span>
-                  </Link>
+                  </Link> */}
                 </Box>
               </Card>
             </ImageListItem>
           ))}
         </ImageList>
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
-          Previous
-        </Button>
-        <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
-          Next
-        </Button>
-      </Box>
+          <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
+            Previous
+          </Button>
+          <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
+            Next
+          </Button>
+        </Box>
       </div></>
   );
 };

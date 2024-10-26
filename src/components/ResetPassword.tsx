@@ -13,12 +13,12 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAppDispatch } from '../app/hooks';
-import { loginAsync, selectError, selectLoggedIn, selectToken } from '../slicers/sighnInSlice';
+import { loginAsync, passwordResetRequestAsync, selectEmailSent, selectError, selectLoggedIn, selectToken } from '../slicers/sighnInSlice';
 import { teal } from '@mui/material/colors';
 import { useNavigate } from 'react-router-dom';
 import { getUserById } from '../slicers/userSlice';
 import { getPhotographerByUserId } from '../slicers/profilePtgSlice';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { refreshNavbar } from '../slicers/signUpSlice';
 import Container from '@mui/material/Container';
@@ -28,20 +28,23 @@ import Container from '@mui/material/Container';
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-export default function SignInSide() {
+export default function ResetPassword() {
     const dispatch = useAppDispatch();
     const navigate  = useNavigate();
     const storedToken = localStorage.getItem("token");
     const token = storedToken ? JSON.parse(storedToken) : null;
     const conectedUser = useSelector(selectToken)
     const isLoggedIn = useSelector(selectLoggedIn)
-    const badRequest = useSelector(selectError);
-    const [isLoading, setIsLoading] = React.useState(false);
+    const emailSent = useSelector(selectEmailSent);
+    const errorSendingEmail = useSelector(selectError);
+    const [isLoading, setIsLoading] = useState(false);
 
 
 
     useEffect(() => {
       if (isLoggedIn===true) { 
+        console.log("isLoggedIn===true");
+        
         dispatch(refreshNavbar());
         navigate('/'); 
       }
@@ -57,11 +60,10 @@ export default function SignInSide() {
     
       const credentials = {
         email: data.get("email") as string,
-        password: data.get("password") as string,
       };
     
       try {
-        await dispatch(loginAsync(credentials));
+        await dispatch(passwordResetRequestAsync(credentials));
         setIsLoading(false);
       } catch (error) {
         setIsLoading(false);
@@ -70,14 +72,6 @@ export default function SignInSide() {
     };
 
 
-
-
-    const handleSignUp = () => {
-      navigate('/SignUp');
-    };
-    const handleForgotPassword = () => {
-      navigate('/RequestResetPassword');
-    };
     
 
     return (
@@ -96,59 +90,46 @@ export default function SignInSide() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Sign in
+              {emailSent ? 'Check Your Email' : 'Reset Password'}
             </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                autoFocus
-                error={!!badRequest}
-                helperText={badRequest ? 'Incorrect email or password.' : ''}
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                error={!!badRequest}
-                helperText={badRequest ? 'Incorrect email or password.' : ''}
-              />
-              
-              <Button
-                type="submit"
-                disabled={isLoading}
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2, backgroundColor: teal[400] }}
-              >
-                {isLoading ? 'Loading...' : 'Sign In'}
-                {/* Sign In */}
-              </Button>
-              <Grid container>
-              <Grid item xs>
-                {/* Link to Forgot Password */}
-                <Link variant="body2" onClick={handleForgotPassword} style={{ cursor: 'pointer' }}>
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                {/* Link to Sign Up */}
-                <Link variant="body2" onClick={handleSignUp} style={{ cursor: 'pointer' }}>
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
-            </Box>
+
+            {emailSent ? (
+              <Typography component="p" variant="body1" align="center" sx={{ mt: 2 }}>
+                We have sent a password reset link to your email. Please check your inbox and follow the instructions to reset your password.
+              </Typography>
+            ) : (
+              <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  autoFocus
+                  error={!!errorSendingEmail}
+                  helperText={errorSendingEmail ? 'No user found with this email. Please check your email or sign up.' : ''}
+                />
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  disabled={isLoading}
+                  sx={{ mt: 3, mb: 2, backgroundColor: teal[400] }}
+                >
+                  {isLoading ? 'Loading...' : 'Send Email'}
+                  {/* Send Email */}
+                </Button>
+                <Grid container>
+                  <Grid item>
+                    <Link href="/sign-up" variant="body2">
+                      {"Don't have an account? Sign Up"}
+                    </Link>
+                  </Grid>
+                </Grid>
+              </Box>
+            )}
           </Box>
         </Container>
       </ThemeProvider>

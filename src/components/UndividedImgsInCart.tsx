@@ -6,15 +6,15 @@ import { AspectRatio } from '@mui/joy';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import { fetchImagesBySessAsync, selectImg, selectNextImages, selectPreviousImages } from '../slicers/ImagesSlice';
-import { addToCart_singleImages, calculatePriceForImages, fetchPricesBySessionAlbumId, removeCartType, removeFromCart_singleImages, removeSessAlbumOfCart, selectCart, selectSessAlbumOfCart, setCartType, setSessAlbumOfCart } from '../slicers/cartSlice';
+import { addToCart_singleImages, calculatePriceForImages, fetchPricesBySessionAlbumId, removeCartType, removeFromCart_singleImages, removeSessAlbumOfCart, selectCart, selectCartOfSingleImages, selectSessAlbumOfCart, setCartType, setSessAlbumOfCart } from '../slicers/cartSlice';
 import { teal } from '@mui/material/colors';
 import SessAlbumDetails from './SessAlbumDetails';
 import { selectSelectedSessAlbum } from '../slicers/sessAlbumSlice';
 import CloseIcon from '@mui/icons-material/Close';
 
-const UndividedImgs: React.FC = () => {
+const UndividedImgsInCart: React.FC = () => {
   const dispatch = useAppDispatch();
-  const imgs = useSelector(selectImg);
+  const imgs = useSelector(selectCartOfSingleImages);
   const cart = useSelector(selectCart);
   const sessAlbumOfCart = useSelector(selectSessAlbumOfCart);
   const selectedSessAlbum = useSelector(selectSelectedSessAlbum);
@@ -36,17 +36,20 @@ const UndividedImgs: React.FC = () => {
     SessionAlbum: number;
   }
 
-  useEffect(() => {
-    if (selectedSessAlbum) {
-      const albumId = selectedSessAlbum.id;
-      dispatch(fetchImagesBySessAsync({ albumId }));
-      dispatch(fetchPricesBySessionAlbumId(albumId));
-    }
-  }, [dispatch, selectedSessAlbum]);
+  // useEffect(() => {
+  //   if (selectedSessAlbum) {
+  //     const albumId = selectedSessAlbum.id;
+  //     dispatch(fetchImagesBySessAsync({ albumId }));
+  //   }
+  // }, [dispatch, selectedSessAlbum]);
+
+
+
+
 
   const handleAddToCart = async (img: Img, sessionAlbum: number) => {
     if (sessAlbumOfCart && sessAlbumOfCart !== selectedSessAlbum) {
-      alert('Your cart already contains items from a different session. You can only add items from the same session to your cart.');
+      alert('You can only add images from the same session.');
       return;
     }
 
@@ -60,22 +63,17 @@ const UndividedImgs: React.FC = () => {
     dispatch(calculatePriceForImages());
   };
 
-
-
   const handleRemoveFromCart = (imgId: number) => {
-    // const confirmed = window.confirm('Remove this image from your cart?');
-    // if (confirmed) {
+    const confirmed = window.confirm('Remove this image from your cart?');
+    if (confirmed) {
       if (cart.length === 1) {
         dispatch(removeSessAlbumOfCart());
         dispatch(removeCartType());
       }
       dispatch(removeFromCart_singleImages({ imgId: imgId }));
       dispatch(calculatePriceForImages());
-    // }
+    }
   };
-
-
-
 
   const handleNextPage = () => {
     if (nextPage) {
@@ -124,16 +122,12 @@ const UndividedImgs: React.FC = () => {
         </Box>
       )}
 
-      <ImageList variant="standard" cols={isMobile ? 2 : 4} sx={{ margin: '20px' }}>
+      <ImageList variant="standard" cols={isMobile ? 2 : 3} sx={{ margin: '20px' }}>
         {imgs.map((img: Img) => {
           const isInCart = cart.includes(img.id);
           return (
             <ImageListItem key={img.id}>
-              <Card
-              sx={{
-                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)', // Shadow on all sides
-                borderRadius: '8px', // Optional: smooth corners
-              }}>
+              <Card>
                 <CardActionArea onClick={() => handleOpenDialog(img.WatermarkedPhoto)}>
                   <AspectRatio ratio="4/3">
                     <CardMedia component="img" height="200" image={img.WatermarkedPhoto} alt={`Image ${img.id}`} />
@@ -171,14 +165,7 @@ const UndividedImgs: React.FC = () => {
         })}
       </ImageList>
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
-          Previous
-        </Button>
-        <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
-          Next
-        </Button>
-      </Box>
+      
 
 
 
@@ -246,4 +233,4 @@ const UndividedImgs: React.FC = () => {
   );
 };
 
-export default UndividedImgs;
+export default UndividedImgsInCart;

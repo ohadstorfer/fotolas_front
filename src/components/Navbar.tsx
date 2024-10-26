@@ -9,30 +9,28 @@ import InputBase from '@mui/material/InputBase';
 import Badge from '@mui/material/Badge';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import MoreIcon from '@mui/icons-material/MoreVert';
-import teal from '@mui/material/colors/teal';
+import { teal, orange } from '@mui/material/colors';
 import { GiSurferVan } from "react-icons/gi";
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../app/hooks';
-import { logout, parseJwt, selectLoggedIn, selectToken } from '../slicers/sighnInSlice';
-import { Avatar } from '@mui/material';
+import { logout, parseJwt, selectIsExpired, selectLoggedIn, selectToken, validateTokenAsync } from '../slicers/sighnInSlice';
+import { Autocomplete, Avatar, InputAdornment, TextField, useMediaQuery } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/profilePtgSlice';
 import { useEffect, useState } from 'react';
 import { clearUser, getUserById, selectUser } from '../slicers/userSlice';
 import { clearPhotographer } from '../slicers/photographerSlice';
-import { selectBecomePhotographer } from '../slicers/becomePhotographerSlice';
 import { selectSessAlbums } from '../slicers/sessAlbumSlice';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { selectCartTotalItems } from '../slicers/cartSlice';
-import { IoImagesOutline } from 'react-icons/io5';
 import { selectRefreshNavbar } from '../slicers/signUpSlice';
 import { fetchSurferPurchasedItemsAsync } from '../slicers/purchaseSlice';
+import { getAllSpots, selectAllSpots } from '../slicers/spotSlice';
+import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 
 
 
@@ -81,6 +79,31 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+
+
+
+
+
+
+
+
+
+
+// Styled InputAdornment to position the SearchIcon
+const AutocompleteIconWrapper = styled(InputAdornment)(({ theme }) => ({
+  padding: theme.spacing(0, 0),
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: 'white', // Set icon color if needed
+}));
+
+
+
+
+
+
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: teal[400], // Set the background color to teal[400]
 }));
@@ -103,20 +126,41 @@ export default function PrimarySearchAppBar() {
   const photographer = useSelector(selectProfilePhotographer);
   const user = useSelector(selectUser)
   const isLoggedIn = useSelector(selectLoggedIn)
-  const newPhotographer= useSelector(selectBecomePhotographer)
   const sessAlbum = useSelector(selectSessAlbums);
   const totalImages = useSelector(selectCartTotalItems)
   const refreshNavbar = useSelector(selectRefreshNavbar)
   const conectedUser = useSelector(selectToken)
   const surferId = Number(conectedUser?.id);
+  const allSpots = useSelector(selectAllSpots);
+  const [selectedSpot, setSelectedSpot] = useState<any | null>(null);
+  const [searchValue, setSearchValue] = useState('');
+  const isMobile = useMediaQuery('(max-width:600px)');
+  const isExpired = useSelector(selectIsExpired);
 
-  
+
   useEffect(() => {
     dispatch(getUserById(Number(conectedUser?.id)));
     // if(conectedUser?.is_photographer){dispatch(getPhotographerByUserId(Number(conectedUser?.id)));}
-    dispatch(getPhotographerByUserId(Number(conectedUser?.id)));
+    const accessToken = conectedUser?.access
+    const tokenString = typeof accessToken === 'string' ? accessToken : JSON.stringify(accessToken || '');
+    const tokenValue = tokenString.replace(/"/g, '');
+
+    dispatch(getPhotographerByUserId({ userId: Number(conectedUser?.id), token: tokenValue }));
+    dispatch(getAllSpots());
   }
-    , [refreshNavbar, isLoggedIn,newPhotographer]);
+    , [refreshNavbar, isLoggedIn]);
+
+
+
+
+
+
+
+  useEffect(() => {
+    if (selectedSpot) { navigate(`/Spot/${selectedSpot.id}`); }
+
+  }
+    , [selectedSpot]);
 
 
 
@@ -152,13 +196,30 @@ export default function PrimarySearchAppBar() {
     navigate('/SignUp');
   };
 
-  const handleCart = () => {
-    navigate('/Cart');
-  };
-
   const handleSignIn = () => {
     navigate('/SignIn');
   };
+
+  const handleCart = () => {
+    navigate('/CartErrors');
+    // navigate('/Cart');
+  };
+
+
+  const handleValidateLogIn = () => {
+    if (conectedUser) {
+      const accessToken = conectedUser?.access
+      const tokenString = typeof accessToken === 'string' ? accessToken : JSON.stringify(accessToken || '');
+      const tokenValue = tokenString.replace(/"/g, '');
+      dispatch(validateTokenAsync(tokenValue))
+    }
+  };
+  // useEffect for valitading if the token is valid
+  useEffect(() => {
+    if (isExpired == true) { handleLogOut() }
+  }
+    , [isExpired]);
+
 
   const handleLogOut = () => {
     handleMenuClose();
@@ -170,26 +231,37 @@ export default function PrimarySearchAppBar() {
 
   const PhotographerClick = () => {
     handleMenuClose()
+    handleValidateLogIn()
     navigate("/ProfilePtg");
   };
 
   const BecomePhotographerClick = () => {
     handleMenuClose()
+    handleValidateLogIn()
     navigate("/BecomePhotographer");
   };
 
   const SurferDashboardClick = () => {
     handleMenuClose()
+    handleValidateLogIn()
     console.log(conectedUser?.id);
     dispatch(fetchSurferPurchasedItemsAsync(surferId));
     navigate(`/DashboardSurfer`);
   };
+
+  const addAlbumClick = () => {
+    handleValidateLogIn()
+    navigate(`/ProtectedRoutesCreatSessAlbumcopy`);
+    // navigate(`/CreatSessAlbum`);
+  };
+
 
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
   const renderLoggedInMenu = () => {
+
     if (user?.is_photographer) {
       return [
         <MenuItem key="profile" onClick={PhotographerClick}>Profile</MenuItem>,
@@ -198,7 +270,7 @@ export default function PrimarySearchAppBar() {
     } else {
       return [
         <MenuItem key="becomePhotographer" onClick={BecomePhotographerClick}>Become a photographer</MenuItem>,
-        <MenuItem key="account" onClick={SurferDashboardClick}>My account</MenuItem>,
+        <MenuItem key="account" onClick={SurferDashboardClick}>My Albums</MenuItem>,
         <MenuItem key="logout" onClick={handleLogOut}>Log Out</MenuItem>,
       ];
     }
@@ -282,23 +354,24 @@ export default function PrimarySearchAppBar() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <StyledAppBar position="fixed">
+      <StyledAppBar position="fixed"  >
+      {/* <StyledAppBar position="fixed" sx={{ backgroundColor: user?.is_photographer ? '#A66E38' : teal[400] }}> */}
         <Toolbar>
-          {/* <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            // sx={{ mr: 2 }}
-          >
-            {/* <MenuIcon /> */}
-
-          {/* </IconButton> */}
-          <Link to="/" style={iconContainerStyle}>
-            <GiSurferVan size={40} />
+        <Link to="/" style={{ ...iconContainerStyle, marginLeft: '-10px' }}>
+            {/* <img
+              src={user?.is_photographer
+                ? `${process.env.PUBLIC_URL}/pequenisimo logo brown.jpg`
+                : `${process.env.PUBLIC_URL}/pequenisimo logo.jpg`} alt="Home"
+              style={{ width: 50, height: 50 }}
+            /> */}
+          <img
+            src={`${process.env.PUBLIC_URL}/pequenisimo logo.jpg`}
+            alt="Home"
+            style={{ width: 50, height: 50 }}
+          />
           </Link>
 
-          <Search>
+          {/* <Search>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
@@ -306,48 +379,107 @@ export default function PrimarySearchAppBar() {
               placeholder="Search…"
               inputProps={{ 'aria-label': 'search' }}
             />
-          </Search>
+          </Search> */}
+
+
+          <Autocomplete
+            sx={{ paddingLeft: isMobile ? '10px' : '40px' }}
+            disablePortal
+            onChange={(event, newValue) => setSelectedSpot(newValue)}
+            id="combo-box-demo"
+            options={allSpots}
+            getOptionLabel={(spot) => spot.name}
+            value={selectedSpot}
+            onInputChange={(event, newInputValue) => setSearchValue(newInputValue)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Spot"
+                fullWidth
+                InputLabelProps={{
+                  style: {
+                    color: 'white',
+                  },
+                }}
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <AutocompleteIconWrapper position="start">
+                      <SearchIcon />
+                    </AutocompleteIconWrapper>
+                  ),
+                  style: {
+                    height: '40px',
+                    width: isMobile ? (user?.is_photographer ? '100px' : '180px') : '300px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  },
+                }}
+              />
+            )}
+            renderOption={(props, option) => (
+              <li
+                {...props}
+                key={option.name}
+                style={{
+                  width: '180px', // Fixed width for the options
+                }}
+              >
+                {option.name}
+              </li>
+            )}
+            noOptionsText={<Typography sx={{ p: 1 }}>No options</Typography>}
+          />
+
+
+          {/* Conditionally render "PHOTOGRAPHER" in the center */}
+          {user?.is_photographer && (
+            <Box
+              sx={{
+                position: 'absolute',
+                left: '50%',
+                transform: 'translateX(-50%)', // Center horizontally
+                textAlign: 'center',
+              }}
+            >
+              <IconButton size="large" aria-label="Upload a new album" color="inherit" onClick={addAlbumClick}>
+              <AddAPhotoIcon fontSize="large" />
+              </IconButton>
+            </Box>
+          )}
+
+
+          {/* Spacing to push other elements to the right */}
           <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
 
-            <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={totalImages} color="error" onClick={handleCart}>
-                <ShoppingCartIcon />
-              </Badge>
-            </IconButton>
+          {/* Cart Icon */}
+          <IconButton size="large" aria-label="show items in cart" color="inherit" onClick={handleCart}>
+            <Badge badgeContent={totalImages} color="error">
+              <ShoppingCartIcon />
+            </Badge>
+          </IconButton>
 
-            <IconButton
-              size="large"
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              {/* *************************************************************************************************************************************************************************************** */}
-              {user?.is_photographer ? (<Avatar src={photographer?.profile_image} />) : (<AccountCircle />)}
-              {/* {user ? console.log(user) :"bbbbbbbbb"} */}
-
-            </IconButton>
-          </Box>
-          <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit"
-            >
-              <MoreIcon />
-            </IconButton>
-
-          </Box>
+          {/* User Profile or Account Icon */}
+          <IconButton
+            size="large"
+            edge="end"
+            aria-label="account of current user"
+            aria-controls={menuId}
+            aria-haspopup="true"
+            onClick={handleProfileMenuOpen}
+            color="inherit"
+          >
+            {user?.is_photographer ? (
+              <Avatar src={photographer?.profile_image} />
+            ) : (
+              <AccountCircle />
+            )}
+          </IconButton>
         </Toolbar>
       </StyledAppBar>
       {renderMobileMenu}
       {renderMenu}
     </Box>
+
+
   );
 }

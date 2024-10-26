@@ -4,8 +4,9 @@ import Box from '@mui/joy/Box';
 import { Link, Typography } from '@mui/joy';
 import Avatar from '@mui/joy/Avatar';
 import { useNavigate } from 'react-router-dom';
-import { calculateTimeAgo, selectSelectedSessAlbum, selectSessAlbums } from '../slicers/sessAlbumSlice';
+import {  formatSessDate, selectSelectedSessAlbum, selectSessAlbums, shortFormatSessDate } from '../slicers/sessAlbumSlice';
 import { TiLocation } from 'react-icons/ti';
+import AutoDeleteIcon from '@mui/icons-material/AutoDelete';
 
 const SessAlbumDetails: React.FC = () => {
   const sessAlbum = useSelector(selectSelectedSessAlbum);
@@ -22,6 +23,7 @@ const SessAlbumDetails: React.FC = () => {
   };
 
   return (
+    
     <div>
       {sessAlbum && (
         <Box sx={{ display: 'flex', gap: 4, alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
@@ -36,7 +38,7 @@ const SessAlbumDetails: React.FC = () => {
             </Typography>
           </Box>
           <Typography sx={{ fontSize: 'sm', fontWeight: 'md' }}>
-            {calculateTimeAgo(new Date(sessAlbum.sessDate))}
+              {shortFormatSessDate(sessAlbum.sessDate)}
           </Typography>
           <Link
             sx={{

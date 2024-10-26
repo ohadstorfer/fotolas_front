@@ -8,9 +8,10 @@ import { useAppDispatch } from '../app/hooks';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { teal } from '@mui/material/colors';
-import { TextField } from '@mui/material';
+import { TextField, Typography, useMediaQuery } from '@mui/material';
 
 import { createSpotAsync, selectNewSpot, selectSpot } from '../slicers/spotSlice';
+import { selectSpanish } from '../slicers/sighnInSlice';
 
 export default function UserCard() {
     const dispatch = useAppDispatch();
@@ -20,6 +21,8 @@ export default function UserCard() {
     const [country, setCountry] = useState<string>('');
     const [isSpotAdded, setSpotAdded] = useState(false); // State to control the content
     const newSpot = useSelector(selectNewSpot);
+    const isMobile = useMediaQuery('(max-width:600px)');
+    const spanish = useSelector(selectSpanish)
 
     useEffect(() => {
         if(newSpot){setSpotAdded(true);}
@@ -50,10 +53,12 @@ export default function UserCard() {
                 onSubmit={handleSubmit}
                 encType="multipart/form-data"
                 sx={{
-                    width: '50%',
-                    margin: 'auto',
+                    width: '270px',
+                    margin: '0 auto',
                     marginTop: '16px',
-                }}
+                    display: 'flex',  // Use flexbox to center content
+                    justifyContent: 'center',  // Center horizontally
+                  }}
             >
                 <Card
                     orientation="horizontal"
@@ -62,12 +67,15 @@ export default function UserCard() {
                         flexWrap: 'wrap',
                         borderRadius: '16px',
                         boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
+                        justifyContent: 'center',
                     }}
                 >
+                    
                     <CardContent>
+                    <Typography   variant="h5"  fontWeight="bold"  gutterBottom> {spanish ? 'Agregar un nuevo lugar / spot' : ' Add a New Spot'}  </Typography>
                         {isSpotAdded ? (
                             // If spot is added, display success message
-                            <h2>Spot added successfully!</h2>
+                            <h2> {spanish ? '¡Lugar agregado con éxito!' : 'Spot added successfully!'}</h2>
                         ) : (
                             // If spot is not added, display the form
                             <>
@@ -76,7 +84,7 @@ export default function UserCard() {
                                     required
                                     fullWidth
                                     name="name"
-                                    label="Spot Name"
+                                    label={spanish ? 'Nombre del lugar' : 'Spot Name'}
                                     type="name"
                                     id="name"
                                     autoComplete="current-name"
@@ -86,7 +94,7 @@ export default function UserCard() {
                                     required
                                     fullWidth
                                     name="country"
-                                    label="Country"
+                                    label={spanish ? 'Pais' : 'Country'}
                                     type="country"
                                     id="country"
                                     autoComplete="current-country"
@@ -96,18 +104,18 @@ export default function UserCard() {
                                     required
                                     fullWidth
                                     name="city"
-                                    label="City"
+                                    label={spanish ? 'Ciudad' : 'City'}
                                     type="city"
                                     id="city"
                                     autoComplete="current-city"
                                 />
-                                <Box sx={{ display: 'flex', p: 1.5, my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
+                                <Box sx={{ display: 'flex',  gap: 1.5, '& > button': { flex: 1 } }}>
                                     <Button
                                         type="submit"
                                         fullWidth
                                         sx={{ backgroundColor: teal[400], color: 'white' }}
                                     >
-                                        Add Spot
+                                        {spanish ? 'Agregar' : 'Add Spot'}
                                     </Button>
                                 </Box>
                             </>

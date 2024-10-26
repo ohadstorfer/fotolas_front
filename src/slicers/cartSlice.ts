@@ -39,6 +39,8 @@ interface sess {
     photographer_profile_image: string;
     videos: boolean;
     dividedToWaves: boolean;
+    expiration_date: Date;
+    days_until_expiration: number;
   }
 
 interface cartState {
@@ -102,6 +104,8 @@ export const fetchPricesForVideosBySessionAlbumId = createAsyncThunk(
     'cart/fetchPricesForVideosBySessionAlbumId',
     async (albumId: number) => {
         const response = await getPricesForVideosBySess(albumId);
+        console.log(response.data);
+        
         return response.data;
     }
 );
@@ -212,10 +216,8 @@ export const cartSlice = createSlice({
                 totalPrice = 0;
             } else if (state.cartTotalItems >= 1 && state.cartTotalItems <= 5) {
                 totalPrice = parseFloat(state.prices.price_1_to_5);
-            } else if (state.cartTotalItems >= 6 && state.cartTotalItems <= 20) {
-                totalPrice = parseFloat(state.prices.price_6_to_20);
-            } else if (state.cartTotalItems >= 21 && state.cartTotalItems <= 50) {
-                totalPrice = parseFloat(state.prices.price_21_to_50);
+            } else if (state.cartTotalItems >= 6 && state.cartTotalItems <= 50) {
+                totalPrice = parseFloat(state.prices.price_6_to_50);
             } else {
                 totalPrice = parseFloat(state.prices.price_51_plus);
             }
@@ -223,20 +225,14 @@ export const cartSlice = createSlice({
             sessionStorage.setItem('cartTotalPrice', JSON.stringify(state.cartTotalPrice));
         },
         calculatePriceForWaves: (state) => {
-            console.log("calculatePriceForWaves");
-            console.log("mehiron: " , state.prices);
             if (!state.prices) return;
             let totalPrice = 0;
             if (state.totalImagesInWaves == 0 ) {
-                console.log("state.totalImagesInWaves: " , 0);
                 totalPrice = 0;
             } else if (state.totalImagesInWaves >= 1 && state.totalImagesInWaves <= 5) {
-                console.log("state.totalImagesInWaves: " ,  "1 to 5");
                 totalPrice = parseFloat(state.prices.price_1_to_5);
-            } else if (state.totalImagesInWaves >= 6 && state.totalImagesInWaves <= 20) {
-                totalPrice = parseFloat(state.prices.price_6_to_20);
-            } else if (state.totalImagesInWaves >= 21 && state.totalImagesInWaves <= 50) {
-                totalPrice = parseFloat(state.prices.price_21_to_50);
+            } else if (state.totalImagesInWaves >= 6 && state.totalImagesInWaves <= 50) {
+                totalPrice = parseFloat(state.prices.price_6_to_50);
             } else {
                 totalPrice = parseFloat(state.prices.price_51_plus);
             }
@@ -250,10 +246,10 @@ export const cartSlice = createSlice({
             let totalPrice = 0;
             if (state.cartTotalItems == 0 ) {
                 totalPrice = 0;
-            }else if (state.cartTotalItems >= 1 && state.cartTotalItems <= 5) {
-                totalPrice = parseFloat(state.prices.price_1_to_5);
-            } else if (state.cartTotalItems >= 6 && state.cartTotalItems <= 15) {
-                totalPrice = parseFloat(state.prices.price_6_to_15);
+            }else if (state.cartTotalItems >= 1 && state.cartTotalItems <= 3) {
+                totalPrice = parseFloat(state.prices.price_1_to_3);
+            } else if (state.cartTotalItems >= 4 && state.cartTotalItems <= 15) {
+                totalPrice = parseFloat(state.prices.price_4_to_15);
             } else {
                 totalPrice = parseFloat(state.prices.price_16_plus);
             }
@@ -289,7 +285,9 @@ export const cartSlice = createSlice({
             state.status = 'loading';
           })
           .addCase(fetchPricesForVideosBySessionAlbumId.fulfilled, (state, action) => {
+            console.log(action.payload);
             state.prices = action.payload;
+            console.log(state.prices);
             state.status = 'succeeded';
           })
           .addCase(fetchPricesForVideosBySessionAlbumId.rejected, (state) => {

@@ -18,3 +18,34 @@ export function updatePhotographer(credentials: { photographerId: number, user: 
   
   return axios.put(MY_SERVER, updateData);
 }
+
+
+
+
+
+export function updateDefaultAlbumPricesForImages(credentials: { photographer: number, price_1_to_5: number, price_6_to_50: number, price_51_plus: number }) {
+  console.log(credentials);
+  const MY_SERVER = `http://127.0.0.1:8000/default-album-prices-update/images/photographer/${credentials.photographer}/`;
+  console.log(credentials);
+  return axios.put(MY_SERVER, credentials);
+}
+
+
+
+export function updateDefaultAlbumPricesForVideos(credentials: { photographer: number, price_1_to_3: number, price_4_to_15: number, price_16_plus: number }) {
+  const MY_SERVER = `http://127.0.0.1:8000/default-album-prices-update/videos/${credentials.photographer}/`;
+  console.log(credentials);
+  return axios.put(MY_SERVER, credentials);
+}
+
+
+
+export const fetchDefaultPricesForImages = async (photographerId: number) => {
+  const response = await axios.get(`http://127.0.0.1:8000/default-album-prices/images/photographer/${photographerId}/`);
+  return response.data;
+};
+
+export const fetchDefaultPricesForVideos = async (photographerId: number) => {
+  const response = await axios.get(`http://127.0.0.1:8000/default-album-prices/videos/photographer/${photographerId}/`);
+  return response.data;
+};

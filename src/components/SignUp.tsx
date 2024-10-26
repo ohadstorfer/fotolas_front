@@ -3,8 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -13,61 +11,81 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAppDispatch } from '../app/hooks';
-import { refreshNavbar, selectCredentials, selectRefreshNavbar, selectSignUP, setCredentials, signUpAsync } from '../slicers/signUpSlice';
+import { refreshNavbar, selectCredentials, selectRefreshNavbar, selectSignUP, signUpAsync } from '../slicers/signUpSlice';
 import { teal } from '@mui/material/colors';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginAsync, selectLoggedIn, selectToken } from '../slicers/sighnInSlice';
+import { loginAsync, selectLoggedIn } from '../slicers/sighnInSlice';
+import CircularProgress from '@mui/material/CircularProgress';
 
 
-function Copyright(props: any) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        FotOlas
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
-const defaultTheme = createTheme();
+const defaultTheme = createTheme({
+  palette: {
+    background: {
+      default: '#FFEEAD', // Set the default background color
+    }
+  },
+});
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const isLoggedIn = useSelector(selectSignUP)
-  const isLoggedIn222 = useSelector(selectLoggedIn)
-  const credentials = useSelector(selectCredentials)
+  const isLoggedIn = useSelector(selectSignUP);
+  const isLoggedIn222 = useSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
-  const refreshNavbarbool = useSelector(selectRefreshNavbar)
+  const refreshNavbarbool = useSelector(selectRefreshNavbar);
 
-
-
-
+  // State for error messages
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState(false); // Loading state
 
   useEffect(() => {
     if (isLoggedIn222) {
       navigate('/');
     }
-  }
-    , [isLoggedIn222, ]);
+  }, [isLoggedIn222]);
 
+  const validateForm = (data: FormData) => {
+    const newErrors: { [key: string]: string } = {};
 
+    const firstName = data.get("firstName") as string;
+    const lastName = data.get("lastName") as string;
+    const email = data.get("email") as string;
+    const confirmEmail = data.get("confirmEmail") as string;
+    const password = data.get("password") as string;
+    const confirmPassword = data.get("confirmPassword") as string;
+
+    if (!firstName) newErrors.firstName = "First name is required";
+    if (!lastName) newErrors.lastName = "Last name is required";
+    if (!email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Email address is invalid";
+
+    if (email !== confirmEmail) newErrors.confirmEmail = "Emails must match";
+    if (!password) newErrors.password = "Password is required";
+    else if (password.length < 6) newErrors.password = "Password must be at least 6 characters";
+
+    if (password !== confirmPassword) newErrors.confirmPassword = "Passwords must match";
+
+    return newErrors;
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const validationErrors = validateForm(data);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setLoading(true); // Set loading to true
     const credentials = {
       email: data.get("email") as string,
       fullName: `${data.get("firstName")} ${data.get("lastName")}`.trim(),
       password: data.get("password") as string,
     };
 
-    console.log(credentials);
     try {
       await dispatch(signUpAsync(credentials));
       await dispatch(loginAsync({
@@ -77,12 +95,24 @@ export default function SignUp() {
       dispatch(refreshNavbar());
     } catch (error) {
       console.error('SignUp failed:', error);
+    } finally {
+      setLoading(false); // Reset loading state
     }
   };
 
+
+
+
+  const handleSignIn = () => {
+    navigate('/SignIn');
+  };
+
+
+
+
   return (
-    <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
+    <ThemeProvider theme={defaultTheme} >
+      <Container component="main" maxWidth="xs" >
         <CssBaseline />
         <Box
           sx={{
@@ -109,6 +139,8 @@ export default function SignUp() {
                   id="firstName"
                   label="First Name"
                   autoFocus
+                  error={!!errors.firstName}
+                  helperText={errors.firstName}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -119,6 +151,8 @@ export default function SignUp() {
                   label="Last Name"
                   name="lastName"
                   autoComplete="family-name"
+                  error={!!errors.lastName}
+                  helperText={errors.lastName}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -129,6 +163,20 @@ export default function SignUp() {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                  error={!!errors.email}
+                  helperText={errors.email}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="confirmEmail"
+                  label="Confirm Email Address"
+                  name="confirmEmail"
+                  autoComplete="email"
+                  error={!!errors.confirmEmail}
+                  helperText={errors.confirmEmail}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -140,12 +188,21 @@ export default function SignUp() {
                   type="password"
                   id="password"
                   autoComplete="new-password"
+                  error={!!errors.password}
+                  helperText={errors.password}
                 />
               </Grid>
               <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
+                <TextField
+                  required
+                  fullWidth
+                  name="confirmPassword"
+                  label="Confirm Password"
+                  type="password"
+                  id="confirmPassword"
+                  autoComplete="new-password"
+                  error={!!errors.confirmPassword}
+                  helperText={errors.confirmPassword}
                 />
               </Grid>
             </Grid>
@@ -154,19 +211,19 @@ export default function SignUp() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2, backgroundColor: teal[400] }}
+              disabled={loading} // Disable button when loading
             >
-              Sign Up
+              {loading ? <CircularProgress size={24} color="inherit" /> : "Sign Up"} {/* Show loading indicator */}
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="#" variant="body2" onClick={handleSignIn}>
                   Already have an account? Sign in
                 </Link>
               </Grid>
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 5 }} />
       </Container>
     </ThemeProvider>
   );

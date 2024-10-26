@@ -8,7 +8,10 @@ interface Spot {
   location: string;
   city: string;
   country: string;
+  session_album_count: number;
 }
+
+
 
 interface SpotsState {
   spot: Spot | null;

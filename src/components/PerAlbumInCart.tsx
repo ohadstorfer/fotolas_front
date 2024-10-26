@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getDataAsync, selectPersonalAlbum, addToCart, removeFromCart, removeWaveFromCart, updateTotalPrice, selectNextPageWaves, selectPreviousPageWaves, selectServerError } from '../slicers/perAlbumSlice';
+import { getDataAsync, selectPersonalAlbum, addToCart, removeFromCart, removeWaveFromCart, updateTotalPrice, selectNextPageWaves, selectPreviousPageWaves, selectWavesInCart_WAVES } from '../slicers/perAlbumSlice';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardMedia from '@mui/material/CardMedia';
@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import axios from 'axios';
-import { addToCart_singleImages, fetchPricesBySessionAlbumId, selectCart, addToCart_waves, calculatePriceForImages, calculatePriceForWaves, removeCartType, removeFromCart_singleImages, removeSessAlbumOfCart, selectSessAlbumOfCart, setCartType, setSessAlbumOfCart, removeFromCart_waves } from '../slicers/cartSlice';
+import { addToCart_singleImages, fetchPricesBySessionAlbumId, selectCart, addToCart_waves, calculatePriceForImages, calculatePriceForWaves, removeCartType, removeFromCart_singleImages, removeSessAlbumOfCart, selectSessAlbumOfCart, setCartType, setSessAlbumOfCart, removeFromCart_waves, selectCartOfWaves, fetchWavesByListAsync } from '../slicers/cartSlice';
 import {  selectSelectedSessAlbum, selectSessAlbums } from '../slicers/sessAlbumSlice';
 import { TiLocation } from 'react-icons/ti';
 import SessAlbumDetails from './SessAlbumDetails';
@@ -26,8 +26,8 @@ import Images from './Images';
 import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
 
-const PerAlbum: React.FC = () => {
-  const personalAlbums = useSelector(selectPersonalAlbum);
+const PerAlbumInCart: React.FC = () => {
+  const personalAlbums = useSelector(selectWavesInCart_WAVES);
   const selectedSessAlbum = useSelector(selectSelectedSessAlbum);
   const cart = useSelector(selectCart);
   const dispatch = useAppDispatch();
@@ -43,7 +43,6 @@ const PerAlbum: React.FC = () => {
   const [selectedAlbumId, setSelectedAlbumId] = useState<number | null>(null);
   const [selectedAlbum, setSelectedAlbum] = useState<personalAlbum | null>(null);
   const [isInCart, setIsInCart] = useState(false);
-  const serverError = useSelector(selectServerError);
 
 
 
@@ -55,26 +54,21 @@ const PerAlbum: React.FC = () => {
     image_count: number;
   }
 
-
-
-
-
   useEffect(() => {
-    if (selectedSessAlbum) {
-      const albumId = selectedSessAlbum.id
-      dispatch(getDataAsync({ albumId, page: 1, pageSize: 21 }));
-      dispatch(fetchPricesBySessionAlbumId(albumId));
-
+    if (cart.length > 0) {
+      dispatch(fetchWavesByListAsync(cart));
     }
-  }, [dispatch]);
+  }, [dispatch, cart]);
 
 
 
-  useEffect(() => {
-    if (serverError === 'An error occurred') {
-      navigate(`/ServerErrorPage`);
-    }
-  }, [serverError]);
+  // useEffect(() => {
+  //   if (selectedSessAlbum) {
+  //     const albumId = selectedSessAlbum.id
+  //     dispatch(getDataAsync({ albumId, page: 1, pageSize: 21 }));
+  //   }
+  // }, [dispatch]);
+
 
 
   // const handleCardClickImg = async (albumId: number) => {
@@ -89,7 +83,7 @@ const PerAlbum: React.FC = () => {
 
   const handleAddToCartNew = async (waveId: number, imageCount: number, sessionAlbum: number) => {
     if (sessAlbumOfCart && sessAlbumOfCart.id !== sessionAlbum) {
-      alert('Your cart already contains items from a different session. You can only add items from the same session to your cart.');
+      alert('You can only add waves from the same session album.');
       return;
     }
 
@@ -105,11 +99,12 @@ const PerAlbum: React.FC = () => {
 
 
 
+
   const handleRemoveFromCart = (waveId: number, imageCount: number) => {
     // Show confirmation dialog
-    // const confirmed = window.confirm('Remove this wave from your cart?');
+    const confirmed = window.confirm('Remove this wave from your cart?');
   
-    // if (confirmed) {
+    if (confirmed) {
       if (cart.length === 1) {
         dispatch(removeSessAlbumOfCart());
         dispatch(removeCartType());
@@ -117,7 +112,7 @@ const PerAlbum: React.FC = () => {
   
       dispatch(removeFromCart_waves({ waveId, imageCount }));
       dispatch(calculatePriceForImages());
-    // }
+    }
   };
 
 
@@ -216,18 +211,13 @@ const PerAlbum: React.FC = () => {
 
 
 
-      <ImageList variant="standard" cols={isMobile ? 2 : 4} sx={{ margin: '20px' }}>
-      
+      <ImageList variant="standard" cols={isMobile ? 2 : 3} sx={{ margin: '20px' }}>
         {personalAlbums.map((personalAlbum) => {
           const isInCart = cart.includes(personalAlbum.id);
 
           return (
             <ImageListItem key={personalAlbum.id}>
-              <Card
-              sx={{
-                  boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)', // Shadow on all sides
-                  borderRadius: '8px', // Optional: smooth corners
-                }}>
+              <Card>
                 <CardActionArea onClick={() => handleCardClick(personalAlbum.id, personalAlbum)}>
                   <AspectRatio ratio="4/3">
                     <CardMedia
@@ -288,14 +278,7 @@ const PerAlbum: React.FC = () => {
         })}
       </ImageList>
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
-          Previous
-        </Button>
-        <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
-          Next
-        </Button>
-      </Box>
+      
 
 
 
@@ -410,4 +393,4 @@ const PerAlbum: React.FC = () => {
   );
 };
 
-export default PerAlbum;
+export default PerAlbumInCart;

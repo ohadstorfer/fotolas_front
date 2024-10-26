@@ -11,13 +11,18 @@ import { teal } from '@mui/material/colors';
 import { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import SessAlbum from './SessAlbum';
 import { removeNewPrices, removeNewSess, removeNewSessDetails, selectNewPrices, selectNewSess, selectVideos, sessGetDataAsync, updatePricesAsync, updatePricesForVideosAsync } from '../slicers/sessAlbumSlice';
-import { TextField, Typography, useMediaQuery } from '@mui/material';
+import { Checkbox, FormControlLabel, TextField, Typography, useMediaQuery } from '@mui/material';
 import { createSpotAsync, selectSpot } from '../slicers/spotSlice';
 import Stepper from '@mui/joy/Stepper';
 import Step from '@mui/joy/Step';
 import StepIndicator from '@mui/joy/StepIndicator';
 import { Alert } from '@mui/joy';
 import WarningIcon from '@mui/icons-material/Warning';
+import { selectSpanish, toggleSpanish } from '../slicers/sighnInSlice';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, } from '@mui/material';
+import { fetchDefaultAlbumPricesImages, fetchDefaultAlbumPricesVideos, selectDefaultAlbumPricesVideos, selectNewDefaultAlbumPricesVideos, updateDefaultAlbumPricesForVideosAsync } from '../slicers/becomePhotographerSlice';
+import { selectProfilePhotographer } from '../slicers/profilePtgSlice';
+
 
 
 
@@ -29,14 +34,22 @@ export default function UserCard() {
   const newPrices = useSelector(selectNewPrices);
   const videos = useSelector(selectVideos)
   const isMobile = useMediaQuery('(max-width:600px)');
-  console.log(videos);
+  const spanish = useSelector(selectSpanish)
+  const [openMessage, setOpenMessage] = React.useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const photographer = useSelector(selectProfilePhotographer);
+  const defaultPricesVideos = useSelector(selectDefaultAlbumPricesVideos);
+  const newDefaultPricesVideos = useSelector(selectNewDefaultAlbumPricesVideos);
+  const [checkboxSelected, setCheckboxSelected] = useState(false);
+
+
 
 
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-        e.preventDefault();
-        e.returnValue = ''; // This line triggers the browser's default warning dialog
+      e.preventDefault();
+      e.returnValue = ''; // This line triggers the browser's default warning dialog
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -47,13 +60,21 @@ export default function UserCard() {
   }, [dispatch]);
 
 
+  const setSpanish = () => {
+    dispatch(toggleSpanish());
+  };
 
-  //   useEffect(() => {
-  //     console.log('prices:', prices);
-  //     if(prices)
-  //     {videos? navigate('/PleaseWorkVideo') :navigate('/PleaseWork') }
 
-  //  }, [prices]);
+
+
+  useEffect(() => {
+    if (photographer) {
+      dispatch(fetchDefaultAlbumPricesVideos(photographer.id));
+    }
+  }, [dispatch,]);
+
+
+
 
   useEffect(() => {
     console.log('prices from the component 1: ', newPrices);
@@ -64,21 +85,26 @@ export default function UserCard() {
   }, [newPrices]);
 
 
+
+
+
+
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
 
-    const price_1_to_5_str = data.get("price_1_to_5");
-    const price_6_to_15_str = data.get("price_6_to_15");
-    const price_16_plus_str = data.get("price_16_plus");
+    const price_1_to_3_str = data.get("price_1_to_3"); // Updated to reflect new pricing structure
+    const price_4_to_15_str = data.get("price_4_to_15"); // Updated to reflect new pricing structure
+    const price_16_plus_str = data.get("price_16_plus"); // Updated to reflect new pricing structure
 
     // Check if any field is empty or not a valid number
     if (
-      !price_1_to_5_str ||
-      !price_6_to_15_str ||
+      !price_1_to_3_str ||
+      !price_4_to_15_str ||
       !price_16_plus_str ||
-      isNaN(Number(price_1_to_5_str)) ||
-      isNaN(Number(price_6_to_15_str)) ||
+      isNaN(Number(price_1_to_3_str)) ||
+      isNaN(Number(price_4_to_15_str)) ||
       isNaN(Number(price_16_plus_str))
     ) {
       alert("Please add a value for all fields.");
@@ -87,34 +113,44 @@ export default function UserCard() {
 
     const credentials = {
       session_album: Number(newSess?.id),
-      price_1_to_5: Number(price_1_to_5_str),
-      price_6_to_15: Number(price_6_to_15_str),
-      price_16_plus: Number(price_16_plus_str),
+      price_1_to_3: Number(price_1_to_3_str), // Updated to reflect new pricing structure
+      price_4_to_15: Number(price_4_to_15_str), // Updated to reflect new pricing structure
+      price_16_plus: Number(price_16_plus_str), // Updated to reflect new pricing structure
     };
 
     // Price validation scenarios
-    if (credentials.price_1_to_5 > credentials.price_6_to_15) {
-      const confirm1 = window.confirm(
-        "The price for 1 to 5 videos is higher than the price for 6 to 15 videos. Are you sure you want to proceed?"
+    if (credentials.price_1_to_3 > credentials.price_4_to_15) {
+      handleOpenMessage(
+        spanish
+          ? 'El precio para 1 a 3 videos es mayor que el precio para 4 a 15 videos. Por favor, ajusta los precios para que tengan sentido.'
+          : "The price for 1 to 3 videos is higher than the price for 4 to 15 videos. Please adjust the prices to ensure they are logical."
       );
-      if (!confirm1) return;
+      return;
     }
 
-    if (credentials.price_6_to_15 > credentials.price_16_plus) {
-      const confirm2 = window.confirm(
-        "The price for 6 to 15 videos is higher than the price for 16 or more videos. Are you sure you want to proceed?"
+    if (credentials.price_4_to_15 > credentials.price_16_plus) {
+      handleOpenMessage(
+        spanish
+          ? 'El precio para 4 a 15 videos es mayor que el precio para 16 o más videos. Por favor, ajusta los precios para que tengan sentido.'
+          : "The price for 4 to 15 videos is higher than the price for 16 or more videos. Please adjust the prices to ensure they are logical."
       );
-      if (!confirm2) return;
+      return;
     }
 
-    if (credentials.price_1_to_5 > credentials.price_16_plus) {
-      const confirm3 = window.confirm(
-        "The price for 1 to 5 videos is higher than the price for 16 or more videos. Are you sure you want to proceed?"
+    if (credentials.price_1_to_3 > credentials.price_16_plus) {
+      handleOpenMessage(
+        spanish
+          ? 'El precio para 1 a 3 videos es mayor que el precio para 16 o más videos. Por favor, ajusta los precios para que tengan sentido.'
+          : "The price for 1 to 3 videos is higher than the price for 16 or more videos. Please adjust the prices to ensure they are logical."
       );
-      if (!confirm3) return;
+      return;
     }
 
     try {
+      // If checkbox is selected, submit default image pricing
+      if (checkboxSelected) {
+        await DefaultVideoPricingSubmit(e);
+      }
       console.log(credentials);
       await dispatch(updatePricesForVideosAsync(credentials));
     } catch (error) {
@@ -123,6 +159,11 @@ export default function UserCard() {
   };
 
 
+
+
+
+
+  
   const handleCancelUpload = () => {
     const confirmCancel = window.confirm('Are you sure you want to cancel the upload?');
 
@@ -137,6 +178,104 @@ export default function UserCard() {
 
 
 
+
+
+
+
+
+  const DefaultVideoPricingSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    console.log("handleVideoPricingSubmit");
+
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    if (!photographer) {
+      console.error('Photographer data is not available.');
+      return;
+    }
+    const price_1_to_3_str = data.get("price_1_to_3"); // Updated to reflect new pricing structure
+    const price_4_to_15_str = data.get("price_4_to_15"); // Updated to reflect new pricing structure
+    const price_16_plus_str = data.get("price_16_plus"); // Updated to reflect new pricing structure
+
+    // Check if any field is empty or not a valid number
+    if (
+      !price_1_to_3_str ||
+      !price_4_to_15_str ||
+      !price_16_plus_str ||
+      isNaN(Number(price_1_to_3_str)) ||
+      isNaN(Number(price_4_to_15_str)) ||
+      isNaN(Number(price_16_plus_str))
+    ) {
+      alert("Please add a value for all fields.");
+      return;
+    }
+
+    const credentials = {
+      photographer: photographer.id,
+      price_1_to_3: Number(price_1_to_3_str), // Updated to reflect new pricing structure
+      price_4_to_15: Number(price_4_to_15_str), // Updated to reflect new pricing structure
+      price_16_plus: Number(price_16_plus_str), // Updated to reflect new pricing structure
+    };
+
+    // Price validation scenarios
+    if (credentials.price_1_to_3 > credentials.price_4_to_15) {
+      handleOpenMessage(
+        spanish
+          ? 'El precio para 1 a 3 videos es mayor que el precio para 4 a 15 videos. Por favor, ajusta los precios para que tengan sentido.'
+          : "The price for 1 to 3 videos is higher than the price for 4 to 15 videos. Please adjust the prices to ensure they are logical."
+      );
+      return;
+    }
+
+    if (credentials.price_4_to_15 > credentials.price_16_plus) {
+      handleOpenMessage(
+        spanish
+          ? 'El precio para 4 a 15 videos es mayor que el precio para 16 o más videos. Por favor, ajusta los precios para que tengan sentido.'
+          : "The price for 4 to 15 videos is higher than the price for 16 or more videos. Please adjust the prices to ensure they are logical."
+      );
+      return;
+    }
+
+    if (credentials.price_1_to_3 > credentials.price_16_plus) {
+      handleOpenMessage(
+        spanish
+          ? 'El precio para 1 a 3 videos es mayor que el precio para 16 o más videos. Por favor, ajusta los precios para que tengan sentido.'
+          : "The price for 1 to 3 videos is higher than the price for 16 or more videos. Please adjust the prices to ensure they are logical."
+      );
+      return;
+    }
+
+    try {
+      console.log(credentials);
+      await dispatch(updateDefaultAlbumPricesForVideosAsync(credentials));
+    } catch (error) {
+      console.error('updatePrices failed:', error);
+    }
+  };
+
+
+
+
+  
+
+
+
+
+  const handleOpenMessage = (msg: string) => {
+    setMessage(msg);
+    setOpenMessage(true);
+  };
+
+  const handleCloseMessage = () => {
+    setOpenMessage(false);
+  };
+
+
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCheckboxSelected(event.target.checked);
+  };
+
+
   return (
     <>
 
@@ -149,19 +288,19 @@ export default function UserCard() {
             </StepIndicator>
           }
         >
-          Add Session Details
+          {spanish ? 'Agregar detalles de la sesión' : 'Add Session Details'}
         </Step>
         <Step
           orientation="vertical"
           indicator={<StepIndicator variant="solid" sx={{ backgroundColor: teal[400], color: 'white' }}>2</StepIndicator>}
         >
-          Set Prices
+          {spanish ? 'Establecer precios' : 'Set Prices'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator variant="outlined">3</StepIndicator>}>
-          Upload Videos
+          {spanish ? 'Subir videos' : 'Upload Videos'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator variant="outlined">4</StepIndicator>}>
-          Done!
+          {spanish ? '¡Hecho!' : 'Done!'}
         </Step>
       </Stepper>
 
@@ -171,32 +310,34 @@ export default function UserCard() {
 
 
       <Alert
-      variant="outlined"
-      color="warning"
-      startDecorator={<WarningIcon />}
-      sx={{
-        
-        maxWidth: isMobile ? '90%' : '370px', // 90% width on mobile, 400px on larger screens
-        margin: '0 auto', // Center horizontally
-        textAlign: 'center',
-      }}
-    >
-      <Typography>
-        Please double check before you continue. Prices can not be changed later.
-      </Typography>
-    </Alert>
+        variant="outlined"
+        color="warning"
+        startDecorator={<WarningIcon />}
+        sx={{
+
+          maxWidth: isMobile ? '90%' : '370px', // 90% width on mobile, 400px on larger screens
+          margin: '0 auto', // Center horizontally
+          textAlign: 'center',
+        }}
+      >
+        <Typography>
+          {spanish ? 'Por favor, verifica antes de continuar. Los precios no se podrán cambiar más tarde.' : 'Please double check before you continue. Prices can not be changed later.'}
+        </Typography>
+      </Alert>
 
 
 
 
-
+      {defaultPricesVideos &&
 
 
       <Box component="form" noValidate onSubmit={handleSubmit} encType="multipart/form-data"
         sx={{
-          width: '50%',
-          margin: 'auto',
+          width: isMobile ? '90%' : '50%',  // Width changes based on device
+          margin: '0 auto',
           marginTop: '16px',
+          display: 'flex',  // Use flexbox to center content
+          justifyContent: 'center',  // Center horizontally
         }}
       >
         <Card
@@ -221,51 +362,75 @@ export default function UserCard() {
 
 
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="price_1_to_5"
-              label="Set a price for albums with 1 to 5 videos"
-              type="number"
-              id="price_1_to_5"
-              autoComplete="current-price_1_to_5"
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                {spanish ? '1 a 3 videos' : '1 to 3 videos'}
+              </Typography>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="price_1_to_3"
+                type="number"
+                id="price_1_to_3"
+                defaultValue={defaultPricesVideos ? defaultPricesVideos[0].price_1_to_3 : ''}
+                inputProps={{
+                  style: { textAlign: 'center' }
+                }}
+              />
+            </Box>
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="price_6_to_15"
-              label="Set a price for albums with 6 to 15 videos"
-              type="number"
-              id="price_6_to_15"
-              autoComplete="current-price_6_to_15"
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                {spanish ? '4 a 15 videos' : '4 to 15 videos'}
+              </Typography>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="price_4_to_15"
+                type="number"
+                id="price_4_to_15"
+                defaultValue={defaultPricesVideos ? defaultPricesVideos[0].price_4_to_15 : ''}
+                inputProps={{
+                  style: { textAlign: 'center' }
+                }}
+              />
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                {spanish ? 'más de 15 videos' : 'more than 15 videos'}
+              </Typography>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="price_16_plus"
+                type="number"
+                id="price_16_plus"
+                defaultValue={defaultPricesVideos ? defaultPricesVideos[0].price_16_plus : ''}
+                inputProps={{
+                  style: { textAlign: 'center' }
+                }}
+              />
+            </Box>
+
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <FormControlLabel control={<Checkbox checked={checkboxSelected} onChange={handleCheckboxChange} />} label={spanish ? 'Guardar precios como predeterminados' : "Save pricing as default"}/>
+            </Box>
 
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="price_16_plus"
-              label="Set a price for albums with 16 videos or more videos"
-              type="number"
-              id="price_16_plus"
-              autoComplete="current-price_16_plus"
-            />
-
-
-            <Box sx={{ display: 'flex', p: 1.5, my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
+            <Box sx={{ display: 'flex', p: 1.5, my: 1, gap: 1.5, '& > button': { flex: 1 } }}>
 
               <Button size="md" color="danger" onClick={handleCancelUpload}>
-                Cancle
+                {spanish ? 'Cancelar' : "Cancel"}
               </Button>
 
               <Button type="submit"
                 fullWidth
                 sx={{ backgroundColor: teal[400], color: 'white' }}>
-                Confirm
+                {spanish ? 'Confirmar' : "Confirm"}
               </Button>
             </Box>
 
@@ -273,6 +438,32 @@ export default function UserCard() {
         </Card>
 
       </Box>
+}
+
+
+
+      {openMessage && (
+        <Dialog
+          open={openMessage}
+          onClose={handleCloseMessage}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {message} {/* Display the message from state */}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseMessage} autoFocus>
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+
+
     </>
   );
 }

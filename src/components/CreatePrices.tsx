@@ -11,13 +11,18 @@ import { teal } from '@mui/material/colors';
 import { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import SessAlbum from './SessAlbum';
 import { removeNewPrices, removeNewSess, removeNewSessDetails, selectNewPrices, selectNewSess, selectVideos, sessGetDataAsync, updatePricesAsync } from '../slicers/sessAlbumSlice';
-import { TextField, Typography, useMediaQuery } from '@mui/material';
+import { Checkbox, FormControlLabel, TextField, Typography, useMediaQuery } from '@mui/material';
 import { createSpotAsync, selectSpot } from '../slicers/spotSlice';
 import Stepper from '@mui/joy/Stepper';
 import Step from '@mui/joy/Step';
 import StepIndicator from '@mui/joy/StepIndicator';
 import { Alert } from '@mui/joy';
 import WarningIcon from '@mui/icons-material/Warning';
+import { selectSpanish, toggleSpanish } from '../slicers/sighnInSlice';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, } from '@mui/material';
+import { fetchDefaultAlbumPricesImages, fetchDefaultAlbumPricesVideos, selectDefaultAlbumPricesImages, selectDefaultAlbumPricesVideos, selectNewDefaultAlbumPricesImages, selectNewDefaultAlbumPricesVideos, updateDefaultAlbumPricesForImagesAsync } from '../slicers/becomePhotographerSlice';
+import { selectProfilePhotographer } from '../slicers/profilePtgSlice';
+
 
 
 
@@ -29,14 +34,20 @@ export default function UserCard() {
   const newPrices = useSelector(selectNewPrices);
   const videos = useSelector(selectVideos)
   const isMobile = useMediaQuery('(max-width:600px)');
-  console.log(videos);
+  const spanish = useSelector(selectSpanish)
+  const [openMessage, setOpenMessage] = React.useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const photographer = useSelector(selectProfilePhotographer);
+  const defaultPricesImages = useSelector(selectDefaultAlbumPricesImages);
+  const newDefaultPricesImages = useSelector(selectNewDefaultAlbumPricesImages);
+  const [checkboxSelected, setCheckboxSelected] = useState(false);
 
 
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-        e.preventDefault();
-        e.returnValue = ''; // This line triggers the browser's default warning dialog
+      e.preventDefault();
+      e.returnValue = ''; // This line triggers the browser's default warning dialog
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -46,9 +57,21 @@ export default function UserCard() {
     };
   }, [dispatch]);
 
-  
 
 
+
+  useEffect(() => {
+    if (photographer) {
+      dispatch(fetchDefaultAlbumPricesImages(photographer.id));
+    }
+  }, [dispatch,]);
+
+
+
+
+  const setSpanish = () => {
+    dispatch(toggleSpanish());
+  };
 
   //   useEffect(() => {
   //     console.log('prices:', prices);
@@ -74,19 +97,16 @@ export default function UserCard() {
     const data = new FormData(e.currentTarget);
 
     const price_1_to_5_str = data.get("price_1_to_5");
-    const price_6_to_20_str = data.get("price_6_to_20");
-    const price_21_to_50_str = data.get("price_21_to_50");
-    const price_51_plus_str = data.get("price_51_plus");
+    const price_6_to_50_str = data.get("price_6_to_50"); // Updated to reflect new pricing structure
+    const price_51_plus_str = data.get("price_51_plus"); // Updated to reflect new pricing structure
 
     // Check if any field is empty or not a valid number
     if (
       !price_1_to_5_str ||
-      !price_6_to_20_str ||
-      !price_21_to_50_str ||
+      !price_6_to_50_str ||
       !price_51_plus_str ||
       isNaN(Number(price_1_to_5_str)) ||
-      isNaN(Number(price_6_to_20_str)) ||
-      isNaN(Number(price_21_to_50_str)) ||
+      isNaN(Number(price_6_to_50_str)) ||
       isNaN(Number(price_51_plus_str))
     ) {
       alert("Please add a value for all fields.");
@@ -96,40 +116,115 @@ export default function UserCard() {
     const credentials = {
       session_album: Number(newSess?.id),
       price_1_to_5: Number(price_1_to_5_str),
-      price_6_to_20: Number(price_6_to_20_str),
-      price_21_to_50: Number(price_21_to_50_str),
-      price_51_plus: Number(price_51_plus_str),
+      price_6_to_50: Number(price_6_to_50_str), // Updated to reflect new pricing structure
+      price_51_plus: Number(price_51_plus_str), // Updated to reflect new pricing structure
     };
 
     // Price validation scenarios
-    if (credentials.price_1_to_5 > credentials.price_6_to_20) {
-      const confirm1 = window.confirm(
-        "The price for 1 to 5 images is higher than the price for 6 to 20 images. Are you sure you want to proceed?"
+    if (credentials.price_1_to_5 > credentials.price_6_to_50) {
+      handleOpenMessage(
+        spanish
+          ? 'El precio para 1 a 5 imágenes es mayor que el precio para 6 a 50 imágenes. Por favor, ajusta los precios para que tengan sentido.'
+          : "The price for 1 to 5 images is higher than the price for 6 to 50 images. Please adjust the prices to ensure they are logical."
       );
-      if (!confirm1) return;
+      return;
     }
 
-    if (credentials.price_6_to_20 > credentials.price_21_to_50) {
-      const confirm2 = window.confirm(
-        "The price for 6 to 20 images is higher than the price for 21 to 50 images. Are you sure you want to proceed?"
+    if (credentials.price_6_to_50 > credentials.price_51_plus) {
+      handleOpenMessage(
+        spanish
+          ? 'El precio para 6 a 50 imágenes es mayor que el precio para 51 o más imágenes. Por favor, ajusta los precios para que tengan sentido.'
+          : "The price for 6 to 50 images is higher than the price for 51 or more images. Please adjust the prices to ensure they are logical."
       );
-      if (!confirm2) return;
-    }
-
-    if (credentials.price_21_to_50 > credentials.price_51_plus) {
-      const confirm3 = window.confirm(
-        "The price for 21 to 50 images is higher than the price for 51 or more images. Are you sure you want to proceed?"
-      );
-      if (!confirm3) return;
+      return;
     }
 
     try {
+      // If checkbox is selected, submit default image pricing
+      if (checkboxSelected) {
+        await DefaultImagePricingSubmit(e);
+      }
       console.log(credentials);
       await dispatch(updatePricesAsync(credentials));
     } catch (error) {
       console.error('updatePrices failed:', error);
     }
   };
+
+
+
+
+
+
+
+
+
+
+  const DefaultImagePricingSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    console.log("handleImagePricingSubmit");
+
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    if (!photographer) {
+      console.error('Photographer data is not available.');
+      return;
+    }
+    const price_1_to_5_str = data.get("price_1_to_5");
+    const price_6_to_50_str = data.get("price_6_to_50"); // Updated to reflect new pricing structure
+    const price_51_plus_str = data.get("price_51_plus"); // Updated to reflect new pricing structure
+
+    // Check if any field is empty or not a valid number
+    if (
+      !price_1_to_5_str ||
+      !price_6_to_50_str ||
+      !price_51_plus_str ||
+      isNaN(Number(price_1_to_5_str)) ||
+      isNaN(Number(price_6_to_50_str)) ||
+      isNaN(Number(price_51_plus_str))
+    ) {
+      alert("Please add a value for all fields.");
+      return;
+    }
+
+    const credentials = {
+      photographer: photographer.id,
+      price_1_to_5: Number(price_1_to_5_str),
+      price_6_to_50: Number(price_6_to_50_str), // Updated to reflect new pricing structure
+      price_51_plus: Number(price_51_plus_str), // Updated to reflect new pricing structure
+    };
+
+    // Price validation scenarios
+    if (credentials.price_1_to_5 > credentials.price_6_to_50) {
+      handleOpenMessage(
+        spanish
+          ? 'El precio para 1 a 5 imágenes es mayor que el precio para 6 a 50 imágenes. Por favor, ajusta los precios para que tengan sentido.'
+          : "The price for 1 to 5 images is higher than the price for 6 to 50 images. Please adjust the prices to ensure they are logical."
+      );
+      return;
+    }
+
+    if (credentials.price_6_to_50 > credentials.price_51_plus) {
+      handleOpenMessage(
+        spanish
+          ? 'El precio para 6 a 50 imágenes es mayor que el precio para 51 o más imágenes. Por favor, ajusta los precios para que tengan sentido.'
+          : "The price for 6 to 50 images is higher than the price for 51 or more images. Please adjust the prices to ensure they are logical."
+      );
+      return;
+    }
+
+    try {
+      console.log(credentials);
+      await dispatch(updateDefaultAlbumPricesForImagesAsync(credentials));
+    } catch (error) {
+      console.error('updatePrices failed:', error);
+    }
+  };
+
+
+
+
+
+
 
 
 
@@ -146,6 +241,25 @@ export default function UserCard() {
 
 
 
+
+  const handleOpenMessage = (msg: string) => {
+    setMessage(msg);
+    setOpenMessage(true);
+  };
+
+  const handleCloseMessage = () => {
+    setOpenMessage(false);
+  };
+
+
+
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCheckboxSelected(event.target.checked);
+  };
+
+
+
   return (
     <>
       <Stepper sx={{ width: '100%', marginBottom: '40px', }}>
@@ -157,19 +271,19 @@ export default function UserCard() {
             </StepIndicator>
           }
         >
-          Add Session Details
+          {spanish ? 'Agregar detalles de la sesión' : 'Add Session Details'}
         </Step>
         <Step
           orientation="vertical"
           indicator={<StepIndicator variant="solid" sx={{ backgroundColor: teal[400], color: 'white' }}>2</StepIndicator>}
         >
-          Set Prices
+          {spanish ? 'Establecer precios' : 'Set Prices'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator variant="outlined">3</StepIndicator>}>
-          Upload Images
+          {spanish ? 'Subir imágenes' : 'Upload Images'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator variant="outlined">4</StepIndicator>}>
-          Done!
+          {spanish ? '¡Hecho!' : 'Done!'}
         </Step>
       </Stepper>
 
@@ -181,117 +295,163 @@ export default function UserCard() {
 
 
       <Alert
-      variant="outlined"
-      color="warning"
-      startDecorator={<WarningIcon />}
-      sx={{
-        
-        maxWidth: isMobile ? '90%' : '370px', // 90% width on mobile, 400px on larger screens
-        margin: '0 auto', // Center horizontally
-        textAlign: 'center',
-      }}
-    >
-      <Typography>
-        Please double check before you continue. Prices can not be changed later.
-      </Typography>
-    </Alert>
-
-
-
-
-
-
-
-      <Box component="form" noValidate onSubmit={handleSubmit} encType="multipart/form-data"
+        variant="outlined"
+        color="warning"
+        startDecorator={<WarningIcon />}
         sx={{
-          width: '50%',
-          margin: 'auto',
-          marginTop: '16px',
+
+          maxWidth: isMobile ? '90%' : '370px', // 90% width on mobile, 400px on larger screens
+          margin: '0 auto', // Center horizontally
+          textAlign: 'center',
         }}
       >
-        <Card
-          orientation="horizontal"
+        <Typography>
+          {spanish ? 'Por favor, verifica antes de continuar. Los precios no se podrán cambiar más tarde.' : 'Please double check before you continue. Prices can not be changed later.'}
+        </Typography>
+      </Alert>
+
+
+
+
+
+      {defaultPricesImages &&
+
+        <Box component="form" noValidate onSubmit={handleSubmit} encType="multipart/form-data"
           sx={{
-            width: '100%',
-            flexWrap: 'wrap',
-            [`& > *`]: {
-              '--stack-point': '500px',
-              minWidth: 'clamp(0px, (calc(var(--stack-point) - 2 * var(--Card-padding) - 2 * var(--variant-borderWidth, 0px)) + 1px - 100%) * 999, 100%)',
-            },
-
-
-            borderRadius: '16px', // Add rounded corners for a modern look
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)', // Add a subtle shadow
+            width: isMobile ? '90%' : '50%',  // Width changes based on device
+            margin: '0 auto',
+            marginTop: '16px',
+            justifyContent: 'center',  // Center horizontally
+            display: 'flex',  // Use flexbox to layout cards side by side
+            // justifyContent: 'space-between',  // Create space between the cards
+            // gap: 2,  // Add some spacing between the cards
           }}
         >
+          <Card
+            orientation="horizontal"
+            sx={{
+              width: '100%',
+              flexWrap: 'wrap',
+              [`& > *`]: {
+                '--stack-point': '500px',
+                minWidth: 'clamp(0px, (calc(var(--stack-point) - 2 * var(--Card-padding) - 2 * var(--variant-borderWidth, 0px)) + 1px - 100%) * 999, 100%)',
+              },
 
 
-          <CardContent>
-            {/* 8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888 */}
+              borderRadius: '16px', // Add rounded corners for a modern look
+              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)', // Add a subtle shadow
+            }}
+          >
+
+
+            <CardContent>
+              {/* 8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888 */}
 
 
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="price_1_to_5"
-              label={`Set a price for albums with 1 to 5 ${videos ? 'videos' : 'images'}`}
-              type="number"
-              id="price_1_to_5"
-              autoComplete="current-price_1_to_5"
-            />
-
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="price_6_to_20"
-              label={`Set a price for albums with 6 to 20 ${videos ? 'videos' : 'images'}`}
-              type="number"
-              id="price_6_to_20"
-              autoComplete="current-price_6_to_20"
-            />
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                  {spanish ? '1 a 5 imágenes' : '1 to 5 images'}
+                </Typography>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="price_1_to_5"
+                  type="number"
+                  id="price_1_to_5"
+                  defaultValue={defaultPricesImages ? defaultPricesImages[0].price_1_to_5 : ''}
+                  inputProps={{
+                    style: { textAlign: 'center' }
+                  }}
+                />
+              </Box>
 
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="price_21_to_50"
-              label={`Set a price for albums with 21 to 50 ${videos ? 'videos' : 'images'}`}
-              type="number"
-              id="price_21_to_50"
-              autoComplete="current-price_21_to_50"
-            />
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                  {spanish ? '6 a 50 imágenes' : '6 to 50 images'}
+                </Typography>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="price_6_to_50"
+                  type="number"
+                  id="price_6_to_50"
+                  defaultValue={defaultPricesImages ? defaultPricesImages[0].price_6_to_50 : ''}
+                  inputProps={{
+                    style: { textAlign: 'center' }
+                  }}
+                />
+              </Box>
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="price_51_plus"
-              label={`Set a price for albums with more than 50 ${videos ? 'videos' : 'images'}`}
-              type="number"
-              id="price_51_plus"
-              autoComplete="current-price_51_plus"
-            />
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                  {spanish ? 'más de 50 imágenes' : 'more than 50 images'}
+                </Typography>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="price_51_plus"
+                  type="number"
+                  id="price_51_plus"
+                  defaultValue={defaultPricesImages ? defaultPricesImages[0].price_51_plus : ''}
+                  inputProps={{
+                    style: { textAlign: 'center' }
+                  }}
+                />
+              </Box>
 
-            <Box sx={{ display: 'flex', p: 1.5, my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
-              <Button size="md" color="danger" onClick={handleCancelUpload}>
-                Cancle
-              </Button>
 
-              <Button type="submit"
-                fullWidth
-                sx={{ backgroundColor: teal[400], color: 'white' }}>
-                Confirm
-              </Button>
-            </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <FormControlLabel control={<Checkbox checked={checkboxSelected} onChange={handleCheckboxChange} />} label={spanish ? 'Guardar precios como predeterminados' : "Save pricing as default"} />
+              </Box>
 
-          </CardContent>
-        </Card>
 
-      </Box>
+              <Box sx={{ display: 'flex', p: 1.5, my: 1, gap: 1.5, '& > button': { flex: 1 } }}>
+                <Button size="md" color="danger" onClick={handleCancelUpload}>
+                  {spanish ? 'Cancelar' : "Cancel"}
+                </Button>
+
+                <Button type="submit"
+                  fullWidth
+                  sx={{ backgroundColor: teal[400], color: 'white' }}>
+                  {spanish ? 'Confirmar' : "Confirm"}
+                </Button>
+              </Box>
+
+            </CardContent>
+          </Card>
+
+
+
+        </Box>
+
+      }
+
+      {openMessage && (
+        <Dialog
+          open={openMessage}
+          onClose={handleCloseMessage}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {message} {/* Display the message from state */}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseMessage} autoFocus>
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+
     </>
   );
 }

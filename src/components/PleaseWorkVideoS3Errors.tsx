@@ -20,6 +20,8 @@ import Warning from '@mui/icons-material/Warning';
 import VideoCallIcon from '@mui/icons-material/VideoCall';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import ReportIcon from '@mui/icons-material/Report';
+import { selectSpanish, toggleSpanish } from '../slicers/sighnInSlice';
+import ConfirmationDialog from './ConfirmationDialog';
 
 
 
@@ -39,6 +41,9 @@ const PleaseWorkcopy = () => {
   const dispatch = useAppDispatch();
   const isMobile = useMediaQuery('(max-width:600px)');
   let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+  const spanish = useSelector(selectSpanish)
+  const [dialogOpen, setDialogOpen] = useState(false);
+
 
 
 
@@ -57,6 +62,13 @@ const PleaseWorkcopy = () => {
 
 
 
+
+
+
+
+  const setSpanish = () => {
+    dispatch(toggleSpanish());
+  };
 
 
 
@@ -92,24 +104,33 @@ const PleaseWorkcopy = () => {
 
       // Check if the total file size exceeds the limit
       if (totalSize > maxFileSize) {
-        setFileError('You can only upload up to 20 GB limit. Please select fewer videos.');
+        setFileError(spanish
+          ? 'Solo puedes subir hasta un límite de 20 GB. Por favor, selecciona menos videos.'
+          : 'You can upload a maximum of 20 GB. Please select fewer videos.'
+        );
         setFiles([]); // Clear the files if the total size exceeds the limit
       } else if (invalidFiles.length > 0) {
-        setFileError(`Please select only MP4, WebM, or MOV videos. Invalid files: ${invalidFiles.join(', ')}`);
+        setFileError(spanish
+          ? `Por favor, selecciona solo videos en formato MP4, WebM o MOV. Archivos inválidos: ${invalidFiles.join(', ')}`
+          : `Please select only MP4, WebM, or MOV videos. Invalid files: ${invalidFiles.join(', ')}`
+        );
         setFiles([]); // Clear the files if any are invalid
       } else {
-         // Calculate the estimated upload time
-         const uploadSpeedMbps = 20; // Upload speed in Mbps
-         const uploadSpeedBps = uploadSpeedMbps * 1_000_000; // Convert to bits per second
-         const totalSizeInBits = totalSize * 8; // Convert total size to bits
-         const estimatedTimeInSeconds = totalSizeInBits / uploadSpeedBps; // Calculate time in seconds
-         const estimatedTimeInMinutes = (estimatedTimeInSeconds / 60).toFixed(0); // Convert to minutes
- 
-         // Set the time estimation message
-         setFileError(null);
-         setFiles(fileList); // Update state with valid files
-         setTimeEstimation (`Uploading this can take more than ${estimatedTimeInMinutes} minutes with a good internet connection.` )
-        }
+        // Calculate the estimated upload time
+        const uploadSpeedMbps = 20; // Upload speed in Mbps
+        const uploadSpeedBps = uploadSpeedMbps * 1_000_000; // Convert to bits per second
+        const totalSizeInBits = totalSize * 8; // Convert total size to bits
+        const estimatedTimeInSeconds = totalSizeInBits / uploadSpeedBps; // Calculate time in seconds
+        const estimatedTimeInMinutes = (estimatedTimeInSeconds / 60).toFixed(0); // Convert to minutes
+
+        // Set the time estimation message
+        setFileError(null);
+        setFiles(fileList); // Update state with valid files
+        setTimeEstimation(spanish
+          ? `Subir esto puede tardar más de ${estimatedTimeInMinutes} minutos con una buena conexión a Internet.`
+          : `Uploading this can take more than ${estimatedTimeInMinutes} minutes with a good internet connection.`
+        );
+      }
     }
   };
 
@@ -119,6 +140,16 @@ const PleaseWorkcopy = () => {
     fileInputRef.current?.click();
   };
 
+
+
+
+
+
+
+  // Function to remove acceleration endpoint from URL
+  const removeAccelerationEndpoint = (url: string): string => {
+    return url.replace('s3-accelerate.amazonaws.com', 's3.amazonaws.com');
+  };
 
 
 
@@ -177,9 +208,12 @@ const PleaseWorkcopy = () => {
                       }
                     } else {
                       console.log(`User is offline, waiting for connection restoration for ${file.name}.`);
+                      setNetworkError(true);
+                      clearTimeout(retryTimeout as ReturnType<typeof setTimeout>);
                       // Add an event listener for when the connection is restored
                       const connectionRestoredListener = async () => {
                         console.log(`Connection restored, resuming upload for ${file.name}.`);
+                        setNetworkError(false);
                         window.removeEventListener('online', connectionRestoredListener);
                         try {
                           const result = await uploadWithRetry();
@@ -239,16 +273,6 @@ const PleaseWorkcopy = () => {
 
 
   const handleUpload = async () => {
-       // Show confirmation dialog to the user
-  const confirmUpload = window.confirm(
-    "After the upload process starts, you cannot make changes. Do you want to continue?"
-  );
-  // If the user cancels, exit the function
-  if (!confirmUpload) {
-    console.log('Upload canceled by the user.');
-    return;
-  }
-
 
 
     if (files.length === 0) {
@@ -304,10 +328,18 @@ const PleaseWorkcopy = () => {
         allImgUrls.push(...imgUrls);
       }
 
-      // Filter undefined URLs before calling the create function
-      const validOriginalUrls = allOriginalUploadedUrls.filter((url): url is string => !!url);
-      const validWatermarkedUrls = allWatermarkedUploadedUrls.filter((url): url is string => !!url);
-      const validImgUrls = allImgUrls.filter((url): url is string => !!url);
+      // Filter, transform URLs, and remove acceleration endpoint
+      const validOriginalUrls = allOriginalUploadedUrls
+        .filter((url): url is string => !!url)
+        .map(removeAccelerationEndpoint);
+
+      const validWatermarkedUrls = allWatermarkedUploadedUrls
+        .filter((url): url is string => !!url)
+        .map(removeAccelerationEndpoint);
+
+      const validImgUrls = allImgUrls
+        .filter((url): url is string => !!url)
+        .map(removeAccelerationEndpoint);
 
       console.log('Calling createVideos with valid URLs');
       const videosCreatedSuccessfully = await createVideos(validOriginalUrls, validWatermarkedUrls, validImgUrls);
@@ -315,6 +347,9 @@ const PleaseWorkcopy = () => {
       if (videosCreatedSuccessfully) {
         console.log('Upload process completed successfully');
         setUploading(false);
+        dispatch(removeNewSess());
+        dispatch(removeNewPrices());
+        dispatch(removeNewSessDetails());
         navigate('/Successfull');
       } else {
         setUploading(false);
@@ -361,15 +396,21 @@ const PleaseWorkcopy = () => {
 
 
   const handleCancelUpload = () => {
-    const confirmCancel = window.confirm('Are you sure you want to cancel the upload?');
-
-    if (confirmCancel) {
-      dispatch(removeNewSess());
-      dispatch(removeNewPrices());
-      dispatch(removeNewSessDetails());
-      navigate('/');
-    }
+    setDialogOpen(true); // Open the dialog
   };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false); // Close the dialog
+  };
+
+  const handleDialogConfirm = () => {
+    dispatch(removeNewSess());
+    dispatch(removeNewPrices());
+    dispatch(removeNewSessDetails());
+    navigate('/'); // Navigate after confirmation
+    setDialogOpen(false); // Close the dialog
+  };
+
 
 
 
@@ -377,16 +418,19 @@ const PleaseWorkcopy = () => {
     <div className="container">
       <Stepper sx={{ width: '100%', marginBottom: '40px' }}>
         <Step orientation="vertical" indicator={<StepIndicator>1</StepIndicator>}>
-          Add Session Details
+          {spanish ? 'Agregar detalles de la sesión' : 'Add Session Details'}
         </Step>
-        <Step orientation="vertical" indicator={<StepIndicator>2</StepIndicator>}>
-          Set Prices
+        <Step
+          orientation="vertical"
+          indicator={<StepIndicator>2</StepIndicator>}
+        >
+          {spanish ? 'Establecer precios' : 'Set Prices'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator variant="solid" sx={{ backgroundColor: teal[400], color: 'white' }}>3</StepIndicator>}>
-          Upload Videos
+          {spanish ? 'Subir videos' : 'Upload Videos'}
         </Step>
         <Step orientation="vertical" indicator={<StepIndicator variant="outlined">4</StepIndicator>}>
-          Done!
+          {spanish ? '¡Hecho!' : 'Done!'}
         </Step>
       </Stepper>
 
@@ -407,7 +451,7 @@ const PleaseWorkcopy = () => {
           }}
         >
           <Typography>
-            Do not leave the page or turn off your computer!
+            {spanish ? '¡No salgas de la página ni apagues tu computadora!' : 'Do not leave the page or turn off your computer!'}
           </Typography>
         </Alert>
       )}
@@ -418,14 +462,14 @@ const PleaseWorkcopy = () => {
 
       {!uploading && files.length === 0 && (
         <>
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 'bold', marginTop: 2, marginBottom: 2 }}
-        >
-          You can upload up to 20 GB 
-        </Typography>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 'bold', marginTop: 2, marginBottom: 2 }}
+          >
+            {spanish ? 'Puedes subir hasta 20 GB' : 'You can upload up to 20 GB'}
+          </Typography>
 
-          <Button onClick={onUploadClick} startIcon={<VideoCallIcon />} size="large">Select Videos </Button>
+          <Button onClick={onUploadClick} startIcon={<VideoCallIcon />} size="large">{spanish ? 'Seleccionar videos' : 'Select Videos'} </Button>
           <input
             ref={fileInputRef}
             type="file"
@@ -456,7 +500,6 @@ const PleaseWorkcopy = () => {
         </Typography>
       )}
 
-      
 
 
 
@@ -465,7 +508,8 @@ const PleaseWorkcopy = () => {
 
 
 
-      {!uploading && files.length > 0 &&  (
+
+      {!uploading && files.length > 0 && (
         <Alert
           variant="outlined"
           color="warning"
@@ -478,7 +522,7 @@ const PleaseWorkcopy = () => {
           }}
         >
           <Typography>
-            Make sure to select the right videos. After the upload process starts, you cannot make changes.
+            {spanish ? 'Por favor, asegúrate de seleccionar las videos correctas. Una vez que comience el proceso de carga, no se podrán hacer cambios.' : 'Please ensure you select the correct videos. Once the upload process begins, changes cannot be made.'}
           </Typography>
         </Alert>
       )}
@@ -501,7 +545,7 @@ const PleaseWorkcopy = () => {
 
       {!uploading && files.length > 0 && (
         <>
-          <Button onClick={onUploadClick} sx={{ marginBottom: '100px' }} startIcon={<ChangeCircleIcon />} >Change Videos </Button>
+          <Button onClick={onUploadClick} sx={{ marginBottom: '100px' }} startIcon={<ChangeCircleIcon />} >{spanish ? 'Cambiar videos' : 'Change Videos'} </Button>
           <input
             ref={fileInputRef}
             type="file"
@@ -521,7 +565,7 @@ const PleaseWorkcopy = () => {
 
 
 
-      {files.length > 0 && !uploading &&(
+      {files.length > 0 && !uploading && (
         <Button onClick={handleUpload} disabled={uploading}
           component="label"
           role={undefined}
@@ -531,29 +575,29 @@ const PleaseWorkcopy = () => {
           size="large"
           sx={{ backgroundColor: teal[400], color: 'white' }}
         >
-          {uploading ? 'Uploading...' : 'Upload'}
+          {uploading ? (spanish ? 'Subiendo...' : 'Uploading...') : (spanish ? 'Cargar' : 'Upload')}
         </Button>
       )}
 
 
 
 
-{fileError &&
-       <Alert
-       variant="outlined"
-       color="danger"
-       startDecorator={<ReportIcon />}
-       sx={{
-         maxWidth: isMobile ? '90%' : '420px',
-         margin: '0 auto', // Center horizontally
-         textAlign: 'center',
-       }}
-     >
-       <Typography>
-       {fileError}
-       </Typography>
-     </Alert>
-       }
+      {fileError &&
+        <Alert
+          variant="outlined"
+          color="danger"
+          startDecorator={<ReportIcon />}
+          sx={{
+            maxWidth: isMobile ? '90%' : '420px',
+            margin: '0 auto', // Center horizontally
+            textAlign: 'center',
+          }}
+        >
+          <Typography>
+            {fileError}
+          </Typography>
+        </Alert>
+      }
 
 
 
@@ -577,9 +621,9 @@ const PleaseWorkcopy = () => {
           }}
         >
           <Box sx={{ flex: 1 }}>
-            <Typography >Lost connection</Typography>
+            <Typography >{spanish ? 'Conexión perdida' : 'Lost connection'}</Typography>
             <Typography >
-              Please verify your network connection and try again.
+              {spanish ? 'El proceso de carga se reanudará automáticamente una vez que te reconectes a internet.' : 'The upload process will resume automatically once you reconnect to the internet.'}
             </Typography>
           </Box>
         </Alert>
@@ -602,7 +646,7 @@ const PleaseWorkcopy = () => {
         >
           <Box sx={{ flex: 1 }}>
             <Typography sx={{ fontSize: '25px' }}>
-              Uploading...
+              {spanish ? 'Cargando...' : ' Uploading...'}
             </Typography>
           </Box>
           <LinearProgress
@@ -632,12 +676,18 @@ const PleaseWorkcopy = () => {
           onClick={handleCancelUpload}
           sx={{ marginTop: '100px' }}
         >
-          Cancel Upload
+          {spanish ? 'Cancelar carga' : 'Cancel Upload'}
         </Button>
       )}
 
 
-
+      <ConfirmationDialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        onConfirm={handleDialogConfirm}
+        title={spanish ? 'Cancelar carga' : 'Cancel Upload'}
+        message={spanish ? '¿Estás seguro de que quieres cancelar la carga?' : 'Are you sure you want to cancel the upload?'}
+      />
 
 
 

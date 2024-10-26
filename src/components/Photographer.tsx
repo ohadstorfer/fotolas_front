@@ -9,18 +9,20 @@ import Sheet from '@mui/joy/Sheet';
 import { useAppDispatch } from '../app/hooks';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import {  getPhotographerById, selectPhotographer } from '../slicers/photographerSlice';
+import { getPhotographerById, selectPhotographer } from '../slicers/photographerSlice';
 import { teal } from '@mui/material/colors';
 import { useEffect, useState } from 'react';
 import SessAlbum from './SessAlbum';
 import { sessGetDataAsync } from '../slicers/sessAlbumSlice';
+import { useMediaQuery } from '@mui/material';
 
 export default function UserCard() {
   const dispatch = useAppDispatch();
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
   const photographer = useSelector(selectPhotographer);
   const { photographerId } = useParams();
   const [loading, setLoading] = useState(true);
+  const isMobile = useMediaQuery('(max-width:600px)');
 
   useEffect(() => {
     if (photographerId) {
@@ -31,15 +33,17 @@ export default function UserCard() {
     }
   }, [dispatch, photographerId]);
 
-  
-  
+
+
 
   return (
     <><Box
       sx={{
-        width: '50%',
-        margin: 'auto',
+        width: isMobile ? '90%' : '50%',  // Width changes based on device
+        margin: '0 auto',
         marginTop: '16px',
+        display: 'flex',  // Use flexbox to center content
+        justifyContent: 'center',  // Center horizontally
       }}
     >
       <Card
@@ -95,14 +99,6 @@ export default function UserCard() {
               <Typography fontWeight="lg">{photographer && photographer.unique_spots_count}</Typography>
             </div>
           </Sheet>
-          <Box sx={{ display: 'flex', gap: 1.5, '& > button': { flex: 1 } }}>
-            <Button variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
-              Chat
-            </Button>
-            <Button variant="solid" style={{ backgroundColor: teal[400], color: 'white' }}>
-              Follow
-            </Button>
-          </Box>
         </CardContent>
 
       </Card>
@@ -110,8 +106,8 @@ export default function UserCard() {
 
 
     </Box>
-    <Box>{!loading && photographer?.id && <SessAlbum filterType="photographer" filterId={photographer.id} />}</Box></>
-    
+      <Box>{!loading && photographer?.id && <SessAlbum filterType="photographer" filterId={photographer.id} />}</Box></>
+
 
   );
 }

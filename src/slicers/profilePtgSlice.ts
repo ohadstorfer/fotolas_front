@@ -29,10 +29,10 @@ const initialState: PhotographersState = {
 };
 
 // Async thunk for fetching a photographer by ID
-export const getPhotographerByUserId = createAsyncThunk<Photographer, number>(
+export const getPhotographerByUserId = createAsyncThunk<Photographer, { userId: number; token: string }>(
   'photographers/getPhotographerByUserId',
-  async (userId) => {
-    const response = await PhotographerByUserId(userId);
+  async ({ userId, token }) => {
+    const response = await PhotographerByUserId(userId, token);
     return response.data;
   }
 );
