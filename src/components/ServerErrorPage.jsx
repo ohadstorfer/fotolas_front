@@ -9,7 +9,7 @@ const CenteredBox = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  height: '100vh',
+  height: '70vh',
   textAlign: 'center',
 }));
 
@@ -42,9 +42,6 @@ const ServerErrorPage = () => {
         </Typography>
         <Typography variant="body1" paragraph>
           An unexpected error occurred. Please try again later or contact support if the issue persists.
-        </Typography>
-        <Typography variant="body1" paragraph>
-         serverrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
         </Typography>
         <CustomButton
           variant="contained"
