@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export function allSessAlbum(page: number = 1, pageSize: number = 21) {
-  const MY_SERVER = 'http://127.0.0.1:8000/session-albums-with-details/';
+  const MY_SERVER = 'https://3.132.176.38/session-albums-with-details/';
   return axios.get(MY_SERVER, {
     params: {
       page,
