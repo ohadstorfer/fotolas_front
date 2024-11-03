@@ -20,8 +20,7 @@ import { selectPhotographer } from '../slicers/photographerSlice';
 import { getSpotById, selectAllSpots } from '../slicers/spotSlice';
 import { fetchImagesAsync, fetchImagesBySessAsync, fetchVideosBySessionAsync } from '../slicers/ImagesSlice';
 import { fetchPricesBySessionAlbumId, setSessAlbumOfCart } from '../slicers/cartSlice';
-import { Autocomplete, TextField, useMediaQuery } from '@mui/material';
-import { Button } from '@mui/joy';
+import { Autocomplete, Button, TextField, useMediaQuery } from '@mui/material';
 import SmartDisplayIcon from '@mui/icons-material/SmartDisplay';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import AutoDeleteIcon from '@mui/icons-material/AutoDelete';
@@ -57,7 +56,6 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
   const isMobile = useMediaQuery('(max-width:600px)');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
 
 
 
@@ -65,12 +63,9 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
 
   useEffect(() => {
     dispatch(sessGetDataAsync({ filterType, filterId }));
-    setIsLoading(true);
   }, [dispatch, filterType, filterId]);
 
-  useEffect(() => {
-    setIsLoading(false);
-  }, [sessAlbum]);
+
 
 
 
@@ -159,13 +154,7 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
 
   return (
     <>
-      {isLoading &&
-          <Button loading >
-          Plain
-        </Button>
-        }
-
-
+      
       <div>
         <ImageList variant="standard" cols={isMobile ? 1 : 4} gap={8} sx={{ marginRight: '20px', marginLeft: '20px', marginBottom: '20px' }}>
           {sessAlbum.map((sessAlbum) => (
@@ -336,10 +325,10 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
         </ImageList>
         {(nextPage || previousPage) && (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-            <Button  onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
+            <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
               Previous
             </Button>
-            <Button  onClick={handleNextPage} disabled={!nextPage}>
+            <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
               Next
             </Button>
           </Box>
