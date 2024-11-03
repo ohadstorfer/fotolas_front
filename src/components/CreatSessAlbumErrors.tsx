@@ -478,7 +478,7 @@ export default function UserCard() {
             onSubmit={handleSubmit222222}
             encType="multipart/form-data" sx={{ margin: 'auto', marginTop: '16px' }}>
 
-            <Stepper orientation="vertical" sx={{ width: isMobile? '80%' : 300 , margin: 'auto', marginTop: '1px' }}>
+            <Stepper orientation="vertical" sx={{ width: 300, margin: 'auto', marginTop: '1px', paddingLeft: isMobile ? '65px' : '0', }}>
 
 
               <Step
@@ -499,7 +499,7 @@ export default function UserCard() {
                   <Button
                     component="label"
                     sx={{
-                      width: '270px',
+                      width: isMobile? 230 : 270,
                       height: 'auto',
                       padding: '14px 0',
                       border: '1px solid #aaa',
@@ -545,7 +545,7 @@ export default function UserCard() {
                 /> */}
               </Step>
 
-              <Step>{imagePreview && <img src={imagePreview} alt="profileImg" style={{ width: '270px', height: 'auto' }} />}</Step>
+              <Step>{imagePreview && <img src={imagePreview} alt="profileImg" style={{width: isMobile? 230 : 270, height: 'auto' }} />}</Step>
 
 
 
@@ -555,7 +555,7 @@ export default function UserCard() {
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <MobileDateTimePicker
                     disableFuture
-                    sx={{ width: 270 }}
+                    sx={{ width: isMobile? 230 : 270 }}
                     value={selectedDate}
                     label={spanish ? 'Seleccionar una fecha' : "Select a Date"}
                     onChange={(newDate) => setSelectedDate(newDate)}
@@ -571,6 +571,7 @@ export default function UserCard() {
               <Step indicator={<StepIndicator sx={{ marginRight: '16px', backgroundColor: '#FFEEAD', }}> {spanish ? 'Lugar' : 'Spot '} </StepIndicator>}>
 
                 <Autocomplete
+                  sx={{ width: isMobile? 230 : 270 }}
                   disablePortal
                   onChange={(event, newValue) => setSelectedSpot(newValue)}
                   id="combo-box-demo"
@@ -590,7 +591,7 @@ export default function UserCard() {
                   )}
                   noOptionsText={
                     searchValue ? (
-                      <Box onClick={handleAddSpotClick} sx={{ cursor: 'pointer',backgroundColor: '#ffffff', color: 'primary.main', p: 1, }}>
+                      <Box onClick={handleAddSpotClick} sx={{ cursor: 'pointer', backgroundColor: '#ffffff', color: 'primary.main', p: 1, }}>
                         {spanish ? 'Haz clic aquí para crear un nuevo lugar / spot' : 'Click here to create a new spot'}
                       </Box>
                     ) : (
@@ -604,7 +605,7 @@ export default function UserCard() {
 
 
               <Step indicator={<StepIndicator sx={{ marginBottom: '20px', marginRight: '100px', backgroundColor: '#FFEEAD', whiteSpace: 'nowrap', }}> {spanish ? 'Imagenes o videos' : "Images or Videos"}  </StepIndicator>}>
-                <FormControl sx={{ width: 270, marginBottom: '20px', }}>
+                <FormControl sx={{ width: isMobile? 230 : 270, marginBottom: '20px', }}>
                   <InputLabel id="demo-controlled-open-select-label">{spanish ? 'Imagenes o videos' : "Images or Videos"}</InputLabel>
                   <Select
                     labelId="demo-controlled-open-select-label"
