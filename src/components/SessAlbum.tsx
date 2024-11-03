@@ -10,7 +10,7 @@ import Link from '@mui/joy/Link';
 import { useAppDispatch } from '../app/hooks';
 import { formatSessDate, selectNextPage, selectPreviousPage, selectSessAlbums, sessGetDataAsync, setSelectedSessAlbum } from '../slicers/sessAlbumSlice';
 import { fetchPricesForVideosBySessionAlbumId, getDataAsync } from '../slicers/perAlbumSlice';
-import { AspectRatio } from '@mui/joy';
+import { AspectRatio, Skeleton } from '@mui/joy';
 import { TiLocation } from 'react-icons/ti';
 import { teal, red } from '@mui/material/colors';
 import ImageList from '@mui/material/ImageList';
@@ -56,6 +56,7 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
   const isMobile = useMediaQuery('(max-width:600px)');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
 
 
@@ -63,7 +64,16 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
 
   useEffect(() => {
     dispatch(sessGetDataAsync({ filterType, filterId }));
+    setIsLoading(true);
   }, [dispatch, filterType, filterId]);
+
+  useEffect(() => {
+    setIsLoading(true);
+  }, [sessAlbum]);
+
+
+
+
 
   const handleCardClickImg = async (albumId: number) => {
     // dispatch(getDataAsync({ albumId, page: 1, pageSize: 21 }));
@@ -147,209 +157,74 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
 
 
   return (
-    <>
-      {/* <Box
-      sx={{
-        width: '100%',  // Ensure full width
-        height: 'auto', // Adjust height automatically based on the image ratio
-      }}
-    >
-      <img
-        src={isMobile ? `${process.env.PUBLIC_URL}/COVER.png` : `${process.env.PUBLIC_URL}/COVERslim.png`}
-        alt="Cover"
-        style={{
-          width: '100%',
-          height: 'auto',
-          objectFit: 'cover', // Ensures the image covers the space
-        }}
-      />
-    </Box> */}
-
-
-
-      {/* <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center',  gap: 1.5, '& > button': { flex: 1 }, maxWidth: isMobile ? '100%' : '90%', }}>
-
-
-    </Box> */}
-      <div>
-        <ImageList variant="standard" cols={isMobile ? 1 : 4} gap={8} sx={{ marginRight: '20px', marginLeft: '20px', marginBottom: '20px' }}>
-          {sessAlbum.map((sessAlbum) => (
-            <ImageListItem key={sessAlbum.id}>
-              <Card
-                sx={{
-                  boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)', // Shadow on all sides
-                  borderRadius: '8px', // Optional: smooth corners
-                  border: '1px solid rgba(0, 0, 0, 0.4)',
-                }}
-              >
-                <CardActionArea onClick={() => handleCardClick(sessAlbum)}>
-                  <AspectRatio ratio="4/3">
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={sessAlbum.cover_image}
-                      alt={`Image ${sessAlbum.id}`} />
-                    <Box
-                      sx={{
-                        position: 'relative',        // Set position to relative for positioning child elements
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'center',    // Center content horizontally
-                        alignItems: 'center',        // Center content vertically
-                        p: 1,
-                        bgcolor: 'rgba(0, 0, 0, 0.5)',
-                        borderRadius: '0 0 0px 0',
-                        textAlign: 'center',         // Ensure the text is centered
-                      }}
-                    >
-                      {/* Icons positioned absolutely at the top left corner */}
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: 0, // Set top position for > 5 days
-                          left: 0, // Move to the left if > 5 days
-                          // right: sessAlbum.days_until_expiration > 3 ? 'auto' : 12, // Keep it on the right for <= 5 days
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: isMobile ? 0.4 : 1,
-                          p: 1,
-                          bgcolor: 'rgba(0, 0, 0, 0.0)',
-                        }}
-                      >
-
-                        <span
-                          style={{
-                            color: 'white',           // Make the text white
-                            fontSize: isMobile ? '10px' : '14px',  // Adjust font size
-                            fontWeight: 'bold',       // Make the text bold
-                            cursor: 'pointer'         // Make the span clickable
-                          }}
-                        >
-                          {sessAlbum.videos ? <SmartDisplayIcon /> : <PhotoLibraryIcon />}
-                        </span>
-                      </Box>
-
-
-
-
-                      {/* Conditional rendering of the icon and text */}
-                      {sessAlbum.days_until_expiration <= 3 && (
-                        <Box
-                          sx={{
-                            position: 'absolute',
-                            top: 0,
-                            right: 9,
-                            display: 'flex',
-                            alignItems: 'center',
-                            p: 1,
-                            bgcolor: 'rgba(0, 0, 0, 0.0)',
-                          }}
-                        >
-
-                          {sessAlbum.days_until_expiration === 0 ? (
-                            <span style={{ color: red[500], fontSize: isMobile ? '14px' : '16px', fontWeight: 'bold' }}>
-                              Last Day
-                            </span>
-                          ) : (
-                            // <div style={{ lineHeight: '0.8' }}>
-                            // <span style={{ color: 'white', fontSize: isMobile ? '14px' : '16px', fontWeight: 'bold' }}>
-                            //   {sessAlbum.days_until_expiration} <br style={{ lineHeight: '0.6' }} /> {sessAlbum.days_until_expiration === 1 ? 'day' : 'days'}
-                            // </span>
-                            // </div>
-                            <div style={{ lineHeight: '0.7' }}>
-                              <span style={{ color: 'white', fontSize: isMobile ? '12px' : '12px', fontWeight: 'bold', marginRight: '5px' }}>
-                                {sessAlbum.days_until_expiration}  {sessAlbum.days_until_expiration === 1 ? 'day' : 'days'}  <br style={{ lineHeight: '0.8' }} /> remaining
-                              </span>
-                            </div>
-
-                          )}
-
-
-                          {sessAlbum.days_until_expiration <= 3 && (
-                            <AutoDeleteIcon
-                              style={{
-                                color: sessAlbum.days_until_expiration === 0 ? red[500] : 'white',
-                                fontSize: isMobile ? '20px' : '20px',
-                                cursor: 'pointer',
-                              }}
-                            />
-                          )}
-
-
-                        </Box>
-                      )}
-
-
-
-
-                      {/* Spot name centered */}
-
-                      <span
-                        onClick={(event) => {
-                          event.stopPropagation(); // Prevent the click event from bubbling up to the card
-                          handleSpotClick(sessAlbum.spot);
-                        }}
-                        style={{
-                          color: 'white',           // Make the text white
-                          fontSize: '18px',  // Adjust font size
-                          fontWeight: 'bold',       // Make the text bold
-                          cursor: 'pointer',        // Make the span clickable
-                        }}
-                      >
-                        {sessAlbum.spot_name}
-                      </span>
-                    </Box>
-                  </AspectRatio>
-                </CardActionArea>
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', bgcolor: teal[400], boxShadow: '0 -8px 8px rgba(0, 0, 0, 0.4)', position: 'relative', }}>
-                  <span
-                    onClick={() => handlePhotographerClick(sessAlbum.photographer)}
-                    style={{
-                      display: 'inline-flex', // Ensure the span behaves as a block container for the avatar
-                      padding: '4px',        // Adjust the padding as needed
-                      cursor: 'pointer',     // Optional: change the cursor to pointer to indicate it's clickable
-                    }}
-                  >
-                    <Avatar src={sessAlbum.photographer_profile_image} />
+    <div>
+    <ImageList variant="standard" cols={isMobile ? 1 : 4} gap={8} sx={{ marginRight: '20px', marginLeft: '20px', marginBottom: '20px' }}>
+      {isLoading ? (
+        // Show skeletons while loading
+        Array.from({ length: isMobile ? 1 : 4 }).map((_, index) => (
+          <ImageListItem key={index}>
+            <Card
+              sx={{
+                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)',
+                borderRadius: '8px',
+                border: '1px solid rgba(0, 0, 0, 0.4)',
+              }}
+            >
+              <AspectRatio ratio="4/3">
+                <Skeleton variant="rectangular" sx={{ height: '200px' }} />
+              </AspectRatio>
+            </Card>
+          </ImageListItem>
+        ))
+      ) : (
+        // Show actual images after loading
+        sessAlbum.map((sessAlbum) => (
+          <ImageListItem key={sessAlbum.id}>
+            <Card
+              sx={{
+                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)',
+                borderRadius: '8px',
+                border: '1px solid rgba(0, 0, 0, 0.4)',
+              }}
+            >
+              <CardActionArea onClick={() => handleCardClick(sessAlbum)}>
+                <AspectRatio ratio="4/3">
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={sessAlbum.cover_image}
+                    alt={`Image ${sessAlbum.id}`} />
+                </AspectRatio>
+              </CardActionArea>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', bgcolor: teal[400], boxShadow: '0 -8px 8px rgba(0, 0, 0, 0.4)', position: 'relative', }}>
+                <span onClick={() => handlePhotographerClick(sessAlbum.photographer)} style={{ display: 'inline-flex', padding: '4px', cursor: 'pointer' }}>
+                  <Avatar src={sessAlbum.photographer_profile_image} />
+                </span>
+                <Typography sx={{ fontSize: 'md', fontWeight: 'md' }}>
+                  <span onClick={() => handlePhotographerClick(sessAlbum.photographer)} style={{ cursor: 'pointer', }}>
+                    {sessAlbum.photographer_name}
                   </span>
-                  <Typography sx={{ fontSize: 'md', fontWeight: 'md' }}>
-                    <span onClick={() => handlePhotographerClick(sessAlbum.photographer)} style={{ cursor: 'pointer', }}>
-                      {sessAlbum.photographer_name}
-                    </span>
-                  </Typography>
-                  <Typography sx={{ fontSize: 'md', fontWeight: 'md', marginLeft: 'auto', marginRight: '8px' }}>
-                    {formatSessDate(sessAlbum.sessDate)}
-                  </Typography>
-                  {/* <Link
-                    sx={{
-                      fontSize: 'sm',
-                      fontWeight: 'md',
-                      color: 'black',
-                      marginLeft: 'auto',
-                      marginRight: '8px',
-                    }}
-                  >
-                    <TiLocation />
-                    <span onClick={() => handleSpotClick(sessAlbum.spot)}>
-                      {sessAlbum.spot_name}
-                    </span>
-                  </Link> */}
-                </Box>
-              </Card>
-            </ImageListItem>
-          ))}
-        </ImageList>
-        {(nextPage || previousPage) && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-            <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
-              Previous
-            </Button>
-            <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
-              Next
-            </Button>
-          </Box>
-        )}
-      </div></>
+                </Typography>
+                <Typography sx={{ fontSize: 'md', fontWeight: 'md', marginLeft: 'auto', marginRight: '8px' }}>
+                  {formatSessDate(sessAlbum.sessDate)}
+                </Typography>
+              </Box>
+            </Card>
+          </ImageListItem>
+        ))
+      )}
+    </ImageList>
+    {(nextPage || previousPage) && (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+        <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
+          Previous
+        </Button>
+        <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
+          Next
+        </Button>
+      </Box>
+    )}
+  </div>
   );
 };
 
