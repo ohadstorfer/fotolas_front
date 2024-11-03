@@ -57,6 +57,7 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const loadingSkeletons = Array.from({ length: 4 });
 
 
 
