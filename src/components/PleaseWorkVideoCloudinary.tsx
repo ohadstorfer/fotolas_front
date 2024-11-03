@@ -67,7 +67,7 @@ const UploadWidget = () => {
         videos,
         session_album: newSess,
       });
-      const response = await axios.post('http://localhost:8000/create_videos/', {
+      const response = await axios.post('https://9km-curious-mach.circumeo-apps.net/create_videos/', {
         videos,
         session_album: newSess,
       });

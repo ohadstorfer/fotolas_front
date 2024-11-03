@@ -64,7 +64,6 @@ export default function UserCard() {
         <AspectRatio flex ratio="1" maxHeight={182} sx={{ minWidth: 182 }}>
           <img
             src={photographer?.profile_image}
-            // srcSet="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286&dpr=2 2x"
             loading="lazy"
             alt="" />
         </AspectRatio>

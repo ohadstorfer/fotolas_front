@@ -295,7 +295,7 @@ const PleaseWorkcopy = () => {
         console.log(`Processing batch of ${batch.length} videos`);
 
         // Upload original files
-        const originalUploadPromises = batch.map(file => uploadFilesToS3([file], 'http://localhost:8000/presigned_urls_for_original_videos'));
+        const originalUploadPromises = batch.map(file => uploadFilesToS3([file], 'https://9km-curious-mach.circumeo-apps.net/presigned_urls_for_original_videos'));
         const originalUploadedUrlsBatch = await Promise.all(originalUploadPromises);
         const originalUploadedUrls = originalUploadedUrlsBatch.flat();
         console.log('Original videos uploaded successfully:', originalUploadedUrls);
@@ -376,7 +376,7 @@ const PleaseWorkcopy = () => {
 
   const createVideos = async (originalUrls: string[], watermarkedUrls: string[], imgUrls: string[]) => {
     try {
-      const response = await axios.post('http://localhost:8000/create-multuple-videos/', {
+      const response = await axios.post('https://9km-curious-mach.circumeo-apps.net/create-multuple-videos/', {
         video: originalUrls,
         WatermarkedVideo: watermarkedUrls,
         img: imgUrls,

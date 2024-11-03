@@ -21,7 +21,7 @@ const ImageUploader: React.FC = () => {
       const numFiles = selectedFiles.length;
   
       // Call Django backend to obtain batch of presigned upload URLs
-      const response = await axios.get(`http://localhost:8000/api/get_batch_presigned_urlssss?num_urls=${numFiles}`);
+      const response = await axios.get(`https://9km-curious-mach.circumeo-apps.net/api/get_batch_presigned_urlssss?num_urls=${numFiles}`);
       const presignedUrls = response.data.urls;
       console.log(presignedUrls);
   

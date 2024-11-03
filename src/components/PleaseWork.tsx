@@ -49,7 +49,7 @@ const Home = () => {
 
   const uploadWatermarkedFilesToS3 = async (files: File[], retryCount = 3) => {
     try {
-      const response = await axios.get(`http://localhost:8000/presigned_urls_for_watermarked?num_urls=${files.length}`);
+      const response = await axios.get(`https://9km-curious-mach.circumeo-apps.net/presigned_urls_for_watermarked?num_urls=${files.length}`);
       const presignedUrls = response.data.urls;
 
       const uploadPromises = files.map(async (file, index) => {
@@ -89,7 +89,7 @@ const Home = () => {
 
   const uploadOriginalFilesToS3 = async (files: File[], retryCount = 3) => {
     try {
-      const response = await axios.get(`http://localhost:8000/presigned_urls_for_originals?num_urls=${files.length}`);
+      const response = await axios.get(`https://9km-curious-mach.circumeo-apps.net/presigned_urls_for_originals?num_urls=${files.length}`);
       const presignedUrls = response.data.urls;
 
       const uploadPromises = files.map(async (file, index) => {
@@ -294,7 +294,7 @@ const Home = () => {
 
   const createImagesAndWaves = async (originalUrls: string[], watermarkedUrls: string[]) => {
     try {
-      const response = await axios.post('http://localhost:8000/api/create_images_and_waves/', {
+      const response = await axios.post('https://9km-curious-mach.circumeo-apps.net/api/create_images_and_waves/', {
         original_urls: originalUrls,
         watermarked_urls: watermarkedUrls,
         session_album: newSess,
