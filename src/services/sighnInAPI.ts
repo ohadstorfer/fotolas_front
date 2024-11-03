@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export function login(credentials: { email: string, password: string }) {
-  const MY_SERVER = 'https://9km-curious-mach.circumeo-apps.net/api/token/';
+  const MY_SERVER = 'https://oyster-app-b3323.ondigitalocean.app/api/token/';
   return axios.post(MY_SERVER, credentials);
 }
 
@@ -9,7 +9,7 @@ export function login(credentials: { email: string, password: string }) {
 
 
 export async function validateToken(token: string): Promise<boolean> {
-  const MY_SERVER = 'https://9km-curious-mach.circumeo-apps.net/validate-token/';
+  const MY_SERVER = 'https://oyster-app-b3323.ondigitalocean.app/validate-token/';
 
   
     const response = await axios.get(MY_SERVER, {
@@ -27,7 +27,7 @@ export async function validateToken(token: string): Promise<boolean> {
 
   // Function to handle password reset request
 export function passwordResetRequest(email: { email: string }) {
-  const MY_SERVER = 'https://9km-curious-mach.circumeo-apps.net/password-reset-request/';
+  const MY_SERVER = 'https://oyster-app-b3323.ondigitalocean.app/password-reset-request/';
   return axios.post(MY_SERVER, email);
 }
 
@@ -35,6 +35,6 @@ export function passwordResetRequest(email: { email: string }) {
 
 // Function to handle the password reset with token
 export function passwordReset(data: { token: string; password: string }) {
-  const MY_SERVER = 'https://9km-curious-mach.circumeo-apps.net/password-reset/';
+  const MY_SERVER = 'https://oyster-app-b3323.ondigitalocean.app/password-reset/';
   return axios.post(MY_SERVER, data);
 }

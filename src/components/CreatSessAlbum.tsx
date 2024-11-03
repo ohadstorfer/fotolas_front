@@ -92,7 +92,7 @@ const compressImage = async (file: File): Promise<File> => {
 
 const uploadOriginalFilesToS3 = async (file: File, retryCount = 3) => {
   try {
-    const response = await axios.get(`https://9km-curious-mach.circumeo-apps.net/presigned_urls_for_watermarked?num_urls=1`);
+    const response = await axios.get(`https://oyster-app-b3323.ondigitalocean.app/presigned_urls_for_watermarked?num_urls=1`);
     const presignedUrl = response.data.urls[0];
 
     for (let attempt = 0; attempt < retryCount; attempt++) {

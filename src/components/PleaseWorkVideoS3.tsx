@@ -99,7 +99,7 @@ const PleaseWorkcopy = () => {
 
     try {
       // Step 1: Upload original files to S3
-      const originalUploadedUrls = await uploadFilesToS3(files, 'https://9km-curious-mach.circumeo-apps.net/presigned_urls_for_original_videos');
+      const originalUploadedUrls = await uploadFilesToS3(files, 'https://oyster-app-b3323.ondigitalocean.app/presigned_urls_for_original_videos');
 
       if (originalUploadedUrls.length === 0) {
         throw new Error('Failed to upload original files.');
@@ -143,7 +143,7 @@ const PleaseWorkcopy = () => {
         SessionAlbum: newSess?.id
       });
 
-      const response = await axios.post('https://9km-curious-mach.circumeo-apps.net/create-multuple-videos/', {
+      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/create-multuple-videos/', {
         video: originalUrls,
         WatermarkedVideo: watermarkedUrls,
         img: imgUrls,

@@ -208,7 +208,7 @@ export default function UserCard() {
 
 
   const uploadToS3 = async (file: File): Promise<string> => {
-    const response = await axios.get(`https://9km-curious-mach.circumeo-apps.net/presigned_urls_for_profile_pictures?num_urls=1`);
+    const response = await axios.get(`https://oyster-app-b3323.ondigitalocean.app/presigned_urls_for_profile_pictures?num_urls=1`);
     const presignedUrl = response.data.urls[0];
 
     await axios.put(presignedUrl, file, {

@@ -381,7 +381,7 @@ const Home = () => {
         exif_dates: exifDates
       });
 
-      await axios.post('https://9km-curious-mach.circumeo-apps.net/api/create_images_and_waves/', {
+      await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/create_images_and_waves/', {
         original_urls: originalUrls,
         watermarked_urls: watermarkedUrls,
         session_album: newSess?.id,
@@ -423,7 +423,7 @@ const Home = () => {
 
 
     try {
-      const response = await axios.get(`https://9km-curious-mach.circumeo-apps.net/presigned_urls_for_${urlType}?num_urls=${files.length}`);
+      const response = await axios.get(`https://oyster-app-b3323.ondigitalocean.app/presigned_urls_for_${urlType}?num_urls=${files.length}`);
       const presignedUrls = response.data.urls;
       console.log(`Received presigned URLs for ${urlType} files`);
 

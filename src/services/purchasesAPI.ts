@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { log } from 'console';
-const API_BASE_URL = 'https://9km-curious-mach.circumeo-apps.net';
+const API_BASE_URL = 'https://oyster-app-b3323.ondigitalocean.app';
 
 // Existing createPurchase function
 export const createPurchase = async (purchaseData: { photographer: number, surfer: number, total_price: number, total_item_quantity: number, SessionAlbum: number | null }) => {
@@ -34,30 +34,30 @@ export const createPurchaseWithWaves = async (purchaseData: { photographer_id: n
 };
 
 export const fetchPurchaseCreated = async (purchaseId: number) => {
-  const response = await axios.get(`https://9km-curious-mach.circumeo-apps.net/api/Purchases/${purchaseId}/`);
+  const response = await axios.get(`https://oyster-app-b3323.ondigitalocean.app/api/Purchases/${purchaseId}/`);
   return response.data.purchaseCreated;
 };
 
 export const fetchPurchaseItemCreated = async (purchaseItemId: number) => {
-  const response = await axios.get(`https://9km-curious-mach.circumeo-apps.net/api/purchase-items/${purchaseItemId}/`);
+  const response = await axios.get(`https://oyster-app-b3323.ondigitalocean.app/api/purchase-items/${purchaseItemId}/`);
   return response.data.purchaseItemCreated;
 };
 
 export const fetchPurchasesByPhotographer = async (photographerUserName: string) => {
-  const response = await axios.get(`https://9km-curious-mach.circumeo-apps.net/purchases/photographer/${photographerUserName}/`);
+  const response = await axios.get(`https://oyster-app-b3323.ondigitalocean.app/purchases/photographer/${photographerUserName}/`);
   console.log(response.data);
   
   return response.data;
 };
 
 export const fetchPurchasesBySurfer = async (surferUserId: number) => {
-  const response = await axios.get(`https://9km-curious-mach.circumeo-apps.net/api/purchases/surfer/${surferUserId}/`);
+  const response = await axios.get(`https://oyster-app-b3323.ondigitalocean.app/api/purchases/surfer/${surferUserId}/`);
   return response.data;
 };
 
 
 export const fetchPurchasedItemsBySurfer = async (surferUserId: number) => {
-  const response = await axios.get(`https://9km-curious-mach.circumeo-apps.net/purchased-items-by-surfer/${surferUserId}/`);
+  const response = await axios.get(`https://oyster-app-b3323.ondigitalocean.app/purchased-items-by-surfer/${surferUserId}/`);
   console.log(response);
   
   return response.data;
