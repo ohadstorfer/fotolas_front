@@ -138,7 +138,7 @@ const Cart: React.FC = () => {
 
   const downloadImages = async () => {
     try {
-      const response = await axios.post('http://localhost:8000/api/get_images_for_multiple_waves/', { waveIds: cart });
+      const response = await axios.post('https://9km-curious-mach.circumeo-apps.net/api/get_images_for_multiple_waves/', { waveIds: cart });
       const images = response.data;
       console.log(images);
 
