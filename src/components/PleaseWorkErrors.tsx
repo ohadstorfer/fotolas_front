@@ -558,7 +558,7 @@ const Home = () => {
     console.log('Starting file upload process');
 
     try {
-      const batchSize = 1;
+      const batchSize = 5;
       const allOriginalUploadedUrls: string[] = [];
       const allWatermarkedUploadedUrls: string[] = [];
       const allExifDates: any[] = [];

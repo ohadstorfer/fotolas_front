@@ -478,7 +478,7 @@ export default function UserCard() {
             onSubmit={handleSubmit222222}
             encType="multipart/form-data" sx={{ margin: 'auto', marginTop: '16px' }}>
 
-            <Stepper orientation="vertical" sx={{ width: 300, margin: 'auto', marginTop: '1px' }}>
+            <Stepper orientation="vertical" sx={{ width: isMobile? '80%' : 300 , margin: 'auto', marginTop: '1px' }}>
 
 
               <Step
