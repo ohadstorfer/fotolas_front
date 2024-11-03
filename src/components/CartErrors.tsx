@@ -97,31 +97,7 @@ const Cart: React.FC = () => {
 
 
 
-  const fetchPricing = async (sessionAlbumId: number) => {
-    const response = await axios.get(`http://127.0.0.1:8000/albums-prices-by-sess/${sessionAlbumId}/`);
-    return response.data;
-  };
 
-
-
-
-
-
-
-  // const calculatePrice = (totalImages: number) => {
-  //   if (!prices) return 0;
-  //   if (totalImages >= 1 && totalImages <= 5) return parseFloat(prices.price_1_to_5);
-  //   if (totalImages >= 6 && totalImages <= 20) return parseFloat(prices.price_6_to_20);
-  //   if (totalImages >= 21 && totalImages <= 50) return parseFloat(prices.price_21_to_50);
-  //   return parseFloat(prices.price_51_plus);
-  // };
-
-  // const handleRemoveFromCart = async (albumId: number, imageCount: number) => {
-  //   const totalPrice = calculatePrice(cartTotalImages - imageCount);
-  //   dispatch(removeFromCart({ albumId, imageCount }));
-  //   dispatch(removeWaveFromCart(albumId));
-  //   dispatch(updateTotalPrice(totalPrice));
-  // };
 
 
 

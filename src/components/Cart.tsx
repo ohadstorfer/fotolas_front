@@ -71,10 +71,6 @@ const Cart: React.FC = () => {
     }
   }, [cart]);
 
-  const fetchPricing = async (sessionAlbumId: number) => {
-    const response = await axios.get(`http://127.0.0.1:8000/albums-prices-by-sess/${sessionAlbumId}/`);
-    return response.data;
-  };
 
 
 
