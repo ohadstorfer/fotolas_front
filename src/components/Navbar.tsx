@@ -193,10 +193,12 @@ export default function PrimarySearchAppBar() {
   };
 
   const handleSignUp = () => {
+    handleMenuClose()
     navigate('/SignUp');
   };
 
   const handleSignIn = () => {
+    handleMenuClose()
     navigate('/SignIn');
   };
 
