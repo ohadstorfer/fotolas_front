@@ -162,8 +162,9 @@ export default function UserCard() {
       img.onerror = reject;
     });
 
-    const targetWidth = 800;
-    const targetHeight = 533;
+    const targetHeight = 480;
+    const aspectRatio = img.width / img.height;
+    const targetWidth = Math.round(targetHeight * aspectRatio);
 
     const offscreenCanvas = document.createElement('canvas');
     offscreenCanvas.width = img.width;
@@ -200,6 +201,7 @@ export default function UserCard() {
       }, 'image/jpeg', 0.8);
     });
   };
+
 
 
 

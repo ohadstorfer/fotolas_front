@@ -151,8 +151,9 @@ export default function EditProfilePtg() {
       img.onerror = reject;
     });
 
-    const targetWidth = 800;
-    const targetHeight = 533;
+    const targetHeight = 480;
+    const aspectRatio = img.width / img.height;
+    const targetWidth = Math.round(targetHeight * aspectRatio);
 
     const offscreenCanvas = document.createElement('canvas');
     offscreenCanvas.width = img.width;
@@ -160,7 +161,7 @@ export default function EditProfilePtg() {
 
     const ctx = offscreenCanvas.getContext('2d');
     if (!ctx) {
-      setUploadError(spanish ? 'La carga falló. Por favor, inténtalo de nuevo más tarde.' : 'Upload failed. Please try again later.');
+      setUploadError('Upload failed. Please try again later.');
       throw new Error('Canvas context not available');
     }
 
@@ -184,8 +185,7 @@ export default function EditProfilePtg() {
           resolve(compressedFile);
         } else {
           reject(new Error('Blob creation failed'));
-          setUploadError(spanish ? 'La carga falló. Por favor, inténtalo de nuevo más tarde.' : 'Upload failed. Please try again later.');
-          setIsLoading(false);
+          setUploadError('Upload failed. Please try again later.');
         }
       }, 'image/jpeg', 0.8);
     });
