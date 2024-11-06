@@ -595,7 +595,7 @@ export default function UserCard() {
           onClick={async () => {
             setAccountCreatePending(true);
             setError(false);
-            fetch("https://oyster-app-b3323.ondigitalocean.app/account", {
+            fetch("https://oyster-app-b3323.ondigitalocean.app/account/", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -629,7 +629,7 @@ export default function UserCard() {
           onClick={async () => {
             setAccountLinkCreatePending(true);
             setError(false);
-            fetch("https://oyster-app-b3323.ondigitalocean.app/account_link", {
+            fetch("https://oyster-app-b3323.ondigitalocean.app/account_link/", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
