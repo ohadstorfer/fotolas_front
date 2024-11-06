@@ -173,7 +173,7 @@ const Root = () => {
 
 
         <div>
-          <Outlet />
+          {/* <Outlet /> */}
         </div>
         {/* <ErrorPage></ErrorPage> */}
         {/* <ResetPassword></ResetPassword> */}
@@ -183,7 +183,7 @@ const Root = () => {
         {/* <DashboardPhotographer></DashboardPhotographer> */}
         {/* <PleaseWorkneww></PleaseWorkneww> */}
         {/* <Cart></Cart> */}
-        {/* <BecomePhotographer></BecomePhotographer> */}
+        <BecomePhotographer></BecomePhotographer>
         {/* <hr></hr> */}
         {/* <CreatePricesForVideos></CreatePricesForVideos> */}
         {/* <CreatePrices></CreatePrices> */}
