@@ -28,6 +28,7 @@ import ReportIcon from '@mui/icons-material/Report';
 import { clearPhotographer } from '../slicers/photographerSlice';
 import LinearProgress from '@mui/joy/LinearProgress';
 import { Dialog, DialogActions, DialogContent, DialogContentText, } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
 
 
 
@@ -49,11 +50,12 @@ export default function UserCard() {
   const spanish = useSelector(selectSpanish)
   const [openMessage, setOpenMessage] = React.useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  
+
   const [accountCreatePending, setAccountCreatePending] = useState(false);
   const [accountLinkCreatePending, setAccountLinkCreatePending] = useState(false);
   const [error, setError] = useState(false);
   const [connectedAccountId, setConnectedAccountId] = useState();
+  const [country, setCountry] = useState<{ country: string } | undefined>(undefined);
 
 
 
@@ -65,6 +67,14 @@ export default function UserCard() {
     }
   }, [imageUrl]);
 
+
+
+  useEffect(() => {
+    if (country) {
+      console.log(country);
+      ;
+    }
+  }, [country]);
 
 
   useEffect(() => {
@@ -319,11 +329,160 @@ export default function UserCard() {
 
 
 
+
+
+  interface CountryType {
+    code: string;
+    label: string;
+    phone: string;
+    suggested?: boolean;
+  }
+
+
+
+
+
+
+
+
+  const countries: readonly CountryType[] = [
+    { code: 'SV', label: 'El Salvador', phone: '503' },
+    { code: 'AL', label: 'Albania', phone: '355' },
+    { code: 'DZ', label: 'Algeria', phone: '213' },
+    { code: 'AO', label: 'Angola', phone: '244' },
+    { code: 'AG', label: 'Antigua & Barbuda', phone: '1-268' },
+    { code: 'AR', label: 'Argentina', phone: '54' },
+    { code: 'AM', label: 'Armenia', phone: '374' },
+    { code: 'AU', label: 'Australia', phone: '61' },
+    { code: 'AT', label: 'Austria', phone: '43' },
+    { code: 'AZ', label: 'Azerbaijan', phone: '994' },
+    { code: 'BS', label: 'Bahamas', phone: '1-242' },
+    { code: 'BH', label: 'Bahrain', phone: '973' },
+    { code: 'BD', label: 'Bangladesh', phone: '880' },
+    { code: 'BE', label: 'Belgium', phone: '32' },
+    { code: 'BJ', label: 'Benin', phone: '229' },
+    { code: 'BT', label: 'Bhutan', phone: '975' },
+    { code: 'BO', label: 'Bolivia', phone: '591' },
+    { code: 'BA', label: 'Bosnia & Herzegovina', phone: '387' },
+    { code: 'BW', label: 'Botswana', phone: '267' },
+    { code: 'BN', label: 'Brunei', phone: '673' },
+    { code: 'BG', label: 'Bulgaria', phone: '359' },
+    { code: 'KH', label: 'Cambodia', phone: '855' },
+    { code: 'CA', label: 'Canada', phone: '1', suggested: true },
+    { code: 'CL', label: 'Chile', phone: '56' },
+    { code: 'CO', label: 'Colombia', phone: '57' },
+    { code: 'CR', label: 'Costa Rica', phone: '506' },
+    { code: 'CI', label: 'Côte d’Ivoire', phone: '225' },
+    { code: 'HR', label: 'Croatia', phone: '385' },
+    { code: 'CY', label: 'Cyprus', phone: '357' },
+    { code: 'CZ', label: 'Czech Republic', phone: '420' },
+    { code: 'DK', label: 'Denmark', phone: '45' },
+    { code: 'DO', label: 'Dominican Republic', phone: '1-809' },
+    { code: 'EC', label: 'Ecuador', phone: '593' },
+    { code: 'EG', label: 'Egypt', phone: '20' },
+    { code: 'EE', label: 'Estonia', phone: '372' },
+    { code: 'ET', label: 'Ethiopia', phone: '251' },
+    { code: 'FI', label: 'Finland', phone: '358' },
+    { code: 'FR', label: 'France', phone: '33', suggested: true },
+    { code: 'GA', label: 'Gabon', phone: '241' },
+    { code: 'GM', label: 'Gambia', phone: '220' },
+    { code: 'DE', label: 'Germany', phone: '49', suggested: true },
+    { code: 'GH', label: 'Ghana', phone: '233' },
+    { code: 'GR', label: 'Greece', phone: '30' },
+    { code: 'GT', label: 'Guatemala', phone: '502' },
+    { code: 'GY', label: 'Guyana', phone: '592' },
+    { code: 'HK', label: 'Hong Kong', phone: '852' },
+    { code: 'HU', label: 'Hungary', phone: '36' },
+    { code: 'IS', label: 'Iceland', phone: '354' },
+    { code: 'IN', label: 'India', phone: '91' },
+    { code: 'ID', label: 'Indonesia', phone: '62' },
+    { code: 'IE', label: 'Ireland', phone: '353' },
+    { code: 'IL', label: 'Israel', phone: '972' },
+    { code: 'IT', label: 'Italy', phone: '39' },
+    { code: 'JM', label: 'Jamaica', phone: '1-876' },
+    { code: 'JP', label: 'Japan', phone: '81', suggested: true },
+    { code: 'JO', label: 'Jordan', phone: '962' },
+    { code: 'KZ', label: 'Kazakhstan', phone: '7' },
+    { code: 'KE', label: 'Kenya', phone: '254' },
+    { code: 'KW', label: 'Kuwait', phone: '965' },
+    { code: 'LA', label: 'Laos', phone: '856' },
+    { code: 'LV', label: 'Latvia', phone: '371' },
+    { code: 'LI', label: 'Liechtenstein', phone: '423' },
+    { code: 'LT', label: 'Lithuania', phone: '370' },
+    { code: 'LU', label: 'Luxembourg', phone: '352' },
+    { code: 'MO', label: 'Macao SAR China', phone: '853' },
+    { code: 'MG', label: 'Madagascar', phone: '261' },
+    { code: 'MY', label: 'Malaysia', phone: '60' },
+    { code: 'MT', label: 'Malta', phone: '356' },
+    { code: 'MU', label: 'Mauritius', phone: '230' },
+    { code: 'MX', label: 'Mexico', phone: '52' },
+    { code: 'MD', label: 'Moldova', phone: '373' },
+    { code: 'MC', label: 'Monaco', phone: '377' },
+    { code: 'MN', label: 'Mongolia', phone: '976' },
+    { code: 'MA', label: 'Morocco', phone: '212' },
+    { code: 'MZ', label: 'Mozambique', phone: '258' },
+    { code: 'NA', label: 'Namibia', phone: '264' },
+    { code: 'NL', label: 'Netherlands', phone: '31' },
+    { code: 'NZ', label: 'New Zealand', phone: '64' },
+    { code: 'NE', label: 'Niger', phone: '227' },
+    { code: 'NG', label: 'Nigeria', phone: '234' },
+    { code: 'MK', label: 'North Macedonia', phone: '389' },
+    { code: 'NO', label: 'Norway', phone: '47' },
+    { code: 'OM', label: 'Oman', phone: '968' },
+    { code: 'PK', label: 'Pakistan', phone: '92' },
+    { code: 'PA', label: 'Panama', phone: '507' },
+    { code: 'PY', label: 'Paraguay', phone: '595' },
+    { code: 'PE', label: 'Peru', phone: '51' },
+    { code: 'PH', label: 'Philippines', phone: '63' },
+    { code: 'PL', label: 'Poland', phone: '48' },
+    { code: 'PT', label: 'Portugal', phone: '351' },
+    { code: 'QA', label: 'Qatar', phone: '974' },
+    { code: 'RO', label: 'Romania', phone: '40' },
+    { code: 'RW', label: 'Rwanda', phone: '250' },
+    { code: 'SM', label: 'San Marino', phone: '378' },
+    { code: 'SA', label: 'Saudi Arabia', phone: '966' },
+    { code: 'SN', label: 'Senegal', phone: '221' },
+    { code: 'RS', label: 'Serbia', phone: '381' },
+    { code: 'SG', label: 'Singapore', phone: '65' },
+    { code: 'SK', label: 'Slovakia', phone: '421' },
+    { code: 'SI', label: 'Slovenia', phone: '386' },
+    { code: 'ZA', label: 'South Africa', phone: '27' },
+    { code: 'KR', label: 'South Korea', phone: '82' },
+    { code: 'ES', label: 'Spain', phone: '34' },
+    { code: 'LK', label: 'Sri Lanka', phone: '94' },
+    { code: 'LC', label: 'St. Lucia', phone: '1-758' },
+    { code: 'SE', label: 'Sweden', phone: '46' },
+    { code: 'CH', label: 'Switzerland', phone: '41' },
+    { code: 'TW', label: 'Taiwan', phone: '886' },
+    { code: 'TZ', label: 'Tanzania', phone: '255' },
+    { code: 'TH', label: 'Thailand', phone: '66' },
+    { code: 'TT', label: 'Trinidad & Tobago', phone: '1-868' },
+    { code: 'TN', label: 'Tunisia', phone: '216' },
+    { code: 'TR', label: 'Turkey', phone: '90' },
+    { code: 'AE', label: 'United Arab Emirates', phone: '971' },
+    { code: 'GB', label: 'United Kingdom', phone: '44', suggested: true },
+    { code: 'US', label: 'United States', phone: '1', suggested: true, },
+    { code: 'UY', label: 'Uruguay', phone: '598' },
+    { code: 'UZ', label: 'Uzbekistan', phone: '998' },
+    { code: 'VN', label: 'Vietnam', phone: '84' }
+  ];
+
+
+
+
+
+
+
+
+
+
+
+
   return (
     <div>
 
 
-<Box
+      <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -377,120 +536,120 @@ export default function UserCard() {
 
 
       {!isLoading && (
-      <div>
-      <Typography
-      component="h6"
-      sx={{
-        mb: 2,
-        textAlign: 'center',
-        fontWeight: 'bold',
-        fontSize: '1.25rem',  // Adjust size as needed
-      }}
-    >
-      {spanish ? 'Crea tu cuenta de fotógrafo' : 'Create Your Photographer Account'}
-    </Typography>
-    <Typography
-      component="p"
-      sx={{
-        
-        textAlign: 'center',
-        color: 'text.secondary',
-        fontSize: '1rem',  // Adjust size as needed
-      }}
-    >
-      {spanish ? 'Sube una foto de perfil y escribe una breve descripción sobre ti (Por ejemplo, tu lugar habitual de trabajo).' : 'Upload a profile picture and write a brief description about yourself (For example, your usual work location).'}
-    </Typography>
-    <Typography
-      component="p"
-      sx={{
-        mb: 4,
-        textAlign: 'center',
-        color: 'text.secondary',
-        fontSize: '1rem',  // Adjust size as needed
-      }}
-    >
-     {spanish ? 'Después de enviar, tendrás que iniciar sesión nuevamente para acceder a tu nuevo perfil.' : 'After submitting, you will have to log in again to access your new profile.'}
-    </Typography>
-  
-      <Box
-        component="form"
-        noValidate
-        onSubmit={handleSubmitForm}
-        encType="multipart/form-data"
-        sx={{
-          width: isMobile ? '90%' : '50%',
-          margin: '0 auto',
-          marginTop: '16px',
-          display: 'flex',
-        }}
-      >
-        <Card
-          orientation="horizontal"
-          sx={{
-            width: '100%',
-            flexWrap: 'wrap',
-            borderRadius: '16px',
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
-          }}
-        >
-          <AspectRatio flex ratio="1" maxHeight={182} sx={{ minWidth: 182 }}>
-            {imagePreview && (<img src={imagePreview} alt='profileImg' />)}
-          </AspectRatio>
-          <CardContent> 
+        <div>
+          <Typography
+            component="h6"
+            sx={{
+              mb: 2,
+              textAlign: 'center',
+              fontWeight: 'bold',
+              fontSize: '1.25rem',  // Adjust size as needed
+            }}
+          >
+            {spanish ? 'Crea tu cuenta de fotógrafo' : 'Create Your Photographer Account'}
+          </Typography>
+          <Typography
+            component="p"
+            sx={{
 
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', mb: 0 }}>
-                <Button
-                  component="label"
-                  sx={{
-                    backgroundColor: 'white',  // Custom background color
-                    fontSize: '1.1rem',
-                    color: teal[400]  ,             // Text color
-                    padding: '10px 20px',        // Padding for button size
-                    borderRadius: '8px',         // Rounded corners
-                    cursor: 'pointer',
-                    '&:hover': { backgroundColor: teal[400], color: 'white'  , }  // Hover effect
-                  }}
-                >
-                  {spanish ? 'Subir una foto de perfil' : 'Upload a profile picture'}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    name="image"
-                    onChange={handleImageChange}
-                    style={{ display: 'none' }}  // Hide the actual input
-                  />
-                </Button>
-              </Box>
+              textAlign: 'center',
+              color: 'text.secondary',
+              fontSize: '1rem',  // Adjust size as needed
+            }}
+          >
+            {spanish ? 'Sube una foto de perfil y escribe una breve descripción sobre ti (Por ejemplo, tu lugar habitual de trabajo).' : 'Upload a profile picture and write a brief description about yourself (For example, your usual work location).'}
+          </Typography>
+          <Typography
+            component="p"
+            sx={{
+              mb: 4,
+              textAlign: 'center',
+              color: 'text.secondary',
+              fontSize: '1rem',  // Adjust size as needed
+            }}
+          >
+            {spanish ? 'Después de enviar, tendrás que iniciar sesión nuevamente para acceder a tu nuevo perfil.' : 'After submitting, you will have to log in again to access your new profile.'}
+          </Typography>
 
-            {/* <input type="file" accept="image/*" name="image" onChange={handleImageChange} /> */}
+          <Box
+            component="form"
+            noValidate
+            onSubmit={handleSubmitForm}
+            encType="multipart/form-data"
+            sx={{
+              width: isMobile ? '90%' : '50%',
+              margin: '0 auto',
+              marginTop: '16px',
+              display: 'flex',
+            }}
+          >
+            <Card
+              orientation="horizontal"
+              sx={{
+                width: '100%',
+                flexWrap: 'wrap',
+                borderRadius: '16px',
+                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
+              }}
+            >
+              <AspectRatio flex ratio="1" maxHeight={182} sx={{ minWidth: 182 }}>
+                {imagePreview && (<img src={imagePreview} alt='profileImg' />)}
+              </AspectRatio>
+              <CardContent>
+
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', mb: 0 }}>
+                  <Button
+                    component="label"
+                    sx={{
+                      backgroundColor: 'white',  // Custom background color
+                      fontSize: '1.1rem',
+                      color: teal[400],             // Text color
+                      padding: '10px 20px',        // Padding for button size
+                      borderRadius: '8px',         // Rounded corners
+                      cursor: 'pointer',
+                      '&:hover': { backgroundColor: teal[400], color: 'white', }  // Hover effect
+                    }}
+                  >
+                    {spanish ? 'Subir una foto de perfil' : 'Upload a profile picture'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      name="image"
+                      onChange={handleImageChange}
+                      style={{ display: 'none' }}  // Hide the actual input
+                    />
+                  </Button>
+                </Box>
+
+                {/* <input type="file" accept="image/*" name="image" onChange={handleImageChange} /> */}
 
 
 
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="About"
-              label={spanish ? 'Escribe algo sobre ti' : 'Write something about yourself'}
-              type="About"
-              id="About"
-              autoComplete="current-About"
-            />
-            <Box sx={{ display: 'flex', p: 1.5, my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
-              {!isLoading && (
-                <Button onClick={handleCancelUpload} variant="outlined" color="danger">
-                  {spanish ? 'Cancelar' : 'Cancel'}
-                </Button>
-              )} 
-              <Button type="submit" fullWidth sx={{ backgroundColor: teal[400], color: 'white' }} disabled={isLoading}>
-              {isLoading ? (spanish ? 'Cargando...' : 'Loading...') : (spanish ? 'Enviar' : 'Submit')}
-              </Button>
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
-      </div>
-  )}
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="About"
+                  label={spanish ? 'Escribe algo sobre ti' : 'Write something about yourself'}
+                  type="About"
+                  id="About"
+                  autoComplete="current-About"
+                />
+                <Box sx={{ display: 'flex', p: 1.5, my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
+                  {!isLoading && (
+                    <Button onClick={handleCancelUpload} variant="outlined" color="danger">
+                      {spanish ? 'Cancelar' : 'Cancel'}
+                    </Button>
+                  )}
+                  <Button type="submit" fullWidth sx={{ backgroundColor: teal[400], color: 'white' }} disabled={isLoading}>
+                    {isLoading ? (spanish ? 'Cargando...' : 'Loading...') : (spanish ? 'Enviar' : 'Submit')}
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
+        </div>
+      )}
 
 
 
@@ -510,7 +669,7 @@ export default function UserCard() {
           <Typography>{fileError}</Typography>
         </Alert>
       )}
-  
+
       {uploadError && (
         <Alert
           variant="outlined"
@@ -528,7 +687,7 @@ export default function UserCard() {
 
 
 
-{isLoading &&
+      {isLoading &&
         <Alert
           variant="soft"
           color="success"
@@ -542,7 +701,7 @@ export default function UserCard() {
         >
           <Box sx={{ flex: 1 }}>
             <Typography sx={{ fontSize: '25px' }}>
-            {spanish ? 'Subiendo...' : 'Uploading...'}
+              {spanish ? 'Subiendo...' : 'Uploading...'}
             </Typography>
           </Box>
           <LinearProgress
@@ -561,126 +720,179 @@ export default function UserCard() {
       }
 
 
-{openMessage && (
-          <Dialog
-            open={openMessage}
-            onClose={handleCloseMessage}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                {message} {/* Display the message from state */}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseMessage} autoFocus>
-                OK
-              </Button>
-            </DialogActions>
-          </Dialog>
-        )}
-
-
-
-
-
-<div className="container">
-      <div className="banner">
-        <h2>SurfPik</h2>
-      </div>
-      <div className="content">
-        {!accountCreatePending && !connectedAccountId && (
-          <button
-          onClick={async () => {
-            setAccountCreatePending(true);
-            setError(false);
-            fetch("https://oyster-app-b3323.ondigitalocean.app/account/", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            })
-              .then((response) => response.json())
-              .then((json) => {
-                setAccountCreatePending(false);
-        
-                const { account, error } = json;
-        
-                if (account) {
-                  setConnectedAccountId(account);
-                }
-        
-                if (error) {
-                  setError(true);
-                }
-              })
-              .catch(() => {
-                setAccountCreatePending(false);
-                setError(true);
-              });
-          }}
+      {openMessage && (
+        <Dialog
+          open={openMessage}
+          onClose={handleCloseMessage}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
         >
-          Create an account!
-        </button>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {message} {/* Display the message from state */}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseMessage} autoFocus>
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+
+
+
+
+
+
+      <Autocomplete
+        id="country-select-demo"
+        sx={{ width: 300 }}
+        options={countries}
+        autoHighlight
+        getOptionLabel={(option) => option.label}
+        onChange={(event, value) => {
+          if (value) {
+            setCountry({ country: value.code });
+          }
+        }}
+        renderOption={(props, option) => {
+          const { key, ...optionProps } = props;
+          return (
+            <Box
+              key={key}
+              component="li"
+              sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+              {...optionProps}
+            >
+              <img
+                loading="lazy"
+                width="20"
+                srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
+                src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
+                alt=""
+              />
+              {option.label} ({option.code})
+            </Box>
+          );
+        }}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="Choose a country"
+            InputProps={{
+              ...params.InputProps,
+              autoComplete: 'new-password', // disable autocomplete and autofill
+            }}
+          />
         )}
-        {connectedAccountId && !accountLinkCreatePending && (
-          <button
-          onClick={async () => {
-            setAccountLinkCreatePending(true);
-            setError(false);
-            fetch("https://oyster-app-b3323.ondigitalocean.app/account_link/", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                account: connectedAccountId,
-              }),
-            })
-              .then((response) => response.json())
-              .then((json) => {
-                setAccountLinkCreatePending(false);
-        
-                const { url, error } = json;
-                if (url) {
-                  window.location.href = url;
-                }
-        
-                if (error) {
-                  setError(true);
-                }
-              })
-              .catch(() => {
-                setAccountLinkCreatePending(false);
-                setError(true);
-              });
-          }}
-        >
-          Add information
-        </button>
-        
-        )}
-        {error && <p className="error">Something went wrong!</p>}
-        {(connectedAccountId || accountCreatePending || accountLinkCreatePending) && (
-          <div className="dev-callout">
-            {connectedAccountId && <p>Your connected account ID is: <code className="bold">{connectedAccountId}</code></p>}
-            {accountCreatePending && <p>Creating a connected account...</p>}
-            {accountLinkCreatePending && <p>Creating a new Account Link...</p>}
+      />
+
+
+
+
+
+      <div className="container">
+        <div className="banner">
+          <h2>SurfPik</h2>
+        </div>
+        <div className="content">
+          {!accountCreatePending && !connectedAccountId && (
+            <button
+              onClick={async () => {
+                setAccountCreatePending(true);
+                setError(false);
+                fetch("https://oyster-app-b3323.ondigitalocean.app/account/", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    ...country, // Include the country in the body
+                  }),
+                })
+                  .then((response) => response.json())
+                  .then((json) => {
+                    setAccountCreatePending(false);
+
+                    const { account, error } = json;
+
+                    if (account) {
+                      setConnectedAccountId(account);
+                    }
+
+                    if (error) {
+                      setError(true);
+                    }
+                  })
+                  .catch(() => {
+                    setAccountCreatePending(false);
+                    setError(true);
+                  });
+              }}
+            >
+              Create an account!
+            </button>
+          )}
+          {connectedAccountId && !accountLinkCreatePending && (
+            <button
+              onClick={async () => {
+                setAccountLinkCreatePending(true);
+                setError(false);
+                fetch("https://oyster-app-b3323.ondigitalocean.app/account_link/", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    account: connectedAccountId,
+                  }),
+                })
+                  .then((response) => response.json())
+                  .then((json) => {
+                    setAccountLinkCreatePending(false);
+
+                    const { url, error } = json;
+                    if (url) {
+                      window.location.href = url;
+                    }
+
+                    if (error) {
+                      setError(true);
+                    }
+                  })
+                  .catch(() => {
+                    setAccountLinkCreatePending(false);
+                    setError(true);
+                  });
+              }}
+            >
+              Add information
+            </button>
+
+          )}
+          {error && <p className="error">Something went wrong!</p>}
+          {(connectedAccountId || accountCreatePending || accountLinkCreatePending) && (
+            <div className="dev-callout">
+              {connectedAccountId && <p>Your connected account ID is: <code className="bold">{connectedAccountId}</code></p>}
+              {accountCreatePending && <p>Creating a connected account...</p>}
+              {accountLinkCreatePending && <p>Creating a new Account Link...</p>}
+            </div>
+          )}
+          <div className="info-callout">
+            <p>
+              This is a sample app for Stripe-hosted Connect onboarding. <a href="https://docs.stripe.com/connect/onboarding/quickstart?connect-onboarding-surface=hosted" target="_blank" rel="noopener noreferrer">View docs</a>
+            </p>
           </div>
-        )}
-        <div className="info-callout">
-          <p>
-          This is a sample app for Stripe-hosted Connect onboarding. <a href="https://docs.stripe.com/connect/onboarding/quickstart?connect-onboarding-surface=hosted" target="_blank" rel="noopener noreferrer">View docs</a>
-          </p>
         </div>
       </div>
+
+
+
+
     </div>
 
-
-
-    </div>
-    
   );
-  
+
 }
