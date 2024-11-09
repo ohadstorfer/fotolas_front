@@ -53,6 +53,8 @@ import ServerErrorPage from './components/ServerErrorPage';
 import CoverImageHomePage from './components/CoverImageHomePage';
 import PhotographerNavbar from './components/PhotographerNavbar';
 import MyAlbums from './components/MyAlbums';
+import BecomePhotographercopy from './components/BecomePhotographercopy';
+import VerificationProccess from './components/VerificationProccess';
 
 
 
@@ -76,11 +78,12 @@ function App() {
         <Route path="/UndividedImgs" element={<UndividedImgs />} />
         <Route path="/DashboardSurfer" element={<DashboardSurfer />} />
         <Route path="/BecomePhotographer" element={<BecomePhotographer />} />
+        <Route path="/BecomePhotographercopy" element={<BecomePhotographercopy />} />
         <Route path="/RequestResetPassword" element={<ResetPassword />} />
         <Route path="/reset-password/" element={<ResetPasswordStep2 />} />
         <Route path="/ServerErrorPage" element={<ServerErrorPage />} />
         <Route path="/CoverImageHomePage" element={<CoverImageHomePage />} />
-
+        
 
         <Route element={<ProtectedRoutesPhotographers />}>
           <Route path="/ProfilePtg" element={<ProfilePhotographer />} />
@@ -100,6 +103,7 @@ function App() {
           <Route path="/Successfull" element={<Successfull />} />
           <Route path="/FailedUpload" element={<FailedUpload />} />
           <Route path="/MyAlbums" element={<MyAlbums />} />
+          <Route path="/VerificationProccess" element={<VerificationProccess />} />
 
 
         </Route>
@@ -173,7 +177,7 @@ const Root = () => {
 
 
         <div>
-          {/* <Outlet /> */}
+          <Outlet />
         </div>
         {/* <ErrorPage></ErrorPage> */}
         {/* <ResetPassword></ResetPassword> */}
@@ -183,7 +187,8 @@ const Root = () => {
         {/* <DashboardPhotographer></DashboardPhotographer> */}
         {/* <PleaseWorkneww></PleaseWorkneww> */}
         {/* <Cart></Cart> */}
-        <BecomePhotographer></BecomePhotographer>
+        {/* <BecomePhotographer></BecomePhotographer> */}
+        {/* <BecomePhotographercopy></BecomePhotographercopy> */}
         {/* <hr></hr> */}
         {/* <CreatePricesForVideos></CreatePricesForVideos> */}
         {/* <CreatePrices></CreatePrices> */}

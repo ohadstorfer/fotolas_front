@@ -50,12 +50,13 @@ export default function UserCard() {
   const spanish = useSelector(selectSpanish)
   const [openMessage, setOpenMessage] = React.useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  
 
   const [accountCreatePending, setAccountCreatePending] = useState(false);
   const [accountLinkCreatePending, setAccountLinkCreatePending] = useState(false);
   const [error, setError] = useState(false);
   const [connectedAccountId, setConnectedAccountId] = useState();
-  const [country, setCountry] = useState<string  | undefined>(undefined);
+  const [country, setCountry] = useState<string | undefined>(undefined);
 
 
 
@@ -70,10 +71,9 @@ export default function UserCard() {
 
 
   useEffect(() => {
-    if (country) {
+    
       console.log(country);
-      ;
-    }
+      
   }, [country]);
 
 
@@ -342,6 +342,11 @@ export default function UserCard() {
 
 
 
+  const explanationText = spanish
+    ? "Estás a punto de crear una cuenta de fotógrafo. Para ello, necesitarás proporcionar los detalles de tu cuenta bancaria para que puedas vender fotos y videos, y recibir pagos. También deberás seleccionar el país de tu cuenta bancaria."
+    : "You are about to create a photographer account. To do so, you will need to provide your bank account details so you will be able to sell photos and videos and receive payments. You will also need to select the country of your bank account.";
+
+
 
 
 
@@ -535,121 +540,7 @@ export default function UserCard() {
 
 
 
-      {!isLoading && (
-        <div>
-          <Typography
-            component="h6"
-            sx={{
-              mb: 2,
-              textAlign: 'center',
-              fontWeight: 'bold',
-              fontSize: '1.25rem',  // Adjust size as needed
-            }}
-          >
-            {spanish ? 'Crea tu cuenta de fotógrafo' : 'Create Your Photographer Account'}
-          </Typography>
-          <Typography
-            component="p"
-            sx={{
 
-              textAlign: 'center',
-              color: 'text.secondary',
-              fontSize: '1rem',  // Adjust size as needed
-            }}
-          >
-            {spanish ? 'Sube una foto de perfil y escribe una breve descripción sobre ti (Por ejemplo, tu lugar habitual de trabajo).' : 'Upload a profile picture and write a brief description about yourself (For example, your usual work location).'}
-          </Typography>
-          <Typography
-            component="p"
-            sx={{
-              mb: 4,
-              textAlign: 'center',
-              color: 'text.secondary',
-              fontSize: '1rem',  // Adjust size as needed
-            }}
-          >
-            {spanish ? 'Después de enviar, tendrás que iniciar sesión nuevamente para acceder a tu nuevo perfil.' : 'After submitting, you will have to log in again to access your new profile.'}
-          </Typography>
-
-          <Box
-            component="form"
-            noValidate
-            onSubmit={handleSubmitForm}
-            encType="multipart/form-data"
-            sx={{
-              width: isMobile ? '90%' : '50%',
-              margin: '0 auto',
-              marginTop: '16px',
-              display: 'flex',
-            }}
-          >
-            <Card
-              orientation="horizontal"
-              sx={{
-                width: '100%',
-                flexWrap: 'wrap',
-                borderRadius: '16px',
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
-              }}
-            >
-              <AspectRatio flex ratio="1" maxHeight={182} sx={{ minWidth: 182 }}>
-                {imagePreview && (<img src={imagePreview} alt='profileImg' />)}
-              </AspectRatio>
-              <CardContent>
-
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', mb: 0 }}>
-                  <Button
-                    component="label"
-                    sx={{
-                      backgroundColor: 'white',  // Custom background color
-                      fontSize: '1.1rem',
-                      color: teal[400],             // Text color
-                      padding: '10px 20px',        // Padding for button size
-                      borderRadius: '8px',         // Rounded corners
-                      cursor: 'pointer',
-                      '&:hover': { backgroundColor: teal[400], color: 'white', }  // Hover effect
-                    }}
-                  >
-                    {spanish ? 'Subir una foto de perfil' : 'Upload a profile picture'}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      name="image"
-                      onChange={handleImageChange}
-                      style={{ display: 'none' }}  // Hide the actual input
-                    />
-                  </Button>
-                </Box>
-
-                {/* <input type="file" accept="image/*" name="image" onChange={handleImageChange} /> */}
-
-
-
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="About"
-                  label={spanish ? 'Escribe algo sobre ti' : 'Write something about yourself'}
-                  type="About"
-                  id="About"
-                  autoComplete="current-About"
-                />
-                <Box sx={{ display: 'flex', p: 1.5, my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
-                  {!isLoading && (
-                    <Button onClick={handleCancelUpload} variant="outlined" color="danger">
-                      {spanish ? 'Cancelar' : 'Cancel'}
-                    </Button>
-                  )}
-                  <Button type="submit" fullWidth sx={{ backgroundColor: teal[400], color: 'white' }} disabled={isLoading}>
-                    {isLoading ? (spanish ? 'Cargando...' : 'Loading...') : (spanish ? 'Enviar' : 'Submit')}
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          </Box>
-        </div>
-      )}
 
 
 
@@ -746,80 +637,96 @@ export default function UserCard() {
 
 
 
-      <Autocomplete
-        id="country-select-demo"
-        sx={{ width: 300 }}
-        options={countries}
-        autoHighlight
-        getOptionLabel={(option) => option.label}
-        onChange={(event, value) => {
-          if (value) {
-            setCountry(value.code);
-          }
-        }}
-        renderOption={(props, option) => {
-          const { key, ...optionProps } = props;
-          return (
-            <Box
-              key={key}
-              component="li"
-              sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
-              {...optionProps}
-            >
-              <img
-                loading="lazy"
-                width="20"
-                srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
-                src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
-                alt=""
-              />
-              {option.label} ({option.code})
-            </Box>
-          );
-        }}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="Choose a country"
-            InputProps={{
-              ...params.InputProps,
-              autoComplete: 'new-password', // disable autocomplete and autofill
-            }}
-          />
-        )}
-      />
 
 
 
 
 
-      <div className="container">
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '50%',
+        margin: '0 auto'
+      }}>
         <div className="banner">
           <h2>SurfPik</h2>
         </div>
         <div className="content">
+          {/* Display the explanation */}
+          <p>{explanationText}</p>
+
+          <Autocomplete
+            id="country-select-demo"
+            sx={{ width: '70%', margin: '0 auto' }}
+            options={countries}
+            autoHighlight
+            getOptionLabel={(option) => option.label}
+            onChange={(event, value) => {
+              if (value) {
+                setCountry(value.code);
+              } else {
+                // Clear the country state if the selection is cleared
+                setCountry(undefined);
+              }
+            }}
+            renderOption={(props, option) => {
+              const { key, ...optionProps } = props;
+              return (
+                <Box
+                  key={key}
+                  component="li"
+                  sx={{ '& > img': { mr: 2, flexShrink: 0 } }}
+                  {...optionProps}
+                >
+                  <img
+                    loading="lazy"
+                    width="20"
+                    srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
+                    src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
+                    alt=""
+                  />
+                  {option.label} ({option.code})
+                </Box>
+              );
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Choose a country"
+                InputProps={{
+                  ...params.InputProps,
+                  autoComplete: 'new-password', // disable autocomplete and autofill
+                }}
+              />
+            )}
+          />
+
           {!accountCreatePending && !connectedAccountId && (
-            <button
+            <Button
+            sx={{
+              marginTop: '16px',
+              backgroundColor: teal[400],
+              color: 'white', 
+            }}
               onClick={async () => {
                 setAccountCreatePending(true);
                 setError(false);
-                fetch("https://oyster-app-b3323.ondigitalocean.app/account/", {
+                fetch("http://127.0.0.1:8000/account/", {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
                   },
-                  body: JSON.stringify({ Country: country }),
+                  body: JSON.stringify({ Country: country, user_id: conectedUser?.id }),
                 })
                   .then((response) => response.json())
                   .then((json) => {
                     setAccountCreatePending(false);
-
                     const { account, error } = json;
-
                     if (account) {
                       setConnectedAccountId(account);
                     }
-
                     if (error) {
                       setError(true);
                     }
@@ -829,16 +736,21 @@ export default function UserCard() {
                     setError(true);
                   });
               }}
+              disabled={!country}
             >
-              Create an account!
-            </button>
+              {spanish ? "¡Crear cuenta!" : "Create an account!"}
+            </Button>
           )}
+
+
+
           {connectedAccountId && !accountLinkCreatePending && (
             <button
               onClick={async () => {
                 setAccountLinkCreatePending(true);
                 setError(false);
-                fetch("https://oyster-app-b3323.ondigitalocean.app/account_link/", {
+                // fetch("https://oyster-app-b3323.ondigitalocean.app/account_link/", {
+                fetch("http://127.0.0.1:8000/account_link/", {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
@@ -850,12 +762,10 @@ export default function UserCard() {
                   .then((response) => response.json())
                   .then((json) => {
                     setAccountLinkCreatePending(false);
-
                     const { url, error } = json;
                     if (url) {
                       window.location.href = url;
                     }
-
                     if (error) {
                       setError(true);
                     }
@@ -866,30 +776,23 @@ export default function UserCard() {
                   });
               }}
             >
-              Add information
+              {spanish ? "Agregar información" : "Add information"}
             </button>
-
           )}
-          {error && <p className="error">Something went wrong!</p>}
+          {error && <p className="error">{spanish ? "¡Algo salió mal!" : "Something went wrong!"}</p>}
           {(connectedAccountId || accountCreatePending || accountLinkCreatePending) && (
             <div className="dev-callout">
-              {connectedAccountId && <p>Your connected account ID is: <code className="bold">{connectedAccountId}</code></p>}
-              {accountCreatePending && <p>Creating a connected account...</p>}
-              {accountLinkCreatePending && <p>Creating a new Account Link...</p>}
+              {connectedAccountId && <p>{spanish ? "Tu ID de cuenta conectada es: " : "Your connected account ID is: "} <code className="bold">{connectedAccountId}</code></p>}
+              {accountCreatePending && <p>{spanish ? "Creando una cuenta conectada..." : "Creating a connected account..."}</p>}
+              {accountLinkCreatePending && <p>{spanish ? "Creando un nuevo enlace de cuenta..." : "Creating a new Account Link..."}</p>}
             </div>
           )}
-          <div className="info-callout">
-            <p>
-              This is a sample app for Stripe-hosted Connect onboarding. <a href="https://docs.stripe.com/connect/onboarding/quickstart?connect-onboarding-surface=hosted" target="_blank" rel="noopener noreferrer">View docs</a>
-            </p>
-          </div>
         </div>
-      </div>
-
-
+      </Box>
 
 
     </div>
+
 
   );
 

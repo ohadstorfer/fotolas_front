@@ -15,7 +15,8 @@ interface User {
   date_joined: Date;
   last_login: Date;
   chats: number; 
-  // keep in mind that chats is many to many
+  stripe_account_id: string;
+  verification_status: string;
 }
 
 interface UserState {

@@ -234,13 +234,15 @@ export default function PrimarySearchAppBar() {
   const PhotographerClick = () => {
     handleMenuClose()
     handleValidateLogIn()
-    navigate("/ProfilePtg");
+    // navigate("/ProfilePtg");
+    navigate("/EditProfilePtg");
   };
 
   const BecomePhotographerClick = () => {
     handleMenuClose()
     handleValidateLogIn()
-    navigate("/BecomePhotographer");
+    // navigate("/BecomePhotographer");
+    navigate("/BecomePhotographercopy");
   };
 
   const SurferDashboardClick = () => {
