@@ -83,6 +83,7 @@ function App() {
         <Route path="/reset-password/" element={<ResetPasswordStep2 />} />
         <Route path="/ServerErrorPage" element={<ServerErrorPage />} />
         <Route path="/CoverImageHomePage" element={<CoverImageHomePage />} />
+        <Route path="/VerificationProccess" element={<VerificationProccess />} />
         
 
         <Route element={<ProtectedRoutesPhotographers />}>
@@ -103,9 +104,6 @@ function App() {
           <Route path="/Successfull" element={<Successfull />} />
           <Route path="/FailedUpload" element={<FailedUpload />} />
           <Route path="/MyAlbums" element={<MyAlbums />} />
-          <Route path="/VerificationProccess" element={<VerificationProccess />} />
-
-
         </Route>
 
       </Route>
