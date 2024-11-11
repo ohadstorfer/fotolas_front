@@ -290,7 +290,7 @@ const Cart: React.FC = () => {
           product_name: cartType,
           amount: cartTotalPrice * 100 , // Amount in cents, e.g., $10.00 -> 1000
           currency: 'usd',
-          quantity: cartTotalItems,
+          quantity: 1,
           connected_account_id: sessAlbumOfCart?.photographer_stripe_account_id,
         }),
       });
