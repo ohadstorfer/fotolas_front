@@ -288,7 +288,7 @@ const Cart: React.FC = () => {
         },
         body: JSON.stringify({
           product_name: cartType,
-          amount: cartTotalPrice, // Amount in cents, e.g., $10.00 -> 1000
+          amount: cartTotalPrice * 100 , // Amount in cents, e.g., $10.00 -> 1000
           currency: 'usd',
           quantity: cartTotalItems,
           connected_account_id: sessAlbumOfCart?.photographer_stripe_account_id,
