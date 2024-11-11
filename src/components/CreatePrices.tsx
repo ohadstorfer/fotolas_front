@@ -360,13 +360,12 @@ export default function UserCard() {
                   name="price_1_to_5"
                   type="number"
                   id="price_1_to_5"
-                  defaultValue={defaultPricesImages ? defaultPricesImages[0].price_1_to_5 : ''}
+                  defaultValue={defaultPricesImages?.[0]?.price_1_to_5 || ''}
                   inputProps={{
                     style: { textAlign: 'center' }
                   }}
                 />
               </Box>
-
 
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
@@ -379,7 +378,7 @@ export default function UserCard() {
                   name="price_6_to_50"
                   type="number"
                   id="price_6_to_50"
-                  defaultValue={defaultPricesImages ? defaultPricesImages[0].price_6_to_50 : ''}
+                  defaultValue={defaultPricesImages?.[0]?.price_6_to_50 || ''}
                   inputProps={{
                     style: { textAlign: 'center' }
                   }}
@@ -397,7 +396,7 @@ export default function UserCard() {
                   name="price_51_plus"
                   type="number"
                   id="price_51_plus"
-                  defaultValue={defaultPricesImages ? defaultPricesImages[0].price_51_plus : ''}
+                  defaultValue={defaultPricesImages?.[0]?.price_51_plus || ''}
                   inputProps={{
                     style: { textAlign: 'center' }
                   }}

@@ -363,59 +363,60 @@ export default function UserCard() {
 
 
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
-                {spanish ? '1 a 3 videos' : '1 to 3 videos'}
-              </Typography>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="price_1_to_3"
-                type="number"
-                id="price_1_to_3"
-                defaultValue={defaultPricesVideos ? defaultPricesVideos[0].price_1_to_3 : ''}
-                inputProps={{
-                  style: { textAlign: 'center' }
-                }}
-              />
-            </Box>
+                <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                  {spanish ? '1 a 3 videos' : '1 to 3 videos'}
+                </Typography>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="price_1_to_3"
+                  type="number"
+                  id="price_1_to_3"
+                  defaultValue={defaultPricesVideos?.[0]?.price_1_to_3 || ''}
+                  inputProps={{
+                    style: { textAlign: 'center' }
+                  }}
+                />
+              </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
-                {spanish ? '4 a 15 videos' : '4 to 15 videos'}
-              </Typography>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="price_4_to_15"
-                type="number"
-                id="price_4_to_15"
-                defaultValue={defaultPricesVideos ? defaultPricesVideos[0].price_4_to_15 : ''}
-                inputProps={{
-                  style: { textAlign: 'center' }
-                }}
-              />
-            </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                  {spanish ? '4 a 15 videos' : '4 to 15 videos'}
+                </Typography>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="price_4_to_15"
+                  type="number"
+                  id="price_4_to_15"
+                  defaultValue={defaultPricesVideos?.[0]?.price_4_to_15 || ''}
+                  inputProps={{
+                    style: { textAlign: 'center' }
+                  }}
+                />
+              </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
-                {spanish ? 'más de 15 videos' : 'more than 15 videos'}
-              </Typography>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="price_16_plus"
-                type="number"
-                id="price_16_plus"
-                defaultValue={defaultPricesVideos ? defaultPricesVideos[0].price_16_plus : ''}
-                inputProps={{
-                  style: { textAlign: 'center' }
-                }}
-              />
-            </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                  {spanish ? 'más de 15 videos' : 'more than 15 videos'}
+                </Typography>
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="price_16_plus"
+                  type="number"
+                  id="price_16_plus"
+                  defaultValue={defaultPricesVideos?.[0]?.price_16_plus || ''}
+                  inputProps={{
+                    style: { textAlign: 'center' }
+                  }}
+                />
+              </Box>
 
+              
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
             <FormControlLabel control={<Checkbox checked={checkboxSelected} onChange={handleCheckboxChange} />} label={spanish ? 'Guardar precios como predeterminados' : "Save pricing as default"}/>
             </Box>
