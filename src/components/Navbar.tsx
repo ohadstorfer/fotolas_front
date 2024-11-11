@@ -154,6 +154,26 @@ export default function PrimarySearchAppBar() {
 
 
 
+    useEffect(() => {
+      const storedToken = localStorage.getItem('token');
+      let token = storedToken ? JSON.parse(storedToken) : null;
+    
+      if (user?.is_photographer && token && token.is_photographer === false) {
+        // Update the token's `is_photographer` to true and save it back to local storage
+        token.is_photographer = true;
+        localStorage.setItem('token', JSON.stringify(token));
+      }
+    
+      if (conectedUser?.id) {
+        const accessToken = conectedUser.access;
+        const tokenValue = typeof accessToken === 'string' ? accessToken : JSON.stringify(accessToken || '').replace(/"/g, '');
+    
+        dispatch(getPhotographerByUserId({ userId: Number(conectedUser.id), token: tokenValue }));
+      }
+    }, [dispatch, user]);
+
+
+
 
 
   useEffect(() => {

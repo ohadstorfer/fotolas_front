@@ -749,7 +749,6 @@ export default function UserCard() {
               onClick={async () => {
                 setAccountLinkCreatePending(true);
                 setError(false);
-                // fetch("https://oyster-app-b3323.ondigitalocean.app/account_link/", {
                 fetch("https://oyster-app-b3323.ondigitalocean.app/account_link/", {
                   method: "POST",
                   headers: {

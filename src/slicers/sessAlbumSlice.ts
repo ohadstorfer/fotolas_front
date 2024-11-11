@@ -10,6 +10,7 @@ interface sess {
   cover_image: string;
   spot: number;
   photographer: number;
+  photographer_stripe_account_id: string;
   albums_prices: number;
   sessDate: Date;
   spot_name: string;

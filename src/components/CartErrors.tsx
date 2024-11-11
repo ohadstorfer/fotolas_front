@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import {
-  
+
   removeFromCart,
   selectWavesInCart_WAVES,
   fetchWavesByListAsync,
@@ -36,15 +36,16 @@ const Cart: React.FC = () => {
   const cart = useSelector(selectCart);
   const wavesInCart = useSelector(selectCartOfWaves);
   const cartTotalPrice = useSelector((state: any) => state.cart.cartTotalPrice);
-  const cartTotalImages = useSelector((state: any) => state.perAlbum.cartTotalImages);
+  const sessAlbumOfCart = useSelector(selectSessAlbumOfCart);
   const cartTotalItems = useSelector((state: any) => state.cart.cartTotalItems);
+  const cartType = useSelector((state: any) => state.cart.cartType);
+
+  const cartTotalImages = useSelector((state: any) => state.perAlbum.cartTotalImages);
   const totalImagesInWaves = useSelector((state: any) => state.cart.totalImagesInWaves);
   const prices = useSelector((state: any) => state.perAlbum.prices);
-  const cartType = useSelector((state: any) => state.cart.cartType);
   const videos = useSelector(selectVideos);
   const cartOfVideos = useSelector(selectCartOfVideos);
   const cartOfSingleImages = useSelector(selectCartOfSingleImages);
-  const sessAlbumOfCart = useSelector(selectSessAlbumOfCart);
   const imgs = useSelector(selectImg);
   const dispatch = useAppDispatch();
 
@@ -56,13 +57,13 @@ const Cart: React.FC = () => {
     if (cartType === "waves" && cart.length > 0) {
       dispatch(fetchWavesByListAsync(cart));
     }
-  }, [dispatch, cart]);
+  }, [dispatch, cart]); `  `
 
 
-  
+
 
   useEffect(() => {
-    if (cartType === "waves" && cart.length > 0 || cartType === "singleImages" && cart.length > 0 ) {
+    if (cartType === "waves" && cart.length > 0 || cartType === "singleImages" && cart.length > 0) {
       const albumId = sessAlbumOfCart!.id
       dispatch(fetchPricesBySessionAlbumId(albumId));
     }
@@ -101,21 +102,21 @@ const Cart: React.FC = () => {
 
 
 
-  
+
 
   const handleRemoveFromCartWaves = (waveId: number, imageCount: number) => {
-    if (cart.length===1) {
+    if (cart.length === 1) {
       dispatch(removeSessAlbumOfCart());
       dispatch(removeCartType());
     }
-    dispatch(removeFromCart_waves({ waveId, imageCount  })); // Assuming each image is counted as 1
+    dispatch(removeFromCart_waves({ waveId, imageCount })); // Assuming each image is counted as 1
     dispatch(calculatePriceForImages());
   };
 
 
 
   const handleRemoveFromCartSingleImages = (imgId: number) => {
-    if (cart.length===1) {
+    if (cart.length === 1) {
       dispatch(removeSessAlbumOfCart());
       dispatch(removeCartType());
     }
@@ -125,11 +126,11 @@ const Cart: React.FC = () => {
 
 
   const handleRemoveFromCartVideos = (VideoId: number) => {
-    if (cart.length===1) {
+    if (cart.length === 1) {
       dispatch(removeSessAlbumOfCart());
       dispatch(removeCartType());
     }
-    dispatch(removeFromCart_videos({videoId: VideoId})); // Assuming each image is counted as 1
+    dispatch(removeFromCart_videos({ videoId: VideoId })); // Assuming each image is counted as 1
     dispatch(calculatePriceForImages());
   };
 
@@ -163,7 +164,7 @@ const Cart: React.FC = () => {
 
   const handlePurchaseForImages = async () => {
     console.log("handlePurchaseForImages");
-    
+
     const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
     const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
     const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
@@ -190,14 +191,14 @@ const Cart: React.FC = () => {
     console.log(purchaseData);
 
     await dispatch(createPurchaseWithImagesAsync(purchaseData));
-};
+  };
 
 
 
 
-const handlePurchaseForVideos = async () => {
+  const handlePurchaseForVideos = async () => {
     console.log("handlePurchaseForVideos");
-    
+
     const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
     const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
     const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
@@ -224,41 +225,81 @@ const handlePurchaseForVideos = async () => {
     console.log(purchaseData);
 
     await dispatch(createPurchaseWithVideosAsync(purchaseData));
-};
-
-
-
-
-const handlePurchaseForWaves = async () => {
-  console.log("handlePurchaseForImages");
-  
-  const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
-  const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
-  const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
-  const total_price = cartTotalPrice;
-  const total_item_quantity = cartTotalItems;
-  const session_album_id = sessAlbumOfCart!.id;
-  const sessDate = sessAlbumOfCart!.sessDate;
-  const spot_name = sessAlbumOfCart!.spot_name;
-  const photographer_name = sessAlbumOfCart!.photographer_name;
-  const wave_ids  = cart;
-
-  const purchaseData = {
-    photographer_id,
-    surfer_id,
-    total_price,
-    total_item_quantity,
-    session_album_id,
-    wave_ids : wave_ids ,
-    sessDate: sessDate,
-    spot_name: spot_name,
-    photographer_name: photographer_name,
-    surfer_name: surfer_name,
   };
-  console.log(purchaseData);
 
-  await dispatch(createPurchaseWithWavesAsync(purchaseData));
-};
+
+
+
+  const handlePurchaseForWaves = async () => {
+    console.log("handlePurchaseForImages");
+
+    const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
+    const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
+    const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
+    const total_price = cartTotalPrice;
+    const total_item_quantity = cartTotalItems;
+    const session_album_id = sessAlbumOfCart!.id;
+    const sessDate = sessAlbumOfCart!.sessDate;
+    const spot_name = sessAlbumOfCart!.spot_name;
+    const photographer_name = sessAlbumOfCart!.photographer_name;
+    const wave_ids = cart;
+
+    const purchaseData = {
+      photographer_id,
+      surfer_id,
+      total_price,
+      total_item_quantity,
+      session_album_id,
+      wave_ids: wave_ids,
+      sessDate: sessDate,
+      spot_name: spot_name,
+      photographer_name: photographer_name,
+      surfer_name: surfer_name,
+    };
+    console.log(purchaseData);
+
+    await dispatch(createPurchaseWithWavesAsync(purchaseData));
+  };
+
+
+
+
+
+
+
+  const handleCheckout = async () => {
+    try {
+      // Send a request to your Django endpoint to create a checkout session
+      const response = await fetch('https://oyster-app-b3323.ondigitalocean.app/api/create-checkout-session/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          product_name: cartType,
+          amount: cartTotalPrice, // Amount in cents, e.g., $10.00 -> 1000
+          currency: 'usd',
+          quantity: cartTotalItems,
+          connected_account_id: sessAlbumOfCart?.photographer_stripe_account_id,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      // Redirect to the Stripe Checkout URL
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No URL returned');
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      alert('Failed to create checkout session.');
+    }
+  };
+
+
+
 
 
 
@@ -267,18 +308,24 @@ const handlePurchaseForWaves = async () => {
       {cartType === "videos" && (
         <>
           <div>
-          <h2> {cartTotalItems} Videos <SmartDisplayIcon style={{ color: 'black' }} /></h2>
-          <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
+            <h2> {cartTotalItems} Videos <SmartDisplayIcon style={{ color: 'black' }} /></h2>
+            <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
           </div>
-          <Button variant="contained" color="primary" onClick={handlePurchaseForVideos}>
+
+          
+          {/* <Button variant="contained" color="primary" onClick={handlePurchaseForVideos}>
             Pay
           </Button>
           <br />
           <br />
           <Button variant="contained" color="primary" onClick={downloadImages}>
             Download Images
-          </Button>
+          </Button> */}
 
+
+          <Button variant="contained" color="primary" onClick={handleCheckout}>
+            Pay with Stripe
+          </Button>
 
 
           <VideosInCart></VideosInCart>
@@ -288,25 +335,27 @@ const handlePurchaseForWaves = async () => {
 
 
 
-{cartType === "waves" && (
+      {cartType === "waves" && (
         <>
           <div>
-          <h2>{cartTotalItems} Images <IoImagesOutline style={{ color: 'black' }} /></h2>
-          <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
+            <h2>{cartTotalItems} Images <IoImagesOutline style={{ color: 'black' }} /></h2>
+            <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
           </div>
 
           {/* cartTotalImages */}
-          <Button variant="contained" color="primary" onClick={handlePurchaseForWaves}>
+          {/* <Button variant="contained" color="primary" onClick={handlePurchaseForWaves}>
             Pay
           </Button>
           <br />
           <br />
           <Button variant="contained" color="primary" onClick={downloadImages}>
             Download Images
+          </Button> */}
+
+
+          <Button variant="contained" color="primary" onClick={handleCheckout}>
+            Pay with Stripe
           </Button>
-
-
-
 
 
           <PerAlbumInCart></PerAlbumInCart>
@@ -315,22 +364,24 @@ const handlePurchaseForWaves = async () => {
 
 
 
-{cartType === "singleImages" && (
+      {cartType === "singleImages" && (
         <>
           <div>
-          <h2>{cartTotalItems} Images <IoImagesOutline style={{ color: 'black' }} /></h2>
-          <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
+            <h2>{cartTotalItems} Images <IoImagesOutline style={{ color: 'black' }} /></h2>
+            <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
           </div>
-          <Button variant="contained" color="primary" onClick={handlePurchaseForImages}>
+          {/* <Button variant="contained" color="primary" onClick={handlePurchaseForImages}>
             Pay
           </Button>
           <br />
           <br />
           <Button variant="contained" color="primary" onClick={downloadImages}>
             Download Images
+          </Button> */}
+
+          <Button variant="contained" color="primary" onClick={handleCheckout}>
+            Pay with Stripe
           </Button>
-
-
 
 
 
@@ -342,11 +393,11 @@ const handlePurchaseForWaves = async () => {
 
 
 
-{cartType === null && (
-          <div>
-            <h2>Your Cart Is Empty</h2>
-          </div>
-       
+      {cartType === null && (
+        <div>
+          <h2>Your Cart Is Empty</h2>
+        </div>
+
       )}
 
 

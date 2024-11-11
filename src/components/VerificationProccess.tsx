@@ -12,6 +12,7 @@ import { removeNewPrices, removeNewSess, selectNewSess } from '../slicers/sessAl
 import { Alert } from '@mui/joy';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { selectSpanish } from '../slicers/sighnInSlice';
+import { selectUser } from '../slicers/userSlice';
 
 
 const VerificationProccess = () => {
@@ -21,8 +22,15 @@ const VerificationProccess = () => {
   const dispatch = useAppDispatch();
   const isMobile = useMediaQuery('(max-width:600px)');
   const spanish = useSelector(selectSpanish)
+  const user = useSelector(selectUser)
 
 
+  useEffect(() => {
+    // Redirect if user is already a photographer
+    if (user?.is_photographer) {
+      navigate('/EditProfilePtg');
+    }
+  }, [user, navigate]);
 
 
 

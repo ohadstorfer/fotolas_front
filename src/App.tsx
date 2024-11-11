@@ -55,6 +55,7 @@ import PhotographerNavbar from './components/PhotographerNavbar';
 import MyAlbums from './components/MyAlbums';
 import BecomePhotographercopy from './components/BecomePhotographercopy';
 import VerificationProccess from './components/VerificationProccess';
+import PaymentSuccessfull from './components/PaymentSuccessfull';
 
 
 
@@ -84,6 +85,8 @@ function App() {
         <Route path="/ServerErrorPage" element={<ServerErrorPage />} />
         <Route path="/CoverImageHomePage" element={<CoverImageHomePage />} />
         <Route path="/VerificationProccess" element={<VerificationProccess />} />
+        <Route path="/PaymentSuccessfull" element={<PaymentSuccessfull />} />
+        
         
 
         <Route element={<ProtectedRoutesPhotographers />}>

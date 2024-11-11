@@ -37,6 +37,7 @@ interface sess {
     spot_name: string;
     photographer_name: string;
     photographer_profile_image: string;
+    photographer_stripe_account_id: string;
     videos: boolean;
     dividedToWaves: boolean;
     expiration_date: Date;
@@ -151,6 +152,16 @@ export const cartSlice = createSlice({
                 sessionStorage.setItem('cartType', JSON.stringify(state.cartType)); // Save to session storage
             }
         }, 
+        clearCart: (state) => {
+              state.cartType = null;
+              sessionStorage.removeItem('cartType');
+              state.sessAlbumOfCart = null;
+              state.cartTotalItems = 0;
+              sessionStorage.removeItem('sessAlbumOfCart');
+              sessionStorage.removeItem('cartOfVideos');
+              sessionStorage.removeItem('cartOfSingleImages');
+              sessionStorage.removeItem('cartTotalItems');
+          },
         removeFromCart_singleImages: (state, action: PayloadAction<{ imgId: number }>) => {
             state.cart = state.cart.filter((id) => id !== action.payload.imgId);
             state.cartOfSingleImages = state.cartOfSingleImages.filter((img) => img.id !== action.payload.imgId);
@@ -296,7 +307,7 @@ export const cartSlice = createSlice({
       }
 });
 
-export const { calculatePriceForWaves, addToCart_waves, removeCartType, setCartType, removeFromCart_waves, addToCart_videos, removeFromCart_videos, addToCart_singleImages, removeFromCart_singleImages, updateTotalPrice, calculatePriceForImages, calculatePriceForVideos, setSessAlbumOfCart, removeSessAlbumOfCart } = cartSlice.actions;
+export const { clearCart,calculatePriceForWaves, addToCart_waves, removeCartType, setCartType, removeFromCart_waves, addToCart_videos, removeFromCart_videos, addToCart_singleImages, removeFromCart_singleImages, updateTotalPrice, calculatePriceForImages, calculatePriceForVideos, setSessAlbumOfCart, removeSessAlbumOfCart } = cartSlice.actions;
 
 export const selectCart = (state: { cart: cartState }) => state.cart.cart;
 export const selectWavesInCart = (state: { cart: cartState }) => state.cart.wavesInCart;
