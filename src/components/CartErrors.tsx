@@ -281,7 +281,7 @@ const Cart: React.FC = () => {
 
 
       // Send a request to your Django endpoint to create a checkout session
-      const response = await fetch('http://127.0.0.1:8000/api/create-checkout-session/', {
+      const response = await fetch('https://oyster-app-b3323.ondigitalocean.app/api/create-checkout-session/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
