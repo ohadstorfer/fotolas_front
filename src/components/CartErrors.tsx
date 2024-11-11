@@ -63,20 +63,15 @@ const Cart: React.FC = () => {
 
 
   useEffect(() => {
-    if ((cartType === "waves" || cartType === "singleImages") && cart.length > 0) {
-      const albumId = sessAlbumOfCart!.id;
-      if (cartType === "waves") {
-        dispatch(fetchPricesBySessionAlbumId(albumId));
-      } else if (cartType === "singleImages") {
-        dispatch(fetchPricesBySessionAlbumId(albumId));
-      }
+    if (cartType === "waves" && cart.length > 0 || cartType === "singleImages" && cart.length > 0) {
+      const albumId = sessAlbumOfCart!.id
+      dispatch(fetchPricesBySessionAlbumId(albumId));
     }
-  
     if (cartType === "videos" && cart.length > 0) {
-      const albumId = sessAlbumOfCart!.id;
+      const albumId = sessAlbumOfCart!.id
       dispatch(fetchPricesForVideosBySessionAlbumId(albumId));
     }
-  }, [dispatch, cart, cartType, sessAlbumOfCart]);
+  }, [dispatch]);
 
 
 
@@ -317,7 +312,7 @@ const Cart: React.FC = () => {
             <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
           </div>
 
-
+          
           {/* <Button variant="contained" color="primary" onClick={handlePurchaseForVideos}>
             Pay
           </Button>
