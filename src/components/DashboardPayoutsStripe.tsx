@@ -15,8 +15,8 @@ const App = () => {
     const fetchClientSecret = async () => {
       try {
         console.log(user);
-        const response = await fetch('https://oyster-app-b3323.ondigitalocean.app/create_account_session/', {
-        // const response = await fetch('http://127.0.0.1:8000/create_account_session/', {
+        // const response = await fetch('https://oyster-app-b3323.ondigitalocean.app/create_account_session/', {
+        const response = await fetch('http://127.0.0.1:8000/create_account_session/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
