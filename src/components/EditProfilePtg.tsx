@@ -547,7 +547,7 @@ export default function EditProfilePtg() {
             }}
           >
             <AspectRatio flex ratio="1" maxHeight={182} sx={{ minWidth: 182 }}>
-              {imagePreview && (<img src={imagePreview} alt='profileImg' />)}
+              {imagePreview && (<img src={imagePreview} alt={spanish ? 'Sube una foto de perfil' : 'Upload a profile picture'} />)}
             </AspectRatio>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', mb: 0 }}>
@@ -563,7 +563,7 @@ export default function EditProfilePtg() {
                     '&:hover': { backgroundColor: teal[400], color: 'white'  , }  // Hover effect
                   }}
                 >
-                  {spanish ? 'Cambiar tu imagen de perfil' : 'Change your profile picture'}
+                  {spanish ? 'Sube una foto de perfil' : 'Upload a profile picture'}
                   <input
                     type="file"
                     accept="image/*"
@@ -720,7 +720,7 @@ export default function EditProfilePtg() {
                   name="price_1_to_5"
                   type="number"
                   id="price_1_to_5"
-                  defaultValue={defaultPricesImages ? defaultPricesImages[0].price_1_to_5 : ''}
+                  defaultValue={defaultPricesImages?.[0]?.price_1_to_5 || ''}
                   inputProps={{
                     style: { textAlign: 'center' }
                   }}
@@ -738,7 +738,7 @@ export default function EditProfilePtg() {
                   name="price_6_to_50"
                   type="number"
                   id="price_6_to_50"
-                  defaultValue={defaultPricesImages ? defaultPricesImages[0].price_6_to_50 : ''}
+                  defaultValue={defaultPricesImages?.[0]?.price_6_to_50 || ''}
                   inputProps={{
                     style: { textAlign: 'center' }
                   }}
@@ -756,7 +756,7 @@ export default function EditProfilePtg() {
                   name="price_51_plus"
                   type="number"
                   id="price_51_plus"
-                  defaultValue={defaultPricesImages ? defaultPricesImages[0].price_51_plus : ''}
+                  defaultValue={defaultPricesImages?.[0]?.price_51_plus || ''}
                   inputProps={{
                     style: { textAlign: 'center' }
                   }}
@@ -808,7 +808,7 @@ export default function EditProfilePtg() {
                   name="price_1_to_3"
                   type="number"
                   id="price_1_to_3"
-                  defaultValue={defaultPricesVideos ? defaultPricesVideos[0].price_1_to_3 : ''}
+                  defaultValue={defaultPricesVideos?.[0]?.price_1_to_3 || ''}
                   inputProps={{
                     style: { textAlign: 'center' }
                   }}
@@ -826,7 +826,7 @@ export default function EditProfilePtg() {
                   name="price_4_to_15"
                   type="number"
                   id="price_4_to_15"
-                  defaultValue={defaultPricesVideos ? defaultPricesVideos[0].price_4_to_15 : ''}
+                  defaultValue={defaultPricesVideos?.[0]?.price_4_to_15 || ''}
                   inputProps={{
                     style: { textAlign: 'center' }
                   }}
@@ -844,7 +844,7 @@ export default function EditProfilePtg() {
                   name="price_16_plus"
                   type="number"
                   id="price_16_plus"
-                  defaultValue={defaultPricesVideos ? defaultPricesVideos[0].price_16_plus : ''}
+                  defaultValue={defaultPricesVideos?.[0]?.price_16_plus || ''}
                   inputProps={{
                     style: { textAlign: 'center' }
                   }}
