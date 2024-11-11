@@ -15,6 +15,7 @@ import { selectSpanish } from '../slicers/sighnInSlice';
 import axios from 'axios';
 import { clearCart, selectCart, selectCartOfWaves, selectSessAlbumOfCart } from '../slicers/cartSlice';
 import { createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync } from '../slicers/purchaseSlice';
+import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 
 
 const PaymentSuccessfull = () => {
@@ -33,31 +34,41 @@ const PaymentSuccessfull = () => {
   const cartTotalPrice = useSelector((state: any) => state.cart.cartTotalPrice);
   const sessAlbumOfCart = useSelector(selectSessAlbumOfCart);
   const cartTotalItems = useSelector((state: any) => state.cart.cartTotalItems);
+  const [isCartCopied, setIsCartCopied] = useState(false);
 
 
 
+  // First useEffect: Copy cart and cartType, then trigger a flag when done
   useEffect(() => {
     // Make a copy of the cart and cartType when the component mounts
-    const copiedCart = [...cart]; // Create a shallow copy of the cart
-    const copiedCartType = cartType; // Copy the cartType (string)
-  
+    const copiedCart = JSON.parse(sessionStorage.getItem('cart') || '[]'); // Parse to convert from JSON string to array
+    const copiedCartType = sessionStorage.getItem('cartType');; // Retrieve cartType as string
+
     setCartCopy(copiedCart);
-    setCartTypeCopy(copiedCartType); // Assuming you have a state to store cartType copy
-  
-    // Call the appropriate purchase function based on cartType before clearing the cart
-    if (copiedCartType === 'singleImages') {
+    setCartTypeCopy(copiedCartType); // Set the copied cart and cartType state
+
+    // Call the appropriate purchase function based on cartType
+    if (copiedCartType === '"singleImages"') {
       handlePurchaseForImages();
-    } else if (copiedCartType === 'videos') {
+    } else if (copiedCartType === '"videos"') {
       handlePurchaseForVideos();
-    } else if (copiedCartType === 'waves') {
+    } else if (copiedCartType === '"waves"') {
       handlePurchaseForWaves();
     }
-  
-    // Clear the cart and cartType in the next render cycle
-    setTimeout(() => {
-      dispatch(clearCart());
-    }, 0);
-  }, [cart, cartType, dispatch]);
+
+    // Once the cart has been copied and processed, set the flag to true
+    setIsCartCopied(true); // Set this flag to notify the second useEffect
+  }, [cart, cartType]);
+
+  // Second useEffect: Clear cart only after the first useEffect is done
+  useEffect(() => {
+    if (cartCopy && cartTypeCopy) {
+      // Delay clearing the cart until after the first useEffect has finished
+      setTimeout(() => {
+        dispatch(clearCart());
+      }, 0);
+    }
+  }, [isCartCopied, dispatch]);
 
 
 
@@ -83,13 +94,13 @@ const PaymentSuccessfull = () => {
 
   const handleDownload = async () => {
     try {
-      if (cartTypeCopy === 'singleImages') {
+      if (cartTypeCopy === '"singleImages"') {
         console.log('Downloading single images...');
         await downloadSingleImages();
-      } else if (cartTypeCopy === 'waves') {
+      } else if (cartTypeCopy === '"waves"') {
         console.log('Downloading wave images...');
         await downloadWaves();
-      } else if (cartTypeCopy === 'videos') {
+      } else if (cartTypeCopy === '"videos"') {
         console.log('Downloading videos...');
         await downloadVideos();
       } else {
@@ -391,20 +402,25 @@ const PaymentSuccessfull = () => {
         }}
         onClick={handleDownload}
       >
-        {spanish ? 'Descargar' : 'Download'}
+        {spanish ? 'Descargar' : 'Download'} <ArrowCircleDownIcon sx={{ marginLeft: '5px' }} />
       </Button>
 
 
-
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
 
       <Button
-        variant="contained"
+        variant="text"
         sx={{
-          marginTop: 2,
-          backgroundColor: teal[400], // Set custom background color
-          '&:hover': {
-            backgroundColor: teal[600], // Custom color on hover (optional)
-          },
+          
+          fontSize: '0.9rem',
+          color: teal[400]  ,             // Text color
+          // padding: '10px 20px',        // Padding for button size
+          borderRadius: '8px',         // Rounded corners
+          cursor: 'pointer',
+          '&:hover': { backgroundColor: teal[400], color: 'white'  , }  // Hover effect
         }}
         onClick={handleNavigateHome}
       >

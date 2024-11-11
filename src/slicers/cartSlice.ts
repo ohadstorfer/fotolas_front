@@ -153,13 +153,17 @@ export const cartSlice = createSlice({
             }
         }, 
         clearCart: (state) => {
+              state.cart = [];
+              state.cartOfSingleImages = [];
+              state.cartOfVideos = [];
+              state.cartOfWaves = [];
               state.cartType = null;
-              sessionStorage.removeItem('cartType');
               state.sessAlbumOfCart = null;
               state.cartTotalItems = 0;
+              sessionStorage.removeItem('cartType');
               sessionStorage.removeItem('sessAlbumOfCart');
-              sessionStorage.removeItem('cartOfVideos');
-              sessionStorage.removeItem('cartOfSingleImages');
+              sessionStorage.removeItem('cartTotalPrice');
+              sessionStorage.removeItem('cart');
               sessionStorage.removeItem('cartTotalItems');
           },
         removeFromCart_singleImages: (state, action: PayloadAction<{ imgId: number }>) => {

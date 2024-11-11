@@ -26,7 +26,7 @@ export default function PhotographerNavbar() {
     navigate("/EditProfilePtg");
   };
   const dashboardClick = () => {
-    navigate(`/DashboardPhotographer`);
+    navigate(`/DashboardPayoutsStripe`);
   };
 
   const addAlbumClick = () => {

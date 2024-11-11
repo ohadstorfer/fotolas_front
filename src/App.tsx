@@ -56,6 +56,7 @@ import MyAlbums from './components/MyAlbums';
 import BecomePhotographercopy from './components/BecomePhotographercopy';
 import VerificationProccess from './components/VerificationProccess';
 import PaymentSuccessfull from './components/PaymentSuccessfull';
+import DashboardPayoutsStripe from './components/DashboardPayoutsStripe';
 
 
 
@@ -107,6 +108,8 @@ function App() {
           <Route path="/Successfull" element={<Successfull />} />
           <Route path="/FailedUpload" element={<FailedUpload />} />
           <Route path="/MyAlbums" element={<MyAlbums />} />
+          <Route path="/DashboardPayoutsStripe" element={<DashboardPayoutsStripe />} />
+          
         </Route>
 
       </Route>
@@ -180,6 +183,8 @@ const Root = () => {
         <div>
           <Outlet />
         </div>
+
+        {/* <PaymentSuccessfull></PaymentSuccessfull> */}
         {/* <ErrorPage></ErrorPage> */}
         {/* <ResetPassword></ResetPassword> */}
         {/* <ResetPasswordStep2></ResetPasswordStep2> */}
