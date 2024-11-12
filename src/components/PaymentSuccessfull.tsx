@@ -49,16 +49,19 @@ const PaymentSuccessfull = () => {
 
     // Call the appropriate purchase function based on cartType
     if (copiedCartType === '"singleImages"') {
+      console.log("handlePurchaseForImages");
       handlePurchaseForImages();
     } else if (copiedCartType === '"videos"') {
+      console.log("handlePurchaseForVideos");
       handlePurchaseForVideos();
     } else if (copiedCartType === '"waves"') {
+      console.log("handlePurchaseForWaves");
       handlePurchaseForWaves();
     }
 
     // Once the cart has been copied and processed, set the flag to true
     setIsCartCopied(true); // Set this flag to notify the second useEffect
-  }, [cart, cartType]);
+  }, [dispatch]);
 
   // Second useEffect: Clear cart only after the first useEffect is done
   useEffect(() => {
