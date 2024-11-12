@@ -16,6 +16,8 @@ import axios from 'axios';
 import { clearCart, selectCart, selectCartOfWaves, selectSessAlbumOfCart } from '../slicers/cartSlice';
 import { createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync } from '../slicers/purchaseSlice';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver'; // Run `npm install file-saver`
 
 
 const PaymentSuccessfull = () => {
@@ -102,7 +104,7 @@ const PaymentSuccessfull = () => {
         await downloadSingleImages();
       } else if (cartTypeCopy === '"waves"') {
         console.log('Downloading wave images...');
-        await downloadWaves();
+        await downloadWaves2();
       } else if (cartTypeCopy === '"videos"') {
         console.log('Downloading videos...');
         await downloadVideos();
@@ -117,6 +119,34 @@ const PaymentSuccessfull = () => {
   };
 
 
+
+
+
+
+
+
+
+  const downloadWaves2 = async () => {
+    try {
+      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/', { waveIds: cartCopy });
+      const images = response.data;
+  
+      const zip = new JSZip();
+      for (const image of images) {
+        try {
+          const imageResponse = await axios.get(image.photo, { responseType: 'blob' });
+          zip.file(image.photo.split('/').pop(), imageResponse.data);
+        } catch (downloadError) {
+          console.error(`Error downloading image ${image.photo}:`, downloadError);
+        }
+      }
+  
+      const content = await zip.generateAsync({ type: 'blob' });
+      saveAs(content, 'downloaded_images.zip');
+    } catch (error) {
+      console.error('Error creating ZIP file:', error);
+    }
+  };
 
 
 
