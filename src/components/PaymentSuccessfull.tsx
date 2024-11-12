@@ -17,7 +17,9 @@ import { clearCart, selectCart, selectCartOfWaves, selectCopyCart, selectCopyCar
 import { createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync } from '../slicers/purchaseSlice';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import JSZip from 'jszip';
-import { saveAs } from 'file-saver'; // Run `npm install file-saver`
+import { saveAs } from 'file-saver';
+import { Dialog, DialogActions, DialogContent, DialogContentText, } from '@mui/material';
+
 
 
 const PaymentSuccessfull = () => {
@@ -39,6 +41,8 @@ const PaymentSuccessfull = () => {
   const sessAlbumOfCart = useSelector(selectSessAlbumOfCart);
   const cartTotalItems = useSelector((state: any) => state.cart.cartTotalItems);
   const [isCartCopied, setIsCartCopied] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [openMessage, setOpenMessage] = React.useState(false);
 
 
 
@@ -94,17 +98,20 @@ const PaymentSuccessfull = () => {
 
 
 
+
+
+
   const handleDownload = async () => {
     try {
       if (cartTypeCopy === 'singleImages') {
         console.log('Downloading single images...');
-        await downloadSingleImages();
+        await downloadSingleImages2();
       } else if (cartTypeCopy === 'waves') {
         console.log('Downloading wave images...');
         await downloadWaves2();
       } else if (cartTypeCopy === 'videos') {
         console.log('Downloading videos...');
-        await downloadVideos();
+        await downloadVideos2();
       } else {
         console.error('Invalid cart type.');
         alert('Invalid cart type. Please select a valid option.');
@@ -124,10 +131,11 @@ const PaymentSuccessfull = () => {
 
 
   const downloadWaves2 = async () => {
+    setIsDownloading(true);
     try {
       const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/', { waveIds: cartCopy });
       const images = response.data;
-  
+
       const zip = new JSZip();
       for (const image of images) {
         try {
@@ -137,7 +145,66 @@ const PaymentSuccessfull = () => {
           console.error(`Error downloading image ${image.photo}:`, downloadError);
         }
       }
-  
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      saveAs(content, 'surfpik.zip');
+    } catch (error) {
+      console.error('Error creating ZIP file:', error);
+    } finally {
+      setIsDownloading(false);
+      handleOpenMessage()
+    }
+  };
+
+
+
+  const downloadSingleImages2 = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/', { image_ids: cartCopy });
+      const images = response.data;
+
+      const zip = new JSZip();
+      for (const image of images) {
+        try {
+          const imageResponse = await axios.get(image.photo, { responseType: 'blob' });
+          zip.file(image.photo.split('/').pop(), imageResponse.data);
+        } catch (downloadError) {
+          console.error(`Error downloading image ${image.photo}:`, downloadError);
+        }
+      }
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      saveAs(content, 'surfpik.zip');
+    } catch (error) {
+      console.error('Error creating ZIP file:', error);
+    } finally {
+      setIsDownloading(false);
+      handleOpenMessage()
+    }
+  };
+
+
+
+  const downloadVideos2 = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cartCopy });
+      const videos = response.data;
+
+      const zip = new JSZip();
+      for (const video of videos) {
+        try {
+          const imageResponse = await axios.get(video.video, { responseType: 'blob' });
+          zip.file(video.video.split('/').pop(), imageResponse.data);
+        } catch (downloadError) {
+          console.error(`Error downloading image ${video.video}:`, downloadError);
+        } finally {
+          setIsDownloading(false);
+          handleOpenMessage()
+        }
+      }
+
       const content = await zip.generateAsync({ type: 'blob' });
       saveAs(content, 'surfpik.zip');
     } catch (error) {
@@ -150,124 +217,127 @@ const PaymentSuccessfull = () => {
 
 
 
-  const downloadWaves = async () => {
-    try {
-      // Make a request to get the image URLs for the specified wave IDs in the cart
-      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/', { waveIds: cartCopy });
-      const images = response.data;
-      console.log(images);
-
-      // Download all images concurrently
-      await Promise.all(images.map(async (image: any) => {
-        try {
-          // Fetch the image as a blob
-          const imageResponse = await axios.get(image.photo, { responseType: 'blob' });
-
-          // Create a blob URL for the image
-          const url = window.URL.createObjectURL(new Blob([imageResponse.data]));
-
-          // Create an anchor element for downloading the image
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', image.photo.split('/').pop()); // Set the file name based on the URL
-          document.body.appendChild(link);
-          link.click();
-
-          // Clean up the DOM and release the blob URL
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        } catch (downloadError) {
-          // Handle individual download errors without stopping the entire process
-          console.error(`Error downloading image ${image.photo}:`, downloadError);
-        }
-      }));
-    } catch (error) {
-      // Log general errors related to the API request or response parsing
-      console.error('Error downloading images:', error);
-    }
-  };
 
 
 
+  // const downloadWaves = async () => {
+  //   try {
+  //     // Make a request to get the image URLs for the specified wave IDs in the cart
+  //     const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/', { waveIds: cartCopy });
+  //     const images = response.data;
+  //     console.log(images);
 
+  //     // Download all images concurrently
+  //     await Promise.all(images.map(async (image: any) => {
+  //       try {
+  //         // Fetch the image as a blob
+  //         const imageResponse = await axios.get(image.photo, { responseType: 'blob' });
 
-  const downloadSingleImages = async () => {
-    try {
-      // Make a request to get image URLs for the provided image IDs
-      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/', { image_ids: cartCopy });
-      const images = response.data;
-      console.log(images);
+  //         // Create a blob URL for the image
+  //         const url = window.URL.createObjectURL(new Blob([imageResponse.data]));
 
-      // Download all images concurrently
-      await Promise.all(images.map(async (image: any) => {
-        try {
-          // Fetch the image as a blob
-          const imageResponse = await axios.get(image.photo, { responseType: 'blob' });
+  //         // Create an anchor element for downloading the image
+  //         const link = document.createElement('a');
+  //         link.href = url;
+  //         link.setAttribute('download', image.photo.split('/').pop()); // Set the file name based on the URL
+  //         document.body.appendChild(link);
+  //         link.click();
 
-          // Create a blob URL for the image
-          const url = window.URL.createObjectURL(new Blob([imageResponse.data]));
-
-          // Create an anchor element for downloading the image
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', image.photo.split('/').pop()); // Set the file name based on the URL
-          document.body.appendChild(link);
-          link.click();
-
-          // Clean up the DOM and release the blob URL
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        } catch (downloadError) {
-          // Handle individual download errors without stopping the entire process
-          console.error(`Error downloading image ${image.photo}:`, downloadError);
-        }
-      }));
-    } catch (error) {
-      // Log general errors related to the API request or response parsing
-      console.error('Error downloading images:', error);
-    }
-  };
+  //         // Clean up the DOM and release the blob URL
+  //         document.body.removeChild(link);
+  //         window.URL.revokeObjectURL(url);
+  //       } catch (downloadError) {
+  //         // Handle individual download errors without stopping the entire process
+  //         console.error(`Error downloading image ${image.photo}:`, downloadError);
+  //       }
+  //     }));
+  //   } catch (error) {
+  //     // Log general errors related to the API request or response parsing
+  //     console.error('Error downloading images:', error);
+  //   }
+  // };
 
 
 
 
 
-  const downloadVideos = async () => {
-    try {
-      // Make a request to get video URLs for the provided video IDs
-      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cartCopy });
-      const videos = response.data;
-      console.log(videos);
+  // const downloadSingleImages = async () => {
+  //   try {
+  //     // Make a request to get image URLs for the provided image IDs
+  //     const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/', { image_ids: cartCopy });
+  //     const images = response.data;
+  //     console.log(images);
 
-      // Download all videos concurrently
-      await Promise.all(videos.map(async (video: any) => {
-        try {
-          // Fetch the video as a blob
-          const videoResponse = await axios.get(video.video, { responseType: 'blob' });
+  //     // Download all images concurrently
+  //     await Promise.all(images.map(async (image: any) => {
+  //       try {
+  //         // Fetch the image as a blob
+  //         const imageResponse = await axios.get(image.photo, { responseType: 'blob' });
 
-          // Create a blob URL for the video
-          const url = window.URL.createObjectURL(new Blob([videoResponse.data]));
+  //         // Create a blob URL for the image
+  //         const url = window.URL.createObjectURL(new Blob([imageResponse.data]));
 
-          // Create an anchor element for downloading the video
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', video.video.split('/').pop()); // Set the file name based on the URL
-          document.body.appendChild(link);
-          link.click();
+  //         // Create an anchor element for downloading the image
+  //         const link = document.createElement('a');
+  //         link.href = url;
+  //         link.setAttribute('download', image.photo.split('/').pop()); // Set the file name based on the URL
+  //         document.body.appendChild(link);
+  //         link.click();
 
-          // Clean up the DOM and release the blob URL
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        } catch (downloadError) {
-          // Handle individual download errors without stopping the entire process
-          console.error(`Error downloading video ${video.video}:`, downloadError);
-        }
-      }));
-    } catch (error) {
-      // Log general errors related to the API request or response parsing
-      console.error('Error downloading videos:', error);
-    }
-  };
+  //         // Clean up the DOM and release the blob URL
+  //         document.body.removeChild(link);
+  //         window.URL.revokeObjectURL(url);
+  //       } catch (downloadError) {
+  //         // Handle individual download errors without stopping the entire process
+  //         console.error(`Error downloading image ${image.photo}:`, downloadError);
+  //       }
+  //     }));
+  //   } catch (error) {
+  //     // Log general errors related to the API request or response parsing
+  //     console.error('Error downloading images:', error);
+  //   }
+  // };
+
+
+
+
+
+  // const downloadVideos = async () => {
+  //   try {
+  //     // Make a request to get video URLs for the provided video IDs
+  //     const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cartCopy });
+  //     const videos = response.data;
+  //     console.log(videos);
+
+  //     // Download all videos concurrently
+  //     await Promise.all(videos.map(async (video: any) => {
+  //       try {
+  //         // Fetch the video as a blob
+  //         const videoResponse = await axios.get(video.video, { responseType: 'blob' });
+
+  //         // Create a blob URL for the video
+  //         const url = window.URL.createObjectURL(new Blob([videoResponse.data]));
+
+  //         // Create an anchor element for downloading the video
+  //         const link = document.createElement('a');
+  //         link.href = url;
+  //         link.setAttribute('download', video.video.split('/').pop()); // Set the file name based on the URL
+  //         document.body.appendChild(link);
+  //         link.click();
+
+  //         // Clean up the DOM and release the blob URL
+  //         document.body.removeChild(link);
+  //         window.URL.revokeObjectURL(url);
+  //       } catch (downloadError) {
+  //         // Handle individual download errors without stopping the entire process
+  //         console.error(`Error downloading video ${video.video}:`, downloadError);
+  //       }
+  //     }));
+  //   } catch (error) {
+  //     // Log general errors related to the API request or response parsing
+  //     console.error('Error downloading videos:', error);
+  //   }
+  // };
 
 
 
@@ -398,6 +468,19 @@ const PaymentSuccessfull = () => {
 
 
 
+  const handleOpenMessage = () => {
+    setOpenMessage(true);
+  };
+
+  const handleCloseMessage = () => {
+    setOpenMessage(false);
+  };
+
+
+
+
+
+
 
 
   return (
@@ -432,7 +515,7 @@ const PaymentSuccessfull = () => {
         }}
         onClick={handleDownload}
       >
-        {spanish ? 'Descargar' : 'Download'} <ArrowCircleDownIcon sx={{ marginLeft: '5px' }} />
+        {isDownloading ? 'Downloading...' : 'Download Images'} <ArrowCircleDownIcon sx={{ marginLeft: '5px' }} />
       </Button>
 
 
@@ -444,18 +527,70 @@ const PaymentSuccessfull = () => {
       <Button
         variant="text"
         sx={{
-          
+
           fontSize: '0.9rem',
-          color: teal[400]  ,             // Text color
+          color: teal[400],             // Text color
           // padding: '10px 20px',        // Padding for button size
           borderRadius: '8px',         // Rounded corners
           cursor: 'pointer',
-          '&:hover': { backgroundColor: teal[400], color: 'white'  , }  // Hover effect
+          '&:hover': { backgroundColor: teal[400], color: 'white', }  // Hover effect
         }}
         onClick={handleNavigateHome}
+        disabled={isDownloading}
       >
         {spanish ? 'Ir a la página principal' : 'Go to Homepage'}
       </Button>
+
+
+
+
+      {openMessage && (
+        <Dialog
+          open={openMessage}
+          onClose={handleCloseMessage}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              <Typography variant="body1" paragraph>
+                <strong>How to find your images/videos:</strong>
+              </Typography>
+
+              <Typography variant="body2" paragraph>
+                <strong>Navigate to the Download Location:</strong>
+              </Typography>
+
+              <Typography variant="body2" paragraph>
+                <strong>iPhone (iOS):</strong> Open the <em>“Files”</em> app. Go to the <em>“Downloads”</em> or <em>“On My iPhone”</em> section to locate the ZIP file named <em>“surfpik.zip”</em>.
+              </Typography>
+
+              <Typography variant="body2" paragraph>
+                <strong>Android:</strong> Open the <em>“Files”</em> or <em>“My Files”</em> app. Navigate to <em>“Downloads”</em> or the location where your browser saves files.
+              </Typography>
+
+              <Typography variant="body1" paragraph>
+                <strong>Extract the ZIP File:</strong> Tap on the <em>“surfpik.zip”</em> file to open it. The device will either create a new folder or display the contents of the ZIP file. If needed, tap and hold the file and select <em>“Uncompress”</em> on iOS.
+              </Typography>
+
+              <Typography variant="body1" paragraph>
+                <strong>Move Images to Your Gallery:</strong> Select all images in the extracted folder. Tap the <em>“Share”</em> or <em>“Move”</em> icon and choose <em>“Save Images”</em> (iOS) or <em>“Save to device”</em> (Android) to move them to your gallery.
+              </Typography>
+
+              <Typography variant="body1" paragraph>
+                <strong>Complete:</strong> Confirm the images are now available in your gallery.
+              </Typography>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseMessage} autoFocus>
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+
     </div>
   );
 };
