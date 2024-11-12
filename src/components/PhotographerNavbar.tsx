@@ -88,8 +88,8 @@ export default function PhotographerNavbar() {
         onClick={dashboardClick}
         variant="contained"
         style={{
-          backgroundColor: isActive("/DashboardPhotographer") ? 'white' : teal[400],
-          color: isActive("/DashboardPhotographer") ? 'black' : 'black'
+          backgroundColor: isActive("/DashboardPayoutsStripe") ? 'white' : teal[400],
+          color: isActive("/DashboardPayoutsStripe") ? 'black' : 'black'
         }}
       >
         {spanish ? 'Ganancias Resumen' : 'Earnings Summary'}

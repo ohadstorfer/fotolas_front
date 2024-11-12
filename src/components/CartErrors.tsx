@@ -31,6 +31,8 @@ import VideosInCart from './VideosInCart';
 import UndividedImgsInCart from './UndividedImgsInCart';
 import PerAlbumInCart from './PerAlbumInCart';
 import SmartDisplayIcon from '@mui/icons-material/SmartDisplay';
+import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
+
 
 const Cart: React.FC = () => {
   const cart = useSelector(selectCart);
@@ -318,6 +320,8 @@ const Cart: React.FC = () => {
     <div>
       {cartType === "videos" && (
         <>
+        <VideosInCart></VideosInCart>
+
           <div>
             <h2> {cartTotalItems} Videos <SmartDisplayIcon style={{ color: 'black' }} /></h2>
             <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
@@ -335,23 +339,30 @@ const Cart: React.FC = () => {
 
 
           <Button variant="contained" color="primary" onClick={handleCheckout}>
-            Pay with Stripe
+          continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
 
-          <VideosInCart></VideosInCart>
+          
         </>
       )}
 
 
 
 
+
+
+
       {cartType === "waves" && (
         <>
-          <div>
-            <h2>{cartTotalItems} Images <IoImagesOutline style={{ color: 'black' }} /></h2>
-            <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
+        <div>
+          <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(2)} </h2>
           </div>
+          <Button variant="contained" color="primary" onClick={handleCheckout}>
+          continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
+          </Button>
+
+        <PerAlbumInCart></PerAlbumInCart>
 
           {/* cartTotalImages */}
           {/* <Button variant="contained" color="primary" onClick={handlePurchaseForWaves}>
@@ -362,24 +373,25 @@ const Cart: React.FC = () => {
           <Button variant="contained" color="primary" onClick={downloadImages}>
             Download Images
           </Button> */}
-
-
-          <Button variant="contained" color="primary" onClick={handleCheckout}>
-            Pay with Stripe
-          </Button>
-
-
-          <PerAlbumInCart></PerAlbumInCart>
+          
         </>
       )}
 
 
 
+
+
+
+
       {cartType === "singleImages" && (
         <>
+
+<UndividedImgsInCart></UndividedImgsInCart>
+
+
           <div>
-            <h2>{cartTotalItems} Images <IoImagesOutline style={{ color: 'black' }} /></h2>
-            <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
+            <h2>{cartTotalItems} Images  <IoImagesOutline style={{ color: 'black' }} /> Total Price: ${cartTotalPrice.toFixed(2)} </h2>
+            {/* <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2> */}
           </div>
           {/* <Button variant="contained" color="primary" onClick={handlePurchaseForImages}>
             Pay
@@ -391,12 +403,12 @@ const Cart: React.FC = () => {
           </Button> */}
 
           <Button variant="contained" color="primary" onClick={handleCheckout}>
-            Pay with Stripe
+          continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
 
 
-          <UndividedImgsInCart></UndividedImgsInCart>
+          
         </>
       )}
 

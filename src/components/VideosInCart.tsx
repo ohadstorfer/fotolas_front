@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, Typography, Button, useMediaQuery } from '@mui/material';
+import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, Typography, Button, useMediaQuery, Collapse } from '@mui/material';
 import { AspectRatio } from '@mui/joy';
 import { fetchVideosBySessionAsync, selectNextVideos, selectPreviousVideos, selectVideos } from '../slicers/ImagesSlice';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
@@ -32,6 +32,7 @@ const VideosInCart: React.FC = () => {
   const previousPage = useSelector(selectPreviousVideos);
   const isMobile = useMediaQuery('(max-width:600px)');
   const [activeVideos, setActiveVideos] = useState<{ [key: number]: boolean }>({});
+  const [open, setOpen] = useState(false);
 
 
 
@@ -113,39 +114,39 @@ const VideosInCart: React.FC = () => {
 
 
 
+  const handleToggle = () => {
+    setOpen(!open);
+  };
+
 
 
   return (
     <div>
-      <SessAlbumDetails />
+      {/* <SessAlbumDetails /> */}
 
 
       {Prices && (
-        <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px'}}>
-          <Typography>
-            Price Details:
-          </Typography>
-          <Typography>
-            For 1-3 videos: {Prices.price_1_to_3} $
-          </Typography>
-          <Typography>
-            For 4-15 videos: {Prices.price_4_to_15} $
-          </Typography>
-          <Typography>
-            For 15+ videos: {Prices.price_16_plus} $
-          </Typography>
-        </Box>
-      )}
+      <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
+        <Button onClick={handleToggle} sx={{ color: 'black' }}>
+          {open ? 'Hide' : 'Price Details'}
+        </Button>
+        <Collapse in={open}>
+          <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>
+          <Typography>For 6-50 images: {Prices.price_6_to_50} $</Typography>
+          <Typography>For 51+ images: {Prices.price_51_plus} $</Typography>
+        </Collapse>
+      </Box>
+    )}
 
 
 
-      <ImageList variant="standard" cols={isMobile ? 1 : 3} sx={{ margin: '20px' }}>
+      <ImageList variant="standard" cols={isMobile ? 1 : 1} sx={{ margin: '20px', display: 'flex', justifyContent: 'center' }}>
         {videos.map((video) => {
           const isInCart = cart.includes(video.id);
           const isActive = activeVideos[video.id];
 
           return (
-            <ImageListItem key={video.id}>
+            <ImageListItem sx={{ width: '400px', margin: '10px' }} key={video.id}>
               <Card>
                 <CardActionArea onClick={() => handleVideoClick(video.id)}>
                   <AspectRatio ratio="4/3">
@@ -206,7 +207,7 @@ const VideosInCart: React.FC = () => {
       </ImageList>
 
 
-      
+
 
 
     </div>

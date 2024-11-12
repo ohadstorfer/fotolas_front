@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useAppDispatch } from '../app/hooks';
-import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, CardMedia, Typography, Button, useMediaQuery, Dialog, DialogContent } from '@mui/material';
+import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, CardMedia, Typography, Button, useMediaQuery, Dialog, DialogContent, Collapse } from '@mui/material';
 import { AspectRatio } from '@mui/joy';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
@@ -22,10 +22,12 @@ const UndividedImgsInCart: React.FC = () => {
   const nextPage = useSelector(selectNextImages);
   const previousPage = useSelector(selectPreviousImages);
   const isMobile = useMediaQuery('(max-width:600px)');
+  const [openPricing, setOpenPricing] = useState(false);
 
   // Dialog state for opening the image in larger view
   const [open, setOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
 
   interface Img {
     id: number;
@@ -110,23 +112,37 @@ const UndividedImgsInCart: React.FC = () => {
     setSelectedImage(null);
   };
 
+
+
+  const handleToggle = () => {
+    setOpenPricing(!open);
+  };
+
+
+
   return (
     <div>
-      <SessAlbumDetails />
+      {/* <SessAlbumDetails /> */}
       {Prices && (
-        <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px'}}>
-          <Typography>Price Details:</Typography>
+      <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
+        <Button onClick={handleToggle} sx={{ color: 'black' }}>
+          {openPricing ? 'Hide' : 'Price Details'}
+        </Button>
+        <Collapse in={openPricing}>
           <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>
           <Typography>For 6-50 images: {Prices.price_6_to_50} $</Typography>
           <Typography>For 51+ images: {Prices.price_51_plus} $</Typography>
-        </Box>
-      )}
+        </Collapse>
+      </Box>
+    )}
 
-      <ImageList variant="standard" cols={isMobile ? 2 : 3} sx={{ margin: '20px' }}>
+
+
+      <ImageList variant="standard" cols={isMobile ? 1 : 1} sx={{ margin: '20px', display: 'flex', justifyContent: 'center' }}>
         {imgs.map((img: Img) => {
           const isInCart = cart.includes(img.id);
           return (
-            <ImageListItem key={img.id}>
+            <ImageListItem sx={{ width: '400px', margin: '10px' }} key={img.id}>
               <Card>
                 <CardActionArea onClick={() => handleOpenDialog(img.WatermarkedPhoto)}>
                   <AspectRatio ratio="4/3">
@@ -165,7 +181,7 @@ const UndividedImgsInCart: React.FC = () => {
         })}
       </ImageList>
 
-      
+
 
 
 

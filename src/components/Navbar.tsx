@@ -265,6 +265,13 @@ export default function PrimarySearchAppBar() {
     navigate("/BecomePhotographercopy");
   };
 
+
+  const VerificationStatus = () => {
+    handleMenuClose()
+
+    navigate("/VerificationAlerts");
+  };
+
   const SurferDashboardClick = () => {
     handleMenuClose()
     handleValidateLogIn()
@@ -292,11 +299,18 @@ export default function PrimarySearchAppBar() {
         <MenuItem key="logout" onClick={handleLogOut}>Log Out</MenuItem>
       ];
     } else {
+      if (user?.stripe_account_id){
+        return[
+          <MenuItem key="account" onClick={VerificationStatus}>Verification Status</MenuItem>,
+          <MenuItem key="account" onClick={SurferDashboardClick}>My Albums</MenuItem>,
+          <MenuItem key="logout" onClick={handleLogOut}>Log Out</MenuItem>,
+        ]
+      }else{
       return [
         <MenuItem key="becomePhotographer" onClick={BecomePhotographerClick}>Become a photographer</MenuItem>,
         <MenuItem key="account" onClick={SurferDashboardClick}>My Albums</MenuItem>,
         <MenuItem key="logout" onClick={handleLogOut}>Log Out</MenuItem>,
-      ];
+      ];}
     }
   };
 

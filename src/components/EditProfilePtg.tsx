@@ -23,6 +23,7 @@ import LinearProgress from '@mui/joy/LinearProgress';
 import ProfilePtg from './ProfilePtg';
 import { selectSpanish, toggleSpanish } from '../slicers/sighnInSlice';
 import { Dialog, DialogActions, DialogContent, DialogContentText, } from '@mui/material';
+import VerificationAlertsForSettings from './VerificationAlertsForSettings';
 
 
 
@@ -672,196 +673,190 @@ export default function EditProfilePtg() {
 
 
  {defaultPricesImages && defaultPricesVideos &&
-      <Box
-        sx={{
-          width: isMobile ? '90%' : '50%',
-          margin: '0 auto',
-          marginTop: '16px',
-          display: 'flex',  // Use flexbox for layout
-          flexDirection: isMobile ? 'column' : 'row',  // Stack items vertically on mobile
-          justifyContent: isMobile ? 'center' : 'space-between',  // Adjust alignment
-          gap: 2,  // Spacing between the forms
-        }}
-      >
-
-        {/* Image Pricing Form */}
-        <Box component="form" noValidate onSubmit={handleImagePricingSubmit} encType="multipart/form-data"
+      <><Box
           sx={{
-            flex: 1,
-            display: 'flex',
-            backgroundColor: '#FFEEAD',
-            borderRadius: '16px',
-            border: '1px solid rgba(0, 0, 0, 0.5)',
-            boxSizing: 'border-box',
+            width: isMobile ? '90%' : '50%',
+            margin: '0 auto',
+            marginTop: '16px',
+            display: 'flex', // Use flexbox for layout
+            flexDirection: isMobile ? 'column' : 'row', // Stack items vertically on mobile
+            justifyContent: isMobile ? 'center' : 'space-between', // Adjust alignment
+            gap: 2, // Spacing between the forms
           }}
         >
-          <Card
+
+          {/* Image Pricing Form */}
+          <Box component="form" noValidate onSubmit={handleImagePricingSubmit} encType="multipart/form-data"
             sx={{
-              width: '100%',
-              flexWrap: 'wrap',
-              boxSizing: 'border-box',
+              flex: 1,
+              display: 'flex',
               backgroundColor: '#FFEEAD',
               borderRadius: '16px',
+              border: '1px solid rgba(0, 0, 0, 0.5)',
+              boxSizing: 'border-box',
             }}
           >
-            <Typography variant="h5" fontWeight="bold" gutterBottom>
-              {spanish ? 'Precios Predeterminados de Imágenes' : 'Default Images Prices'}
-            </Typography>
+            <Card
+              sx={{
+                width: '100%',
+                flexWrap: 'wrap',
+                boxSizing: 'border-box',
+                backgroundColor: '#FFEEAD',
+                borderRadius: '16px',
+              }}
+            >
+              <Typography variant="h5" fontWeight="bold" gutterBottom>
+                {spanish ? 'Precios Predeterminados de Imágenes' : 'Default Images Prices'}
+              </Typography>
 
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
-                  {spanish ? '1 a 5 imágenes' : '1 to 5 images'}
-                </Typography>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="price_1_to_5"
-                  type="number"
-                  id="price_1_to_5"
-                  defaultValue={defaultPricesImages?.[0]?.price_1_to_5 || ''}
-                  inputProps={{
-                    style: { textAlign: 'center' }
-                  }}
-                />
-              </Box>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                    {spanish ? '1 a 5 imágenes' : '1 to 5 images'}
+                  </Typography>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="price_1_to_5"
+                    type="number"
+                    id="price_1_to_5"
+                    defaultValue={defaultPricesImages?.[0]?.price_1_to_5 || ''}
+                    inputProps={{
+                      style: { textAlign: 'center' }
+                    }} />
+                </Box>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
-                  {spanish ? '6 a 50 imágenes' : '6 to 50 images'}
-                </Typography>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="price_6_to_50"
-                  type="number"
-                  id="price_6_to_50"
-                  defaultValue={defaultPricesImages?.[0]?.price_6_to_50 || ''}
-                  inputProps={{
-                    style: { textAlign: 'center' }
-                  }}
-                />
-              </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                    {spanish ? '6 a 50 imágenes' : '6 to 50 images'}
+                  </Typography>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="price_6_to_50"
+                    type="number"
+                    id="price_6_to_50"
+                    defaultValue={defaultPricesImages?.[0]?.price_6_to_50 || ''}
+                    inputProps={{
+                      style: { textAlign: 'center' }
+                    }} />
+                </Box>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
-                  {spanish ? 'más de 50 imágenes' : 'more than 50 images'}
-                </Typography>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="price_51_plus"
-                  type="number"
-                  id="price_51_plus"
-                  defaultValue={defaultPricesImages?.[0]?.price_51_plus || ''}
-                  inputProps={{
-                    style: { textAlign: 'center' }
-                  }}
-                />
-              </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                    {spanish ? 'más de 50 imágenes' : 'more than 50 images'}
+                  </Typography>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="price_51_plus"
+                    type="number"
+                    id="price_51_plus"
+                    defaultValue={defaultPricesImages?.[0]?.price_51_plus || ''}
+                    inputProps={{
+                      style: { textAlign: 'center' }
+                    }} />
+                </Box>
 
-              <Box sx={{ display: 'flex', p: 1.5, my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
-                <Button type="submit" fullWidth sx={{ backgroundColor: teal[400], color: 'white' }}>
-                  {spanish ? 'Confirmar' : 'Confirm'}
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
-        </Box>
+                <Box sx={{ display: 'flex', p: 1.5, my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
+                  <Button type="submit" fullWidth sx={{ backgroundColor: teal[400], color: 'white' }}>
+                    {spanish ? 'Confirmar' : 'Confirm'}
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
 
-        {/* Video Pricing Form */}
-        <Box component="form" noValidate onSubmit={handleVideoPricingSubmit} encType="multipart/form-data"
-          sx={{
-            flex: 1,
-            display: 'flex',
-            backgroundColor: '#FFEEAD',
-            borderRadius: '16px',
-            border: '1px solid rgba(0, 0, 0, 0.5)',
-            boxSizing: 'border-box',
-          }}
-        >
-          <Card
+          {/* Video Pricing Form */}
+          <Box component="form" noValidate onSubmit={handleVideoPricingSubmit} encType="multipart/form-data"
             sx={{
-              width: '100%',
-              flexWrap: 'wrap',
-              boxSizing: 'border-box',
+              flex: 1,
+              display: 'flex',
               backgroundColor: '#FFEEAD',
               borderRadius: '16px',
+              border: '1px solid rgba(0, 0, 0, 0.5)',
+              boxSizing: 'border-box',
             }}
           >
-            <Typography variant="h5" fontWeight="bold" gutterBottom>
-              {spanish ? 'Precios Predeterminados de videos' : 'Default Videos Prices'}
-            </Typography>
+            <Card
+              sx={{
+                width: '100%',
+                flexWrap: 'wrap',
+                boxSizing: 'border-box',
+                backgroundColor: '#FFEEAD',
+                borderRadius: '16px',
+              }}
+            >
+              <Typography variant="h5" fontWeight="bold" gutterBottom>
+                {spanish ? 'Precios Predeterminados de videos' : 'Default Videos Prices'}
+              </Typography>
 
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
-                  {spanish ? '1 a 3 videos' : '1 to 3 videos'}
-                </Typography>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="price_1_to_3"
-                  type="number"
-                  id="price_1_to_3"
-                  defaultValue={defaultPricesVideos?.[0]?.price_1_to_3 || ''}
-                  inputProps={{
-                    style: { textAlign: 'center' }
-                  }}
-                />
-              </Box>
+              <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                    {spanish ? '1 a 3 videos' : '1 to 3 videos'}
+                  </Typography>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="price_1_to_3"
+                    type="number"
+                    id="price_1_to_3"
+                    defaultValue={defaultPricesVideos?.[0]?.price_1_to_3 || ''}
+                    inputProps={{
+                      style: { textAlign: 'center' }
+                    }} />
+                </Box>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
-                  {spanish ? '4 a 15 videos' : '4 to 15 videos'}
-                </Typography>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="price_4_to_15"
-                  type="number"
-                  id="price_4_to_15"
-                  defaultValue={defaultPricesVideos?.[0]?.price_4_to_15 || ''}
-                  inputProps={{
-                    style: { textAlign: 'center' }
-                  }}
-                />
-              </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                    {spanish ? '4 a 15 videos' : '4 to 15 videos'}
+                  </Typography>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="price_4_to_15"
+                    type="number"
+                    id="price_4_to_15"
+                    defaultValue={defaultPricesVideos?.[0]?.price_4_to_15 || ''}
+                    inputProps={{
+                      style: { textAlign: 'center' }
+                    }} />
+                </Box>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
-                  {spanish ? 'más de 15 videos' : 'more than 15 videos'}
-                </Typography>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="price_16_plus"
-                  type="number"
-                  id="price_16_plus"
-                  defaultValue={defaultPricesVideos?.[0]?.price_16_plus || ''}
-                  inputProps={{
-                    style: { textAlign: 'center' }
-                  }}
-                />
-              </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="body1" sx={{ width: '100%', mr: 1 }}>
+                    {spanish ? 'más de 15 videos' : 'more than 15 videos'}
+                  </Typography>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="price_16_plus"
+                    type="number"
+                    id="price_16_plus"
+                    defaultValue={defaultPricesVideos?.[0]?.price_16_plus || ''}
+                    inputProps={{
+                      style: { textAlign: 'center' }
+                    }} />
+                </Box>
 
-              <Box sx={{ display: 'flex', p: 1.5, my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
-                <Button type="submit" fullWidth sx={{ backgroundColor: teal[400], color: 'white' }}>
-                  {spanish ? 'Confirmar' : 'Confirm'}
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
+                <Box sx={{ display: 'flex', p: 1.5, my: 3, gap: 1.5, '& > button': { flex: 1 } }}>
+                  <Button type="submit" fullWidth sx={{ backgroundColor: teal[400], color: 'white' }}>
+                    {spanish ? 'Confirmar' : 'Confirm'}
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
+
         </Box>
-
-      </Box>
-
+        <VerificationAlertsForSettings></VerificationAlertsForSettings></>
                 }
 
       {openMessage && (

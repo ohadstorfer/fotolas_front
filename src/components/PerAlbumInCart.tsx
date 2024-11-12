@@ -18,10 +18,10 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import axios from 'axios';
 import { addToCart_singleImages, fetchPricesBySessionAlbumId, selectCart, addToCart_waves, calculatePriceForImages, calculatePriceForWaves, removeCartType, removeFromCart_singleImages, removeSessAlbumOfCart, selectSessAlbumOfCart, setCartType, setSessAlbumOfCart, removeFromCart_waves, selectCartOfWaves, fetchWavesByListAsync } from '../slicers/cartSlice';
-import {  selectSelectedSessAlbum, selectSessAlbums } from '../slicers/sessAlbumSlice';
+import { selectSelectedSessAlbum, selectSessAlbums } from '../slicers/sessAlbumSlice';
 import { TiLocation } from 'react-icons/ti';
 import SessAlbumDetails from './SessAlbumDetails';
-import { Button, useMediaQuery, Dialog, DialogContent } from '@mui/material';
+import { Button, useMediaQuery, Dialog, DialogContent, Collapse } from '@mui/material';
 import Images from './Images';
 import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
@@ -43,6 +43,8 @@ const PerAlbumInCart: React.FC = () => {
   const [selectedAlbumId, setSelectedAlbumId] = useState<number | null>(null);
   const [selectedAlbum, setSelectedAlbum] = useState<personalAlbum | null>(null);
   const [isInCart, setIsInCart] = useState(false);
+
+  const [open, setOpen] = useState(false);
 
 
 
@@ -103,13 +105,13 @@ const PerAlbumInCart: React.FC = () => {
   const handleRemoveFromCart = (waveId: number, imageCount: number) => {
     // Show confirmation dialog
     const confirmed = window.confirm('Remove this wave from your cart?');
-  
+
     if (confirmed) {
       if (cart.length === 1) {
         dispatch(removeSessAlbumOfCart());
         dispatch(removeCartType());
       }
-  
+
       dispatch(removeFromCart_waves({ waveId, imageCount }));
       dispatch(calculatePriceForImages());
     }
@@ -195,28 +197,39 @@ const PerAlbumInCart: React.FC = () => {
   };
 
 
+
+  const handleToggle = () => {
+    setOpen(!open);
+  };
+
+  
+
   return (
     <div>
-      <SessAlbumDetails></SessAlbumDetails>
+      {/* <SessAlbumDetails></SessAlbumDetails> */}
 
       {Prices && (
-        <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px'}}>
-          <Typography>Price Details:</Typography>
+      <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
+        <Button onClick={handleToggle} sx={{ color: 'black' }}>
+          {open ? 'Hide' : 'Price Details'}
+        </Button>
+        <Collapse in={open}>
           <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>
           <Typography>For 6-50 images: {Prices.price_6_to_50} $</Typography>
           <Typography>For 51+ images: {Prices.price_51_plus} $</Typography>
-        </Box>
-      )}
+        </Collapse>
+      </Box>
+    )}
 
 
 
 
-      <ImageList variant="standard" cols={isMobile ? 2 : 3} sx={{ margin: '20px' }}>
+      <ImageList variant="standard" cols={isMobile ? 1 : 1} sx={{ margin: '20px', display: 'flex', justifyContent: 'center' }}>
         {personalAlbums.map((personalAlbum) => {
           const isInCart = cart.includes(personalAlbum.id);
 
           return (
-            <ImageListItem key={personalAlbum.id}>
+            <ImageListItem sx={{ width: '400px', margin: '10px' }} key={personalAlbum.id}>
               <Card>
                 <CardActionArea onClick={() => handleCardClick(personalAlbum.id, personalAlbum)}>
                   <AspectRatio ratio="4/3">
@@ -278,7 +291,7 @@ const PerAlbumInCart: React.FC = () => {
         })}
       </ImageList>
 
-      
+
 
 
 
@@ -296,22 +309,22 @@ const PerAlbumInCart: React.FC = () => {
 
 
         <DialogTitle
-        sx={{
-          display: 'flex',
-          justifyContent: 'center', // Horizontally center the content
-          alignItems: 'center', // Vertically center the content
-          flexDirection: 'row', // Layout the children in a row
-          gap: 2, // Add spacing between elements
-          position: 'relative', // For the absolute close button
-        }}>
+          sx={{
+            display: 'flex',
+            justifyContent: 'center', // Horizontally center the content
+            alignItems: 'center', // Vertically center the content
+            flexDirection: 'row', // Layout the children in a row
+            gap: 2, // Add spacing between elements
+            position: 'relative', // For the absolute close button
+          }}>
 
 
-          
+
           <Box>
-          <span style={{ marginRight: isMobile ? '1px' : '4px', fontSize: '1.5rem', color: 'black' }}>
-            {selectedAlbum?.image_count}
-          </span>
-          <IoImagesOutline style={{ color: 'black' }} />
+            <span style={{ marginRight: isMobile ? '1px' : '4px', fontSize: '1.5rem', color: 'black' }}>
+              {selectedAlbum?.image_count}
+            </span>
+            <IoImagesOutline style={{ color: 'black' }} />
           </Box>
 
 
@@ -332,7 +345,7 @@ const PerAlbumInCart: React.FC = () => {
                 : handleAddToCartNew(selectedAlbumId!, selectedAlbum!.image_count, selectedAlbum!.session_album);
             }}
           >
-            
+
             {isInCart ? <RemoveShoppingCartIcon /> : <AddShoppingCartIcon />}
           </Button>
 

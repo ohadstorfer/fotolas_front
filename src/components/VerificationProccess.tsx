@@ -57,6 +57,11 @@ const VerificationProccess = () => {
 
 
 
+  const VerificationStatus = () => {
+    navigate("/VerificationAlerts");
+  };
+
+
 
   return (
     <div className="container">
@@ -89,9 +94,9 @@ const VerificationProccess = () => {
             backgroundColor: teal[600], // Custom color on hover (optional)
           }
         }}
-        onClick={handleNavigateHome}
+        onClick={VerificationStatus}
       >
-        {spanish ? 'Ir a la página principal' : 'Go to Homepage'}
+        {spanish ? "Ir a verificar el estado de tu solicitud de verificación" : 'Go to check your verification status'}
       </Button>
     </div>
   );

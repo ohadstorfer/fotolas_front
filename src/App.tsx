@@ -57,6 +57,8 @@ import BecomePhotographercopy from './components/BecomePhotographercopy';
 import VerificationProccess from './components/VerificationProccess';
 import PaymentSuccessfull from './components/PaymentSuccessfull';
 import DashboardPayoutsStripe from './components/DashboardPayoutsStripe';
+import VerificationAlerts from './components/VerificationAlerts';
+import VerificationAlertsForSettings from './components/VerificationAlertsForSettings';
 
 
 
@@ -87,6 +89,8 @@ function App() {
         <Route path="/CoverImageHomePage" element={<CoverImageHomePage />} />
         <Route path="/VerificationProccess" element={<VerificationProccess />} />
         <Route path="/PaymentSuccessfull" element={<PaymentSuccessfull />} />
+        <Route path="/VerificationAlerts" element={<VerificationAlerts />} />
+        <Route path="/VerificationAlertsForSettings" element={<VerificationAlertsForSettings />} />
         
         
 
@@ -153,6 +157,7 @@ const Root = () => {
     '/ProfilePtg',
     '/MyAlbums',
     '/FailedUpload',
+    '/DashboardPayoutsStripe',
   ];
   const shouldShowPhotographerNavbar = showPhotographerNavbar.includes(location.pathname);
 
