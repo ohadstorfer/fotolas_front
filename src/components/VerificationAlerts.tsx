@@ -3,14 +3,14 @@ import { loadConnectAndInitialize, StripeConnectInstance } from '@stripe/connect
 import { ConnectPayouts, ConnectComponentsProvider, ConnectBalances, ConnectPayments, ConnectNotificationBanner, ConnectAccountManagement } from '@stripe/react-connect-js';
 import { useSelector } from 'react-redux';
 import { selectUser } from '../slicers/userSlice';
-import { Box } from '@mui/joy';
+import { Box, Card } from '@mui/joy';
+import { useMediaQuery } from '@mui/material';
 
 const VerificationAlerts = () => {
   // Explicitly typing state as either null or StripeConnectInstance
   const [stripeConnectInstance, setStripeConnectInstance] = useState<StripeConnectInstance | null>(null);
   const user = useSelector(selectUser)
-  console.log(user);
-
+  const isMobile = useMediaQuery('(max-width:600px)');
 
   useEffect(() => {
     const fetchClientSecret = async () => {
@@ -30,6 +30,13 @@ const VerificationAlerts = () => {
         if (data.client_secret) {
           const stripeConnectInstance = await loadConnectAndInitialize({
             publishableKey: 'pk_live_51Q9vqBEA0SDQjG9L0iSug0YSg4HvtRkWjSAJRCpoZZIhPlSFL5hrQgjZ4e4y0oAiFHmNOfr4yFArcpESyVSzRhgb00ahskJ9qn',
+            appearance: {
+              variables: {
+                colorBackground: '#f9f9f9',
+                borderRadius: '8px',
+                colorBorder: '#444444'
+              }
+            },
 
             fetchClientSecret: async () => data.client_secret,
           });
@@ -47,7 +54,7 @@ const VerificationAlerts = () => {
   }, []);
 
 
-  
+
   if (!stripeConnectInstance) {
     return <div>Loading...</div>;
   }
@@ -55,39 +62,58 @@ const VerificationAlerts = () => {
 
 
 
-  
+
   return (
 
     <ConnectComponentsProvider connectInstance={stripeConnectInstance}>
 
-      
-{stripeConnectInstance && (
-      <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-        <div style={{
-          width: '70%',
-          border: '2px solid rgba(0, 0, 0, 0.2)',
-          borderRadius: '10px',
-          padding: '10px',
-          backgroundColor: '#f9f9f9',
-        }}>
-          <ConnectNotificationBanner/>
-        </div>
-      </div>
-    )}
 
-      <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-        <div style={{
-          width: '70%',
-          marginTop: '20px',
-        }}>
-      <ConnectAccountManagement
+      <Box
+        sx={{
+          width: isMobile ? '90%' : '50%',
+          margin: '0 auto',
+          marginTop: '16px',
+          display: 'flex', // Use flexbox for layout
+        }}
+      >
+        <ConnectNotificationBanner
         collectionOptions={{
           fields: 'eventually_due',
           futureRequirements: 'include',
+        }} />
+
+      </Box>
+
+
+
+
+
+      <Box
+        sx={{
+          width: isMobile ? '90%' : '50%',
+          margin: '0 auto',
+          marginTop: '16px',
+          display: 'flex', // Use flexbox for layout
         }}
-      />
-      </div>
-      </div>
+      >
+        <Card
+          orientation="horizontal"
+          sx={{
+            width: '100%',
+            flexWrap: 'wrap',
+            borderRadius: '16px',
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.3)',
+          }}
+        >
+
+          <ConnectAccountManagement
+            collectionOptions={{
+              fields: 'eventually_due',
+              futureRequirements: 'include',
+            }}
+          />
+        </Card>
+      </Box>
 
 
     </ConnectComponentsProvider>

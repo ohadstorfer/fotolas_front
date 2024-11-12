@@ -167,7 +167,7 @@ const Video: React.FC = () => {
                 <CardActionArea onClick={() => handleVideoClick(video.id)}>
                   <AspectRatio ratio="4/3">
                     {isActive ? (
-                      <video controls src={video.WatermarkedVideo} />
+                      <video controls autoPlay muted src={video.WatermarkedVideo} />
                     ) : (
                       <img
                         src={video.img}
