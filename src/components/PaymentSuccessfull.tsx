@@ -13,7 +13,7 @@ import { Alert } from '@mui/joy';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { selectSpanish } from '../slicers/sighnInSlice';
 import axios from 'axios';
-import { clearCart, selectCart, selectCartOfWaves, selectSessAlbumOfCart } from '../slicers/cartSlice';
+import { clearCart, selectCart, selectCartOfWaves, selectCopyCart, selectCopyCartType, selectSessAlbumOfCart, setCopyCart } from '../slicers/cartSlice';
 import { createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync } from '../slicers/purchaseSlice';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import JSZip from 'jszip';
@@ -29,8 +29,10 @@ const PaymentSuccessfull = () => {
   const spanish = useSelector(selectSpanish)
   const cart = useSelector(selectCart);
   const cartType = useSelector((state: any) => state.cart.cartType);
-  const [cartCopy, setCartCopy] = useState<number[]>([]);
-  const [cartTypeCopy, setCartTypeCopy] = useState<any>();
+  // const [cartCopy, setCartCopy] = useState<number[]>([]);
+  // const [cartTypeCopy, setCartTypeCopy] = useState<any>();
+  const cartCopy = useSelector(selectCopyCart);
+  const cartTypeCopy = useSelector(selectCopyCartType);
 
   const wavesInCart = useSelector(selectCartOfWaves);
   const cartTotalPrice = useSelector((state: any) => state.cart.cartTotalPrice);
@@ -42,21 +44,16 @@ const PaymentSuccessfull = () => {
 
   // First useEffect: Copy cart and cartType, then trigger a flag when done
   useEffect(() => {
-    // Make a copy of the cart and cartType when the component mounts
-    const copiedCart = JSON.parse(sessionStorage.getItem('cart') || '[]'); // Parse to convert from JSON string to array
-    const copiedCartType = sessionStorage.getItem('cartType');; // Retrieve cartType as string
-
-    setCartCopy(copiedCart);
-    setCartTypeCopy(copiedCartType); // Set the copied cart and cartType state
+    // dispatch(setCopyCart())
 
     // Call the appropriate purchase function based on cartType
-    if (copiedCartType === '"singleImages"') {
+    if (cartTypeCopy === 'singleImages') {
       console.log("handlePurchaseForImages");
       handlePurchaseForImages();
-    } else if (copiedCartType === '"videos"') {
+    } else if (cartTypeCopy === 'videos') {
       console.log("handlePurchaseForVideos");
       handlePurchaseForVideos();
-    } else if (copiedCartType === '"waves"') {
+    } else if (cartTypeCopy === 'waves') {
       console.log("handlePurchaseForWaves");
       handlePurchaseForWaves();
     }
@@ -99,13 +96,13 @@ const PaymentSuccessfull = () => {
 
   const handleDownload = async () => {
     try {
-      if (cartTypeCopy === '"singleImages"') {
+      if (cartTypeCopy === 'singleImages') {
         console.log('Downloading single images...');
         await downloadSingleImages();
-      } else if (cartTypeCopy === '"waves"') {
+      } else if (cartTypeCopy === 'waves') {
         console.log('Downloading wave images...');
         await downloadWaves2();
-      } else if (cartTypeCopy === '"videos"') {
+      } else if (cartTypeCopy === 'videos') {
         console.log('Downloading videos...');
         await downloadVideos();
       } else {
@@ -142,7 +139,7 @@ const PaymentSuccessfull = () => {
       }
   
       const content = await zip.generateAsync({ type: 'blob' });
-      saveAs(content, 'downloaded_images.zip');
+      saveAs(content, 'surfpik.zip');
     } catch (error) {
       console.error('Error creating ZIP file:', error);
     }

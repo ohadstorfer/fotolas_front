@@ -57,6 +57,8 @@ interface cartState {
     sessAlbumOfCart: sess | null;
     cartType: 'singleImages' | 'waves' | 'videos' | null;
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
+    copyCartType: 'singleImages' | 'waves' | 'videos' | null;
+    copyCart: number[];
 }
 
 const initialCart = sessionStorage.getItem('cart');
@@ -69,6 +71,9 @@ const initialSessAlbumOfCart = sessionStorage.getItem('sessAlbumOfCart');
 const initialPrices = sessionStorage.getItem('prices');
 const initialCartType = sessionStorage.getItem('cartType');
 const initialTotalImagesInWaves = sessionStorage.getItem('totalImagesInWaves');
+const initialCopyCartType = sessionStorage.getItem('copyCartType');
+const initialCopyCart = sessionStorage.getItem('copyCart');
+
 
 const initialState: cartState = {
     cart: initialCart ? JSON.parse(initialCart) : [],
@@ -83,6 +88,8 @@ const initialState: cartState = {
     sessAlbumOfCart: initialSessAlbumOfCart ? JSON.parse(initialSessAlbumOfCart) : null,
     cartType: initialCartType ? JSON.parse(initialCartType) : null,
     status: 'idle',
+    copyCart: initialCopyCart ? JSON.parse(initialCopyCart) : null,
+    copyCartType: initialCopyCartType ? JSON.parse(initialCopyCartType) : null,
 };
 
 export const fetchWavesByListAsync = createAsyncThunk(
@@ -116,6 +123,12 @@ export const cartSlice = createSlice({
     name: 'cart',
     initialState,
     reducers: {
+        setCopyCart: (state) => {
+            state.copyCartType = state.cartType;
+            sessionStorage.setItem('copyCartType', JSON.stringify(state.cartType));
+            state.copyCart = state.cart;
+            sessionStorage.setItem('copyCart', JSON.stringify(state.cart));
+        },
         addToCart_singleImages: (state, action: PayloadAction<Img>) => {
             const image = action.payload;
             if (!state.cart.includes(image.id)) {
@@ -311,7 +324,7 @@ export const cartSlice = createSlice({
       }
 });
 
-export const { clearCart,calculatePriceForWaves, addToCart_waves, removeCartType, setCartType, removeFromCart_waves, addToCart_videos, removeFromCart_videos, addToCart_singleImages, removeFromCart_singleImages, updateTotalPrice, calculatePriceForImages, calculatePriceForVideos, setSessAlbumOfCart, removeSessAlbumOfCart } = cartSlice.actions;
+export const { setCopyCart,clearCart,calculatePriceForWaves, addToCart_waves, removeCartType, setCartType, removeFromCart_waves, addToCart_videos, removeFromCart_videos, addToCart_singleImages, removeFromCart_singleImages, updateTotalPrice, calculatePriceForImages, calculatePriceForVideos, setSessAlbumOfCart, removeSessAlbumOfCart } = cartSlice.actions;
 
 export const selectCart = (state: { cart: cartState }) => state.cart.cart;
 export const selectWavesInCart = (state: { cart: cartState }) => state.cart.wavesInCart;
@@ -323,5 +336,7 @@ export const selectSessAlbumOfCart = (state: { cart: cartState }) => state.cart.
 export const selectCartOfSingleImages = (state: { cart: cartState }) => state.cart.cartOfSingleImages;
 export const selectCartOfVideos = (state: { cart: cartState }) => state.cart.cartOfVideos;
 export const selectCartOfWaves = (state: { cart: cartState }) => state.cart.cartOfWaves;
+export const selectCopyCart = (state: { cart: cartState }) => state.cart.copyCart;
+export const selectCopyCartType = (state: { cart: cartState }) => state.cart.copyCartType;
 
 export default cartSlice.reducer;
