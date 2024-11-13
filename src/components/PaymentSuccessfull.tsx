@@ -562,24 +562,18 @@ const PaymentSuccessfull = () => {
               </Typography>
 
               <Typography variant="body2" paragraph>
-                <strong>iPhone (iOS):</strong> Open the <em>“Files”</em> app. Go to the <em>“Downloads”</em> or <em>“On My iPhone”</em> section to locate the ZIP file named <em>“surfpik.zip”</em>.
+                <strong>iPhone (iOS):</strong> Open the <em>“Files”</em> app. Go to the <em>“Downloads”</em> or <em>“On My iPhone”</em> section to locate the ZIP file named <strong><em>“surfpik.zip”</em></strong>.
               </Typography>
 
               <Typography variant="body2" paragraph>
-                <strong>Android:</strong> Open the <em>“Files”</em> or <em>“My Files”</em> app. Navigate to <em>“Downloads”</em> or the location where your browser saves files.
+                <strong>Android:</strong> Open the <em>“Files”</em> or <em>“My Files”</em> app. Navigate to <em>“Downloads”</em> or the location where your browser saves files, and search for the ZIP file named <strong><em>“surfpik.zip”</em></strong>.
               </Typography>
 
               <Typography variant="body1" paragraph>
-                <strong>Extract the ZIP File:</strong> Tap on the <em>“surfpik.zip”</em> file to open it. The device will either create a new folder or display the contents of the ZIP file. If needed, tap and hold the file and select <em>“Uncompress”</em> on iOS.
+                <strong>Extract the ZIP File:</strong> Tap on the <em>“surfpik.zip”</em> file to open it. Your device will either create a new folder named <strong><em>“surfpik”</em></strong>. containing all your images, or simply display the images within. 
               </Typography>
 
-              <Typography variant="body1" paragraph>
-                <strong>Move Images to Your Gallery:</strong> Select all images in the extracted folder. Tap the <em>“Share”</em> or <em>“Move”</em> icon and choose <em>“Save Images”</em> (iOS) or <em>“Save to device”</em> (Android) to move them to your gallery.
-              </Typography>
 
-              <Typography variant="body1" paragraph>
-                <strong>Complete:</strong> Confirm the images are now available in your gallery.
-              </Typography>
             </DialogContentText>
           </DialogContent>
           <DialogActions>

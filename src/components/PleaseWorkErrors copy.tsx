@@ -231,32 +231,39 @@ const Home = () => {
   const picaInstance = pica();
 
   const compressImage = async (file: File): Promise<File> => {
-    console.log("compressinggggggggg");
-    
     const img = new Image();
     img.src = URL.createObjectURL(file);
     await new Promise<void>((resolve, reject) => {
       img.onload = () => resolve();
       img.onerror = reject;
     });
-  
+
     const targetHeight = 480;
     const aspectRatio = img.width / img.height;
     const targetWidth = Math.round(targetHeight * aspectRatio);
-  
-    // Create a canvas for resizing
-    const compressedCanvas = document.createElement('canvas');
-    compressedCanvas.width = targetWidth;
-    compressedCanvas.height = targetHeight;
-  
-    const ctx = compressedCanvas.getContext('2d');
+
+    const offscreenCanvas = document.createElement('canvas');
+    offscreenCanvas.width = img.width;
+    offscreenCanvas.height = img.height;
+
+    const ctx = offscreenCanvas.getContext('2d');
     if (!ctx) {
       throw new Error('Canvas context not available');
     }
-  
-    // Draw and resize the image directly on the canvas
-    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-  
+
+    ctx.drawImage(img, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
+
+    const compressedCanvas = document.createElement('canvas');
+    compressedCanvas.width = targetWidth;
+    compressedCanvas.height = targetHeight;
+
+    await picaInstance.resize(offscreenCanvas, compressedCanvas, {
+      quality: 3, // Lower the quality for harder compression
+      unsharpAmount: 0,
+      unsharpRadius: 0,
+      unsharpThreshold: 0,
+    });
+
     return new Promise((resolve, reject) => {
       compressedCanvas.toBlob((blob) => {
         if (blob) {
@@ -265,7 +272,7 @@ const Home = () => {
         } else {
           reject(new Error('Blob creation failed'));
         }
-      }, 'image/jpeg', 0.8); // JPEG quality for compression
+      }, 'image/jpeg', 0.8); // Set JPEG quality to 0.8 for compression
     });
   };
 
@@ -274,53 +281,89 @@ const Home = () => {
 
 
 
+
   const createWatermarkedImage = async (file: File): Promise<File> => {
-    console.log("watermarkinggggggggggg");
-    
-    if (!watermarkImg) throw new Error('Watermark image not loaded');
-  
-    return new Promise<File>((resolve, reject) => {
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-      img.crossOrigin = 'Anonymous';
-  
-      img.onload = () => {
-        const targetHeight = 480;
-        const aspectRatio = img.width / img.height;
-        const targetWidth = Math.round(targetHeight * aspectRatio);
-  
-        // Create a single canvas for both resizing and watermarking
-        const canvas = document.createElement('canvas');
-        canvas.width = targetWidth;
-        canvas.height = targetHeight;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return reject(new Error('Canvas context not available'));
-  
-        // Draw the main image on the canvas
-        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-  
-        // Apply the watermark with 50% opacity
-        ctx.globalAlpha = 0.5;  // Set transparency
-        ctx.drawImage(watermarkImg, 0, 0, targetWidth, targetHeight);
-        ctx.globalAlpha = 1.0;  // Reset transparency
-  
-        // Export the watermarked and resized image as JPEG
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              const watermarkedFile = new File([blob], `watermarked_${file.name}`, { type: 'image/jpeg' });
-              resolve(watermarkedFile);
-            } else {
-              reject(new Error('Blob creation failed'));
+    try {
+      if (!watermarkImg) {
+        throw new Error('Watermark image not loaded');
+      }
+
+      return new Promise<File>((resolve, reject) => {
+        const img: HTMLImageElement = new Image();
+        img.src = URL.createObjectURL(file);
+        img.crossOrigin = 'Anonymous';
+
+        img.onload = async () => {
+          try {
+            const targetHeight = 480;
+            const aspectRatio = img.width / img.height;
+            const targetWidth = Math.round(targetHeight * aspectRatio);
+
+            const canvas = document.createElement('canvas');
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            const ctx = canvas.getContext('2d');
+
+            if (!ctx) {
+              return reject(new Error('Canvas context not available'));
             }
-          },
-          'image/jpeg',
-          0.8 // JPEG quality for compression
-        );
-      };
-  
-      img.onerror = (error) => reject(error);
-    });
+
+            // Draw the main image on the canvas
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // Set up the watermark canvas for resizing
+            const watermarkCanvas = document.createElement('canvas');
+            watermarkCanvas.width = targetWidth;
+            watermarkCanvas.height = targetHeight;
+            const watermarkCtx = watermarkCanvas.getContext('2d');
+
+            if (!watermarkCtx) {
+              return reject(new Error('Watermark canvas context not available'));
+            }
+
+            // Draw the watermark image resized to fit the target dimensions
+            watermarkCtx.drawImage(watermarkImg, 0, 0, targetWidth, targetHeight);
+
+            // Apply the watermark with 50% opacity
+            ctx.globalAlpha = 0.5;  // Set global alpha to 50% opacity
+            ctx.drawImage(watermarkCanvas, 0, 0);
+
+            // Reset the globalAlpha after drawing the watermark
+            ctx.globalAlpha = 1.0;
+
+            // Prepare for resizing the final image
+            const offscreenCanvas = document.createElement('canvas');
+            offscreenCanvas.width = canvas.width;
+            offscreenCanvas.height = canvas.height;
+
+            await picaInstance.resize(canvas, offscreenCanvas, {
+              quality: 3, // Lower the quality for harder compression
+              unsharpAmount: 0,
+              unsharpRadius: 0,
+              unsharpThreshold: 0,
+            });
+
+            offscreenCanvas.toBlob((blob) => {
+              if (blob) {
+                const watermarkedFile = new File([blob], `watermarked_${file.name}`, { type: 'image/jpeg' });
+                resolve(watermarkedFile);
+              } else {
+                reject(new Error('Blob creation failed'));
+              }
+            }, 'image/jpeg', 0.8); // Set JPEG quality to 0.8 for compression
+          } catch (error) {
+            reject(error);
+          }
+        };
+
+        img.onerror = (error) => {
+          reject(error);
+        };
+      });
+    } catch (error) {
+      console.error('Error creating watermarked image:', error);
+      throw error;
+    }
   };
 
 
