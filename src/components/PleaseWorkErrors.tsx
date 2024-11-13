@@ -108,7 +108,7 @@ const Home = () => {
   useEffect(() => {
     const fetchWatermark = async () => {
       try {
-        const watermarkUrl = 'https://surfingram-profile-images.s3.us-east-2.amazonaws.com/imageswatermark.png';
+        const watermarkUrl = 'https://surfingram-profile-images.s3.us-east-2.amazonaws.com/watermark.png';
         const img = new Image();
         img.src = watermarkUrl;
         img.crossOrigin = 'Anonymous';
@@ -240,7 +240,7 @@ const Home = () => {
       img.onerror = reject;
     });
   
-    const targetHeight = 480;
+    const targetHeight = 600;
     const aspectRatio = img.width / img.height;
     const targetWidth = Math.round(targetHeight * aspectRatio);
   
@@ -285,7 +285,7 @@ const Home = () => {
       img.crossOrigin = 'Anonymous';
   
       img.onload = () => {
-        const targetHeight = 480;
+        const targetHeight = 600;
         const aspectRatio = img.width / img.height;
         const targetWidth = Math.round(targetHeight * aspectRatio);
   
