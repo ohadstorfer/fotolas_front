@@ -89,6 +89,21 @@ export default function EditProfilePtg() {
 
 
 
+  useEffect(() => {
+    if (newDefaultPricesImages != null && photographer ) {
+      dispatch(fetchDefaultAlbumPricesImages(photographer.id));
+    }
+  }, [newDefaultPricesImages]);
+
+
+  useEffect(() => {
+    if (newDefaultPricesVideos != null && photographer ) {
+      dispatch(fetchDefaultAlbumPricesVideos(photographer.id));
+    }
+  }, [newDefaultPricesVideos]);
+
+
+
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
     if (e.target.files && e.target.files.length > 0) {
       if (e.target.files.length > 1) {
