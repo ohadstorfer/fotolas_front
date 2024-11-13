@@ -5,6 +5,7 @@ import { signUp } from '../services/signUpAPI';
 interface SignUpState {
   token: string | null;
   error: string | null;
+  existedUseError: string | null;
   credentials: any | null;
   refresh: boolean,
 }
@@ -12,6 +13,7 @@ interface SignUpState {
 const initialState: SignUpState = {
   token: null,
   error: null,
+  existedUseError: null,
   credentials: null,
   refresh: false,
 };
@@ -50,7 +52,11 @@ const signUpSlice = createSlice({
       })
       .addCase(signUpAsync.rejected, (state, action) => {
         state.token = null;
-        state.error = action.error.message || 'An error occurred';
+        if (action.error.message === 'A user with this email already exists.') {
+          state.existedUseError = 'This email is already registered. Please use a different email address.';
+        } else {
+          state.existedUseError = action.error.message || 'An error occurred';
+        }
       });
   },
 });
@@ -62,4 +68,5 @@ export const {refreshNavbar ,setCredentials, removeCredentials} = signUpSlice.ac
 export const selectSignUP = (state: { signUp: SignUpState }) => state.signUp.token;
 export const selectCredentials = (state: { signUp: SignUpState }) => state.signUp.credentials;
 export const selectRefreshNavbar = (state: { signUp: SignUpState }) => state.signUp.refresh;
+export const selectExistedUseError = (state: { signUp: SignUpState }) => state.signUp.existedUseError;
 export default signUpSlice.reducer;

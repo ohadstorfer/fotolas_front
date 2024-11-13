@@ -55,8 +55,9 @@ const compressImage = async (file: File): Promise<File> => {
     img.onerror = reject;
   });
 
-  const targetWidth = 800;
-  const targetHeight = 533;
+  const targetHeight = 600;
+  const aspectRatio = img.width / img.height;
+  const targetWidth = Math.round(targetHeight * aspectRatio);
 
   const offscreenCanvas = document.createElement('canvas');
   offscreenCanvas.width = img.width;
@@ -499,7 +500,7 @@ export default function UserCard() {
                   <Button
                     component="label"
                     sx={{
-                      width: isMobile? 230 : 270,
+                      width: isMobile ? 230 : 270,
                       height: 'auto',
                       padding: '14px 0',
                       border: '1px solid #aaa',
@@ -545,7 +546,7 @@ export default function UserCard() {
                 /> */}
               </Step>
 
-              <Step>{imagePreview && <img src={imagePreview} alt="profileImg" style={{width: isMobile? 230 : 270, height: 'auto' }} />}</Step>
+              <Step>{imagePreview && <img src={imagePreview} alt="profileImg" style={{ width: isMobile ? 230 : 270, height: 'auto' }} />}</Step>
 
 
 
@@ -555,7 +556,7 @@ export default function UserCard() {
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <MobileDateTimePicker
                     disableFuture
-                    sx={{ width: isMobile? 230 : 270 }}
+                    sx={{ width: isMobile ? 230 : 270 }}
                     value={selectedDate}
                     label={spanish ? 'Seleccionar una fecha' : "Select a Date"}
                     onChange={(newDate) => setSelectedDate(newDate)}
@@ -571,7 +572,7 @@ export default function UserCard() {
               <Step indicator={<StepIndicator sx={{ marginRight: '16px', backgroundColor: '#FFEEAD', }}> {spanish ? 'Lugar' : 'Spot '} </StepIndicator>}>
 
                 <Autocomplete
-                  sx={{ width: isMobile? 230 : 270 }}
+                  sx={{ width: isMobile ? 230 : 270 }}
                   disablePortal
                   onChange={(event, newValue) => setSelectedSpot(newValue)}
                   id="combo-box-demo"
@@ -605,7 +606,7 @@ export default function UserCard() {
 
 
               <Step indicator={<StepIndicator sx={{ marginBottom: '20px', marginRight: '100px', backgroundColor: '#FFEEAD', whiteSpace: 'nowrap', }}> {spanish ? 'Imagenes o videos' : "Images or Videos"}  </StepIndicator>}>
-                <FormControl sx={{ width: isMobile? 230 : 270, marginBottom: '20px', }}>
+                <FormControl sx={{ width: isMobile ? 230 : 270, marginBottom: '20px', }}>
                   <InputLabel id="demo-controlled-open-select-label">{spanish ? 'Imagenes o videos' : "Images or Videos"}</InputLabel>
                   <Select
                     labelId="demo-controlled-open-select-label"

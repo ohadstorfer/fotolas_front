@@ -288,14 +288,16 @@ const PerAlbum: React.FC = () => {
         })}
       </ImageList>
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-        <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
-          Previous
-        </Button>
-        <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
-          Next
-        </Button>
-      </Box>
+      {(nextPage || previousPage) && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+            <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
+              Previous
+            </Button>
+            <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
+              Next
+            </Button>
+          </Box>
+        )}
 
 
 

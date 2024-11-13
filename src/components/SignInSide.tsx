@@ -56,7 +56,7 @@ export default function SignInSide() {
       const data = new FormData(event.currentTarget);
     
       const credentials = {
-        email: data.get("email") as string,
+        email : (data.get("email") as string).toLowerCase(),
         password: data.get("password") as string,
       };
     

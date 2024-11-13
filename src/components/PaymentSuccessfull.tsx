@@ -570,7 +570,7 @@ const PaymentSuccessfull = () => {
               </Typography>
 
               <Typography variant="body1" paragraph>
-                <strong>Extract the ZIP File:</strong> Tap on the <em>“surfpik.zip”</em> file to open it. Your device will either create a new folder named <strong><em>“surfpik”</em></strong>. containing all your images, or simply display the images within. 
+                <strong>Extract the ZIP File:</strong> Tap on the <em>“surfpik.zip”</em> file to open it. Your device will either create a new folder named <em>“surfpik”</em> containing all your images, or simply display the images within. 
               </Typography>
 
 

@@ -321,13 +321,15 @@ const Cart: React.FC = () => {
     <div>
       {cartType === "videos" && (
         <>
-        <VideosInCart></VideosInCart>
-
           <div>
-            <h2> {cartTotalItems} Videos <SmartDisplayIcon style={{ color: 'black' }} /></h2>
-            <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2>
+            <h2>{cartTotalItems} Videos, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
+          <Button variant="contained" color="primary" onClick={handleCheckout}>
+          continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
+          </Button>
 
+
+          <VideosInCart></VideosInCart>
           
           {/* <Button variant="contained" color="primary" onClick={handlePurchaseForVideos}>
             Pay
@@ -337,14 +339,6 @@ const Cart: React.FC = () => {
           <Button variant="contained" color="primary" onClick={downloadImages}>
             Download Images
           </Button> */}
-
-
-          <Button variant="contained" color="primary" onClick={handleCheckout}>
-          continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
-          </Button>
-
-
-          
         </>
       )}
 
@@ -386,14 +380,16 @@ const Cart: React.FC = () => {
 
       {cartType === "singleImages" && (
         <>
-
-<UndividedImgsInCart></UndividedImgsInCart>
-
-
           <div>
-            <h2>{cartTotalItems} Images  <IoImagesOutline style={{ color: 'black' }} /> Total Price: ${cartTotalPrice.toFixed(2)} </h2>
-            {/* <h2>Total Price: ${cartTotalPrice.toFixed(2)}</h2> */}
+          <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(2)} </h2>
           </div>
+          <Button variant="contained" color="primary" onClick={handleCheckout}>
+          continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
+          </Button>
+
+          <UndividedImgsInCart></UndividedImgsInCart>
+
+
           {/* <Button variant="contained" color="primary" onClick={handlePurchaseForImages}>
             Pay
           </Button>
@@ -402,14 +398,6 @@ const Cart: React.FC = () => {
           <Button variant="contained" color="primary" onClick={downloadImages}>
             Download Images
           </Button> */}
-
-          <Button variant="contained" color="primary" onClick={handleCheckout}>
-          continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
-          </Button>
-
-
-
-          
         </>
       )}
 

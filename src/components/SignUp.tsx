@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAppDispatch } from '../app/hooks';
-import { refreshNavbar, selectCredentials, selectRefreshNavbar, selectSignUP, signUpAsync } from '../slicers/signUpSlice';
+import { refreshNavbar, selectCredentials, selectExistedUseError, selectRefreshNavbar, selectSignUP, signUpAsync } from '../slicers/signUpSlice';
 import { teal } from '@mui/material/colors';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -30,7 +30,7 @@ const defaultTheme = createTheme({
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const isLoggedIn = useSelector(selectSignUP);
+  const existedUseError = useSelector(selectExistedUseError);
   const isLoggedIn222 = useSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
   const refreshNavbarbool = useSelector(selectRefreshNavbar);
@@ -44,6 +44,19 @@ export default function SignUp() {
       navigate('/');
     }
   }, [isLoggedIn222]);
+
+
+  useEffect(() => {
+    if (existedUseError) {
+      console.log(existedUseError);
+  
+      // Check if the error message is related to email already registered
+      if (existedUseError.includes("Request failed with status code 400")) {
+        alert("This email is already registered. Please use a different email address.");
+      }
+    }
+  }, [existedUseError]);
+
 
   const validateForm = (data: FormData) => {
     const newErrors: { [key: string]: string } = {};

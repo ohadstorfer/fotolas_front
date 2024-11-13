@@ -427,7 +427,7 @@ export default function PrimarySearchAppBar() {
             id="combo-box-demo"
             options={allSpots}
             getOptionLabel={(spot) => spot.name}
-            value={selectedSpot}
+            // value={selectedSpot}
             onInputChange={(event, newInputValue) => setSearchValue(newInputValue)}
             renderInput={(params) => (
               <TextField
