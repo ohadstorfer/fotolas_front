@@ -11,6 +11,8 @@ import { teal } from '@mui/material/colors';
 import SessAlbumDetails from './SessAlbumDetails';
 import { selectSelectedSessAlbum } from '../slicers/sessAlbumSlice';
 import CloseIcon from '@mui/icons-material/Close';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
 const UndividedImgsInCart: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -126,7 +128,7 @@ const UndividedImgsInCart: React.FC = () => {
       {Prices && (
       <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
         <Button onClick={handleToggle} sx={{ color: 'black' }}>
-          {openPricing ? 'Hide' : 'Price Details'}
+        {open ? 'Hide' : 'Price Details'} {!open && <ArrowDropDownIcon />}  {open && <ArrowDropUpIcon />} 
         </Button>
         <Collapse in={openPricing}>
           <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>

@@ -89,9 +89,13 @@ export default function EditProfilePtg() {
 
 
 
+
+
   useEffect(() => {
     if (newDefaultPricesImages != null && photographer ) {
       dispatch(fetchDefaultAlbumPricesImages(photographer.id));
+      console.log("newDefaultPricesImages");
+      
     }
   }, [newDefaultPricesImages]);
 
@@ -99,6 +103,7 @@ export default function EditProfilePtg() {
   useEffect(() => {
     if (newDefaultPricesVideos != null && photographer ) {
       dispatch(fetchDefaultAlbumPricesVideos(photographer.id));
+      console.log("newDefaultPricesImages");
     }
   }, [newDefaultPricesVideos]);
 

@@ -9,7 +9,7 @@ import StepIndicator from '@mui/joy/StepIndicator';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAppDispatch } from '../app/hooks';
 import { removeNewPrices, removeNewSess, selectNewSess } from '../slicers/sessAlbumSlice';
-import { Alert } from '@mui/joy';
+import { Alert, Box, CircularProgress } from '@mui/joy';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { selectSpanish } from '../slicers/sighnInSlice';
 import axios from 'axios';
@@ -19,6 +19,8 @@ import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Dialog, DialogActions, DialogContent, DialogContentText, } from '@mui/material';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
 
 
@@ -54,12 +56,15 @@ const PaymentSuccessfull = () => {
     if (cartTypeCopy === 'singleImages') {
       console.log("handlePurchaseForImages");
       handlePurchaseForImages();
+      downloadSingleImages2();
     } else if (cartTypeCopy === 'videos') {
       console.log("handlePurchaseForVideos");
       handlePurchaseForVideos();
+      downloadVideos2();
     } else if (cartTypeCopy === 'waves') {
       console.log("handlePurchaseForWaves");
       handlePurchaseForWaves();
+      downloadWaves2();
     }
 
     // Once the cart has been copied and processed, set the flag to true
@@ -69,7 +74,7 @@ const PaymentSuccessfull = () => {
   // Second useEffect: Clear cart only after the first useEffect is done
   useEffect(() => {
     if (cartCopy && cartTypeCopy) {
-      // Delay clearing the cart until after the first useEffect has finished
+      console.log("clearing cart");
       setTimeout(() => {
         dispatch(clearCart());
       }, 0);
@@ -77,6 +82,24 @@ const PaymentSuccessfull = () => {
   }, [isCartCopied, dispatch]);
 
 
+
+  const handleDownload = async () => {
+    try {
+      if (cartTypeCopy === 'singleImages') {
+        console.log('Downloading single images...');
+        await downloadSingleImages2();
+      } else if (cartTypeCopy === 'waves') {
+        console.log('Downloading wave images...');
+        await downloadWaves2();
+      } else if (cartTypeCopy === 'videos') {
+        console.log('Downloading videos...');
+        await downloadVideos2();
+      }
+    } catch (error) {
+      console.error('Error during download process:', error);
+      alert('An error occurred during the download process. Please try again.');
+    }
+  };
 
 
 
@@ -93,38 +116,6 @@ const PaymentSuccessfull = () => {
       window.removeEventListener('beforeunload', handleBeforeUnload); // Clean up
     };
   }, [dispatch]);
-
-
-
-
-
-
-
-
-  const handleDownload = async () => {
-    try {
-      if (cartTypeCopy === 'singleImages') {
-        console.log('Downloading single images...');
-        await downloadSingleImages2();
-      } else if (cartTypeCopy === 'waves') {
-        console.log('Downloading wave images...');
-        await downloadWaves2();
-      } else if (cartTypeCopy === 'videos') {
-        console.log('Downloading videos...');
-        await downloadVideos2();
-      } else {
-        console.error('Invalid cart type.');
-        alert('Invalid cart type. Please select a valid option.');
-      }
-    } catch (error) {
-      console.error('Error during download process:', error);
-      alert('An error occurred during the download process. Please try again.');
-    }
-  };
-
-
-
-
 
 
 
@@ -497,26 +488,46 @@ const PaymentSuccessfull = () => {
       >
         <Typography>
           {spanish
-            ? '¡Imágenes/Vídeos comprados con éxito! Ahora puedes presionar aquí para descargarlos o descargarlos en tu perfil en los próximos días. (Las imágenes se eliminarán automáticamente después de 30 días y los vídeos después de 5 días)'
-            : 'Successfully bought images/videos! You can press here to download them now or download them from your profile in the remaining days. (Images are automatically deleted after 30 days and videos after 5 days)'}
+            ? '¡Imágenes/Vídeos comprados con éxito! Ahora puedes presionar aquí para descargarlos o descargarlos en tu perfil mas tarde.'
+            : 'Successfully bought images/videos! You can press here to download them now or download them from your profile later.'}
         </Typography>
       </Alert>
 
 
+     
+        <Button
+          variant="contained"
+          sx={{
+            marginTop: 2,
+            backgroundColor: teal[400], // Set custom background color
+            '&:hover': {
+              backgroundColor: teal[600], // Custom color on hover (optional)
+            },
+          }}
+          onClick={handleDownload}
+        >
+          {isDownloading ? 'Downloading...' : 'Download Again'} <ArrowCircleDownIcon sx={{ marginLeft: '5px' }} />
+        </Button>
+      
 
-      <Button
-        variant="contained"
-        sx={{
-          marginTop: 2,
-          backgroundColor: teal[400], // Set custom background color
-          '&:hover': {
-            backgroundColor: teal[600], // Custom color on hover (optional)
-          },
-        }}
-        onClick={handleDownload}
-      >
-        {isDownloading ? 'Downloading...' : 'Download Images'} <ArrowCircleDownIcon sx={{ marginLeft: '5px' }} />
-      </Button>
+      {isDownloading &&
+        <CircularProgress />
+      }
+
+
+
+
+
+
+      <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
+        <Button onClick={handleOpenMessage} sx={{ color: 'black' }}>
+           How to find my images/videos?
+        </Button>
+      </Box>
+
+
+
+
 
 
       <br></br>
@@ -562,7 +573,7 @@ const PaymentSuccessfull = () => {
               </Typography>
 
               <Typography variant="body2" paragraph>
-                <strong>iPhone (iOS):</strong> Open the <em>“Files”</em> app. Go to the <em>“Downloads”</em> or <em>“On My iPhone”</em> section to locate the ZIP file named <strong><em>“surfpik.zip”</em></strong>.
+                <strong>iPhone (iOS):</strong> Open the <em>“Files”</em> app. Go to the <em>"Recents"</em> section to locate the ZIP file named <strong><em>“surfpik.zip”</em></strong>.
               </Typography>
 
               <Typography variant="body2" paragraph>
@@ -570,7 +581,7 @@ const PaymentSuccessfull = () => {
               </Typography>
 
               <Typography variant="body1" paragraph>
-                <strong>Extract the ZIP File:</strong> Tap on the <em>“surfpik.zip”</em> file to open it. Your device will either create a new folder named <em>“surfpik”</em> containing all your images, or simply display the images within. 
+                <strong>Extract the ZIP File:</strong> Tap on the <em>“surfpik.zip”</em> file to open it. Your device will either create a new folder named <em>“surfpik”</em> containing all your images, or simply display the images within.
               </Typography>
 
 

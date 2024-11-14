@@ -59,6 +59,8 @@ import PaymentSuccessfull from './components/PaymentSuccessfull';
 import DashboardPayoutsStripe from './components/DashboardPayoutsStripe';
 import VerificationAlerts from './components/VerificationAlerts';
 import VerificationAlertsForSettings from './components/VerificationAlertsForSettings';
+import SignInForPayment from './components/SignInForPayment';
+import SignUpForPayment from './components/SignUpForPayment';
 
 
 
@@ -91,6 +93,8 @@ function App() {
         <Route path="/PaymentSuccessfull" element={<PaymentSuccessfull />} />
         <Route path="/VerificationAlerts" element={<VerificationAlerts />} />
         <Route path="/VerificationAlertsForSettings" element={<VerificationAlertsForSettings />} />
+        <Route path="/SignInForPayment" element={<SignInForPayment />} />
+        <Route path="/SignUpForPayment" element={<SignUpForPayment />} />
         
         
 
@@ -187,6 +191,7 @@ const Root = () => {
 
         <div>
           <Outlet />
+          {/* <SignUpForPayment /> */}
         </div>
 
         {/* <PaymentSuccessfull></PaymentSuccessfull> */}

@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import axios from 'axios';
-import { addToCart_singleImages, fetchPricesBySessionAlbumId, selectCart, addToCart_waves, calculatePriceForImages, calculatePriceForWaves, removeCartType, removeFromCart_singleImages, removeSessAlbumOfCart, selectSessAlbumOfCart, setCartType, setSessAlbumOfCart, removeFromCart_waves, selectCartOfWaves, fetchWavesByListAsync } from '../slicers/cartSlice';
+import { addToCart_singleImages, fetchPricesBySessionAlbumId, selectCart, addToCart_waves, calculatePriceForImages, calculatePriceForWaves, removeCartType, removeFromCart_singleImages, removeSessAlbumOfCart, selectSessAlbumOfCart, setCartType, setSessAlbumOfCart, removeFromCart_waves, selectCartOfWaves, fetchWavesByListAsync, selectWavesInCart } from '../slicers/cartSlice';
 import { selectSelectedSessAlbum, selectSessAlbums } from '../slicers/sessAlbumSlice';
 import { TiLocation } from 'react-icons/ti';
 import SessAlbumDetails from './SessAlbumDetails';
@@ -25,9 +25,14 @@ import { Button, useMediaQuery, Dialog, DialogContent, Collapse } from '@mui/mat
 import Images from './Images';
 import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+
+
+
 
 const PerAlbumInCart: React.FC = () => {
-  const personalAlbums = useSelector(selectWavesInCart_WAVES);
+  const personalAlbums = useSelector(selectWavesInCart);
   const selectedSessAlbum = useSelector(selectSelectedSessAlbum);
   const cart = useSelector(selectCart);
   const dispatch = useAppDispatch();
@@ -57,6 +62,8 @@ const PerAlbumInCart: React.FC = () => {
   }
 
   useEffect(() => {
+    console.log("peralbumsss" + personalAlbums);
+    
     if (cart.length > 0) {
       dispatch(fetchWavesByListAsync(cart));
     }
@@ -211,7 +218,7 @@ const PerAlbumInCart: React.FC = () => {
       {Prices && (
       <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
         <Button onClick={handleToggle} sx={{ color: 'black' }}>
-          {open ? 'Hide' : 'Price Details'}
+        {open ? 'Hide' : 'Price Details'} {!open && <ArrowDropDownIcon />}  {open && <ArrowDropUpIcon />} 
         </Button>
         <Collapse in={open}>
           <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>
@@ -224,7 +231,7 @@ const PerAlbumInCart: React.FC = () => {
 
 
 
-      <ImageList variant="standard" cols={isMobile ? 1 : 1} sx={{ margin: '20px', display: 'flex', justifyContent: 'center' }}>
+<ImageList variant="standard" cols={isMobile ? 1 : 1} sx={{ margin: '20px', display: 'flex', justifyContent: 'center' }}>
         {personalAlbums.map((personalAlbum) => {
           const isInCart = cart.includes(personalAlbum.id);
 
@@ -290,6 +297,7 @@ const PerAlbumInCart: React.FC = () => {
           );
         })}
       </ImageList>
+
 
 
 

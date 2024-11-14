@@ -32,6 +32,9 @@ import UndividedImgsInCart from './UndividedImgsInCart';
 import PerAlbumInCart from './PerAlbumInCart';
 import SmartDisplayIcon from '@mui/icons-material/SmartDisplay';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
+import { selectUser } from '../slicers/userSlice';
+import { useNavigate } from 'react-router-dom';
+import { selectToken } from '../slicers/sighnInSlice';
 
 
 const Cart: React.FC = () => {
@@ -50,18 +53,13 @@ const Cart: React.FC = () => {
   const cartOfSingleImages = useSelector(selectCartOfSingleImages);
   const imgs = useSelector(selectImg);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const user = useSelector(selectUser)
+  const conectedUser = useSelector(selectToken)
 
 
 
-
-
-  useEffect(() => {
-    if (cartType === "waves" && cart.length > 0) {
-      dispatch(fetchWavesByListAsync(cart));
-      console.log(sessAlbumOfCart?.photographer_stripe_account_id);
-      
-    }
-  }, [dispatch, cart]); 
+ 
 
 
 
@@ -100,6 +98,17 @@ const Cart: React.FC = () => {
 
 
 
+
+
+
+
+  const handleIsConnected = () => {
+    if (user && conectedUser) {
+      handleCheckout()
+    } else{
+       navigate('/SignUpForPayment')
+    }
+  };
 
 
 
@@ -324,7 +333,8 @@ const Cart: React.FC = () => {
           <div>
             <h2>{cartTotalItems} Videos, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
-          <Button variant="contained" color="primary" onClick={handleCheckout}>
+
+          <Button variant="contained" color="primary" onClick={handleIsConnected}>
           continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
@@ -351,9 +361,9 @@ const Cart: React.FC = () => {
       {cartType === "waves" && (
         <>
         <div>
-          <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(2)} </h2>
+          <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
-          <Button variant="contained" color="primary" onClick={handleCheckout}>
+          <Button variant="contained" color="primary" onClick={handleIsConnected}>
           continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
@@ -381,9 +391,9 @@ const Cart: React.FC = () => {
       {cartType === "singleImages" && (
         <>
           <div>
-          <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(2)} </h2>
+          <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
-          <Button variant="contained" color="primary" onClick={handleCheckout}>
+          <Button variant="contained" color="primary" onClick={handleIsConnected}>
           continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 

@@ -12,6 +12,8 @@ import { useAppDispatch } from '../app/hooks';
 import { teal } from '@mui/material/colors';
 import SessAlbumDetails from './SessAlbumDetails';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 
 interface Video {
   id: number;
@@ -128,7 +130,7 @@ const VideosInCart: React.FC = () => {
       {Prices && (
       <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
         <Button onClick={handleToggle} sx={{ color: 'black' }}>
-          {open ? 'Hide' : 'Price Details'}
+        {open ? 'Hide' : 'Price Details'} {!open && <ArrowDropDownIcon />}  {open && <ArrowDropUpIcon />} 
         </Button>
         <Collapse in={open}>
           <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>
