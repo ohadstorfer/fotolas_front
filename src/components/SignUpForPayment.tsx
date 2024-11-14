@@ -238,7 +238,7 @@ export default function SignUp() {
               </Typography>
 
               <Typography variant="body2" paragraph>
-                Signing up takes just a moment, as all we only need an email and a password.
+                Signing up takes just a moment, as all we need is an email and a password.
               </Typography>
 
 
