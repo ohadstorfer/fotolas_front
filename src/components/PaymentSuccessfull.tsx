@@ -476,7 +476,8 @@ const PaymentSuccessfull = () => {
 
   return (
     <div className="container">
-      <Alert
+
+      {/* <Alert
         variant="outlined"
         color="success"
         startDecorator={<CheckCircleIcon />}
@@ -491,10 +492,32 @@ const PaymentSuccessfull = () => {
             ? '¡Imágenes/Vídeos comprados con éxito! Ahora puedes presionar aquí para descargarlos o descargarlos en tu perfil mas tarde.'
             : 'Successfully bought images/videos! You can press here to download them now or download them from your profile later.'}
         </Typography>
-      </Alert>
+      </Alert> */}
 
 
-     
+
+      {isDownloading &&
+        <Alert
+          variant="outlined"
+          color="success"
+          startDecorator={<CheckCircleIcon />}
+          sx={{
+            maxWidth: isMobile ? '90%' : '400px',
+            margin: '0 auto', // Center horizontally
+            textAlign: 'center',
+          }}
+        >
+          <Typography>
+            Your images/videos are being downloaded. This process may take a few minutes, so thank you for your patience.
+          </Typography>
+
+          <CircularProgress color="success" />
+        </Alert>
+      }
+
+
+
+      {!isDownloading &&
         <Button
           variant="contained"
           sx={{
@@ -506,13 +529,10 @@ const PaymentSuccessfull = () => {
           }}
           onClick={handleDownload}
         >
-          {isDownloading ? 'Downloading...' : 'Download Again'} <ArrowCircleDownIcon sx={{ marginLeft: '5px' }} />
+          Download Again <ArrowCircleDownIcon sx={{ marginLeft: '5px' }} />
         </Button>
-      <br></br>
-
-      {isDownloading &&
-        <CircularProgress />
       }
+
 
 
 
@@ -521,7 +541,7 @@ const PaymentSuccessfull = () => {
 
       <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
         <Button onClick={handleOpenMessage} sx={{ color: 'black' }}>
-           How to find my images/videos?
+          How to find my images/videos?
         </Button>
       </Box>
 
@@ -564,24 +584,17 @@ const PaymentSuccessfull = () => {
         >
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              <Typography variant="body1" paragraph>
+              <Typography variant="body1" paragraph align="center">
                 <strong>How to find your images/videos:</strong>
               </Typography>
 
-              <Typography variant="body2" paragraph>
-                <strong>Navigate to the Download Location:</strong>
-              </Typography>
 
-              <Typography variant="body2" paragraph>
-                <strong>iPhone (iOS):</strong> Open the <em>“Files”</em> app. Go to the <em>"Recents"</em> section to locate the ZIP file named <strong><em>“surfpik.zip”</em></strong>.
-              </Typography>
-
-              <Typography variant="body2" paragraph>
-                <strong>Android:</strong> Open the <em>“Files”</em> or <em>“My Files”</em> app. Navigate to <em>“Downloads”</em> or the location where your browser saves files, and search for the ZIP file named <strong><em>“surfpik.zip”</em></strong>.
+              <Typography variant="body1" paragraph>
+                Check your phone's files and search for <strong><em>“surfpik.zip”</em></strong>. You may find it under <em>"Recents"</em> or <em>"Downloads"</em>.
               </Typography>
 
               <Typography variant="body1" paragraph>
-                <strong>Extract the ZIP File:</strong> Tap on the <em>“surfpik.zip”</em> file to open it. Your device will either create a new folder named <em>“surfpik”</em> containing all your images, or simply display the images within.
+                Tap on the <em>“surfpik.zip”</em> file to open it. Your device will either create a new folder named <em>“surfpik”</em> containing all your images, or simply display the images within.
               </Typography>
 
 

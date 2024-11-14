@@ -190,11 +190,11 @@ const Root = () => {
 
 
         <div>
-          <Outlet />
+          {/* <Outlet /> */}
           {/* <SignUpForPayment /> */}
         </div>
 
-        {/* <PaymentSuccessfull></PaymentSuccessfull> */}
+        <PaymentSuccessfull></PaymentSuccessfull>
         {/* <ErrorPage></ErrorPage> */}
         {/* <ResetPassword></ResetPassword> */}
         {/* <ResetPasswordStep2></ResetPasswordStep2> */}
