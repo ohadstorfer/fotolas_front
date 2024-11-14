@@ -233,17 +233,15 @@ export default function SignUp() {
         >
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              <Typography variant="body1" paragraph>
+            <Typography variant="body1" paragraph sx={{ textAlign: 'center' }}>
                 <strong>Quick sign-up to complete your purchase</strong>
               </Typography>
 
               <Typography variant="body2" paragraph>
-                Signing up takes just a moment, and it’s required so we can securely process your payment and provide you with a receipt.
+                Signing up takes just a moment, as all we only need an email and a password.
               </Typography>
 
-              <Typography variant="body2" paragraph>
-                Plus, once you’re signed up, you’ll be able to access and download your purchased images directly from your profile!
-              </Typography>
+
             </DialogContentText>
           </DialogContent>
           <DialogActions>

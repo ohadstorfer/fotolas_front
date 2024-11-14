@@ -508,7 +508,7 @@ const PaymentSuccessfull = () => {
         >
           {isDownloading ? 'Downloading...' : 'Download Again'} <ArrowCircleDownIcon sx={{ marginLeft: '5px' }} />
         </Button>
-      
+      <br></br>
 
       {isDownloading &&
         <CircularProgress />
