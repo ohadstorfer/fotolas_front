@@ -11,6 +11,9 @@ import { teal } from '@mui/material/colors';
 import SessAlbumDetails from './SessAlbumDetails';
 import { selectSelectedSessAlbum } from '../slicers/sessAlbumSlice';
 import CloseIcon from '@mui/icons-material/Close';
+import { useNavigate } from 'react-router-dom';
+import { selectSpanish } from '../slicers/sighnInSlice';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 const UndividedImgs: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -22,6 +25,8 @@ const UndividedImgs: React.FC = () => {
   const nextPage = useSelector(selectNextImages);
   const previousPage = useSelector(selectPreviousImages);
   const isMobile = useMediaQuery('(max-width:600px)');
+  const navigate = useNavigate();
+  const spanish = useSelector(selectSpanish)
 
   // Dialog state for opening the image in larger view
   const [open, setOpen] = useState(false);
@@ -112,17 +117,42 @@ const UndividedImgs: React.FC = () => {
     setSelectedImage(null);
   };
 
+  const handleNavigateHome = () => {
+    navigate('/'); // Navigate to the home page
+  };
+
+
   return (
     <div>
-      <SessAlbumDetails />
-      {Prices && (
-        <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px'}}>
-          <Typography>Price Details:</Typography>
-          <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>
-          <Typography>For 6-50 images: {Prices.price_6_to_50} $</Typography>
-          <Typography>For 51+ images: {Prices.price_51_plus} $</Typography>
-        </Box>
-      )}
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+  <SessAlbumDetails />
+
+  <Button
+    variant="text"
+    sx={{
+      fontSize: '0.9rem',
+      color: teal[400],
+      borderRadius: '8px',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: teal[400],
+        color: 'white',
+      },
+    }}
+    onClick={handleNavigateHome}
+  >
+    <ArrowBackIosIcon fontSize="small" /> {spanish ? 'Ir a la página principal' : 'Back to Homepage'}
+  </Button>
+
+  {Prices && (
+    <Box sx={{ padding: '5px', borderRadius: '8px'}}>
+      <Typography>Price Details:</Typography>
+      <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>
+      <Typography>For 6-50 images: {Prices.price_6_to_50} $</Typography>
+      <Typography>For 51+ images: {Prices.price_51_plus} $</Typography>
+    </Box>
+  )}
+</Box>
 
       <ImageList variant="standard" cols={isMobile ? 2 : 4} sx={{ margin: '20px' }}>
         {imgs.map((img: Img) => {

@@ -64,6 +64,7 @@ import SignUpForPayment from './components/SignUpForPayment';
 import BottomNav from './components/BottomNav';
 import About from './components/About';
 import ContactUs from './components/ContactUs';
+import { Box } from '@mui/joy';
 
 
 
@@ -100,8 +101,8 @@ function App() {
         <Route path="/SignUpForPayment" element={<SignUpForPayment />} />
         <Route path="/About" element={<About />} />
         <Route path="/ContactUs" element={<ContactUs />} />
-        
-        
+
+
 
         <Route element={<ProtectedRoutesPhotographers />}>
           <Route path="/ProfilePtg" element={<ProfilePhotographer />} />
@@ -122,7 +123,7 @@ function App() {
           <Route path="/FailedUpload" element={<FailedUpload />} />
           <Route path="/MyAlbums" element={<MyAlbums />} />
           <Route path="/DashboardPayoutsStripe" element={<DashboardPayoutsStripe />} />
-          
+
         </Route>
 
       </Route>
@@ -179,13 +180,13 @@ const Root = () => {
           {!shouldHideNavbar && <Navbar />}
           {shouldShowPhotographerNavbar && <PhotographerNavbar />}
         </div>
-  
+
         {shouldShowCoverImage && (
           <div style={{ marginTop: '70px', padding: '0px' }}>
             <CoverImageHomePage />
           </div>
         )}
-  
+
         <div
           style={{
             flex: 1, // This ensures that the content above takes up all available space
@@ -197,12 +198,14 @@ const Root = () => {
             <Outlet />
           </div>
         </div>
-  
-        <BottomNav />
+
+        <Box sx={{ marginTop: '20px' }}>
+          <BottomNav />
+        </Box>
       </div>
     </>
   );
-  
+
 }
 
 

@@ -10,7 +10,7 @@ import Link from '@mui/joy/Link';
 import { useAppDispatch } from '../app/hooks';
 import { clearSessAlbums, formatSessDate, selectNextPage, selectPreviousPage, selectSessAlbums, sessGetDataAsync, setSelectedSessAlbum } from '../slicers/sessAlbumSlice';
 import { fetchPricesForVideosBySessionAlbumId, getDataAsync } from '../slicers/perAlbumSlice';
-import { AspectRatio } from '@mui/joy';
+import { Alert, AspectRatio } from '@mui/joy';
 import { TiLocation } from 'react-icons/ti';
 import { teal, red } from '@mui/material/colors';
 import ImageList from '@mui/material/ImageList';
@@ -24,6 +24,7 @@ import { Autocomplete, Button, TextField, useMediaQuery } from '@mui/material';
 import SmartDisplayIcon from '@mui/icons-material/SmartDisplay';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import AutoDeleteIcon from '@mui/icons-material/AutoDelete';
+import InfoIcon from '@mui/icons-material/Info';
 
 interface SessAlbumProps {
   filterType: string;
@@ -324,6 +325,26 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
             </ImageListItem>
           ))}
         </ImageList>
+
+
+
+        <Alert
+      variant="outlined"
+      color="neutral"
+      startDecorator={<InfoIcon  />}
+      sx={{
+        maxWidth: isMobile ? '90%' : '400px',
+        margin: '0 auto', // Center horizontally
+        textAlign: 'center',
+      }}
+    >
+      <Typography>
+      Images and videos on our website are available for a limited time. Images remain accessible for 30 days, while videos are available for 5 days.      </Typography>
+
+    </Alert>
+
+
+    
         {(nextPage || previousPage) && (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>

@@ -18,13 +18,15 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import axios from 'axios';
 import { addToCart_singleImages, fetchPricesBySessionAlbumId, selectCart, addToCart_waves, calculatePriceForImages, calculatePriceForWaves, removeCartType, removeFromCart_singleImages, removeSessAlbumOfCart, selectSessAlbumOfCart, setCartType, setSessAlbumOfCart, removeFromCart_waves } from '../slicers/cartSlice';
-import {  selectSelectedSessAlbum, selectSessAlbums } from '../slicers/sessAlbumSlice';
+import { selectSelectedSessAlbum, selectSessAlbums } from '../slicers/sessAlbumSlice';
 import { TiLocation } from 'react-icons/ti';
 import SessAlbumDetails from './SessAlbumDetails';
 import { Button, useMediaQuery, Dialog, DialogContent } from '@mui/material';
 import Images from './Images';
 import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
+import { selectSpanish } from '../slicers/sighnInSlice';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 const PerAlbum: React.FC = () => {
   const personalAlbums = useSelector(selectPersonalAlbum);
@@ -44,6 +46,7 @@ const PerAlbum: React.FC = () => {
   const [selectedAlbum, setSelectedAlbum] = useState<personalAlbum | null>(null);
   const [isInCart, setIsInCart] = useState(false);
   const serverError = useSelector(selectServerError);
+  const spanish = useSelector(selectSpanish)
 
 
 
@@ -109,15 +112,15 @@ const PerAlbum: React.FC = () => {
   const handleRemoveFromCart = (waveId: number, imageCount: number) => {
     // Show confirmation dialog
     // const confirmed = window.confirm('Remove this wave from your cart?');
-  
+
     // if (confirmed) {
-      if (cart.length === 1) {
-        dispatch(removeSessAlbumOfCart());
-        dispatch(removeCartType());
-      }
-  
-      dispatch(removeFromCart_waves({ waveId, imageCount }));
-      dispatch(calculatePriceForImages());
+    if (cart.length === 1) {
+      dispatch(removeSessAlbumOfCart());
+      dispatch(removeCartType());
+    }
+
+    dispatch(removeFromCart_waves({ waveId, imageCount }));
+    dispatch(calculatePriceForImages());
     // }
   };
 
@@ -171,7 +174,9 @@ const PerAlbum: React.FC = () => {
   };
 
 
-
+  const handleNavigateHome = () => {
+    navigate('/'); // Navigate to the home page
+  };
 
 
   const handleNextPage = () => {
@@ -203,29 +208,49 @@ const PerAlbum: React.FC = () => {
 
   return (
     <div>
-      <SessAlbumDetails></SessAlbumDetails>
+<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+  <SessAlbumDetails />
 
-      {Prices && (
-        <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px'}}>
-          <Typography>Price Details:</Typography>
-          <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>
-          <Typography>For 6-50 images: {Prices.price_6_to_50} $</Typography>
-          <Typography>For 51+ images: {Prices.price_51_plus} $</Typography>
-        </Box>
-      )}
+  <Button
+    variant="text"
+    sx={{
+      fontSize: '0.9rem',
+      color: teal[400],
+      borderRadius: '8px',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: teal[400],
+        color: 'white',
+      },
+    }}
+    onClick={handleNavigateHome}
+  >
+    <ArrowBackIosIcon fontSize="small" /> {spanish ? 'Ir a la página principal' : 'Back to Homepage'}
+  </Button>
+
+  {Prices && (
+    <Box sx={{ padding: '5px', borderRadius: '8px'}}>
+      <Typography>Price Details:</Typography>
+      <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>
+      <Typography>For 6-50 images: {Prices.price_6_to_50} $</Typography>
+      <Typography>For 51+ images: {Prices.price_51_plus} $</Typography>
+    </Box>
+  )}
+</Box>
+
 
 
 
 
       <ImageList variant="standard" cols={isMobile ? 2 : 4} sx={{ margin: '20px' }}>
-      
+
         {personalAlbums.map((personalAlbum) => {
           const isInCart = cart.includes(personalAlbum.id);
 
           return (
             <ImageListItem key={personalAlbum.id}>
               <Card
-              sx={{
+                sx={{
                   boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)', // Shadow on all sides
                   borderRadius: '8px', // Optional: smooth corners
                 }}>
@@ -290,15 +315,15 @@ const PerAlbum: React.FC = () => {
       </ImageList>
 
       {(nextPage || previousPage) && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-            <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
-              Previous
-            </Button>
-            <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
-              Next
-            </Button>
-          </Box>
-        )}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
+            Previous
+          </Button>
+          <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
+            Next
+          </Button>
+        </Box>
+      )}
 
 
 
@@ -316,22 +341,22 @@ const PerAlbum: React.FC = () => {
 
 
         <DialogTitle
-        sx={{
-          display: 'flex',
-          justifyContent: 'center', // Horizontally center the content
-          alignItems: 'center', // Vertically center the content
-          flexDirection: 'row', // Layout the children in a row
-          gap: 2, // Add spacing between elements
-          position: 'relative', // For the absolute close button
-        }}>
+          sx={{
+            display: 'flex',
+            justifyContent: 'center', // Horizontally center the content
+            alignItems: 'center', // Vertically center the content
+            flexDirection: 'row', // Layout the children in a row
+            gap: 2, // Add spacing between elements
+            position: 'relative', // For the absolute close button
+          }}>
 
 
-          
+
           <Box>
-          <span style={{ marginRight: isMobile ? '1px' : '4px', fontSize: '1.5rem', color: 'black' }}>
-            {selectedAlbum?.image_count}
-          </span>
-          <IoImagesOutline style={{ color: 'black' }} />
+            <span style={{ marginRight: isMobile ? '1px' : '4px', fontSize: '1.5rem', color: 'black' }}>
+              {selectedAlbum?.image_count}
+            </span>
+            <IoImagesOutline style={{ color: 'black' }} />
           </Box>
 
 
@@ -352,7 +377,7 @@ const PerAlbum: React.FC = () => {
                 : handleAddToCartNew(selectedAlbumId!, selectedAlbum!.image_count, selectedAlbum!.session_album);
             }}
           >
-            
+
             {isInCart ? <RemoveShoppingCartIcon /> : <AddShoppingCartIcon />}
           </Button>
 

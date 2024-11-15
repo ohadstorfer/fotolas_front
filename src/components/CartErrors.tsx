@@ -34,7 +34,8 @@ import SmartDisplayIcon from '@mui/icons-material/SmartDisplay';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import { selectUser } from '../slicers/userSlice';
 import { useNavigate } from 'react-router-dom';
-import { selectToken } from '../slicers/sighnInSlice';
+import { selectSpanish, selectToken } from '../slicers/sighnInSlice';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 
 const Cart: React.FC = () => {
@@ -56,6 +57,7 @@ const Cart: React.FC = () => {
   const navigate = useNavigate();
   const user = useSelector(selectUser)
   const conectedUser = useSelector(selectToken)
+  const spanish = useSelector(selectSpanish)
 
 
 
@@ -323,11 +325,33 @@ const Cart: React.FC = () => {
 
 
 
+  const handleNavigateHome = () => {
+    navigate('/'); // Navigate to the home page
+  };
+
 
 
 
   return (
     <div>
+      <Button
+    variant="text"
+    sx={{
+      fontSize: '0.9rem',
+      color: teal[400],
+      borderRadius: '8px',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: teal[400],
+        color: 'white',
+      },
+    }}
+    onClick={handleNavigateHome}
+  >
+    <ArrowBackIosIcon fontSize="small" /> {spanish ? 'Ir a la página principal' : 'Back to Homepage'}
+  </Button>
+
+
       {cartType === "videos" && (
         <>
           <div>

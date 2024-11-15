@@ -12,6 +12,10 @@ import { useAppDispatch } from '../app/hooks';
 import { teal } from '@mui/material/colors';
 import SessAlbumDetails from './SessAlbumDetails';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import { useNavigate } from 'react-router-dom';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import { selectSpanish } from '../slicers/sighnInSlice';
+
 
 interface Video {
   id: number;
@@ -32,6 +36,8 @@ const Video: React.FC = () => {
   const previousPage = useSelector(selectPreviousVideos);
   const isMobile = useMediaQuery('(max-width:600px)');
   const [activeVideos, setActiveVideos] = useState<{ [key: number]: boolean }>({});
+  const navigate = useNavigate();
+  const spanish = useSelector(selectSpanish)
 
 
 
@@ -69,12 +75,12 @@ const Video: React.FC = () => {
   const handleRemoveFromCart = (videoId: number) => {
     // const confirmed = window.confirm('Remove this video from your cart?');
     // if (confirmed) {
-      if (cart.length === 1) {
-        dispatch(removeSessAlbumOfCart());
-        dispatch(removeCartType());
-      }
-      dispatch(removeFromCart_videos({ videoId }));
-      dispatch(calculatePriceForVideos());
+    if (cart.length === 1) {
+      dispatch(removeSessAlbumOfCart());
+      dispatch(removeCartType());
+    }
+    dispatch(removeFromCart_videos({ videoId }));
+    dispatch(calculatePriceForVideos());
     // }
   };
 
@@ -123,18 +129,38 @@ const Video: React.FC = () => {
 
 
 
-
+  const handleNavigateHome = () => {
+    navigate('/'); // Navigate to the home page
+  };
 
 
 
 
   return (
     <div>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <SessAlbumDetails />
 
 
+      <Button
+    variant="text"
+    sx={{
+      fontSize: '0.9rem',
+      color: teal[400],
+      borderRadius: '8px',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: teal[400],
+        color: 'white',
+      },
+    }}
+    onClick={handleNavigateHome}
+  >
+    <ArrowBackIosIcon fontSize="small" /> {spanish ? 'Ir a la página principal' : 'Back to Homepage'}
+  </Button>
+
       {Prices && (
-        <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px'}}>
+        <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
           <Typography>
             Price Details:
           </Typography>
@@ -150,9 +176,11 @@ const Video: React.FC = () => {
         </Box>
       )}
 
+</Box>
 
 
-      <ImageList variant="standard" cols={isMobile ? 1 : 4} sx={{ margin: '20px'  }}>
+
+      <ImageList variant="standard" cols={isMobile ? 1 : 4} sx={{ margin: '20px' }}>
         {videos.map((video) => {
           const isInCart = cart.includes(video.id);
           const isActive = activeVideos[video.id];
@@ -160,10 +188,10 @@ const Video: React.FC = () => {
           return (
             <ImageListItem key={video.id}>
               <Card
-              sx={{
-                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)', // Shadow on all sides
-                borderRadius: '8px', // Optional: smooth corners
-              }}>
+                sx={{
+                  boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.3)', // Shadow on all sides
+                  borderRadius: '8px', // Optional: smooth corners
+                }}>
                 <CardActionArea onClick={() => handleVideoClick(video.id)}>
                   <AspectRatio ratio="4/3">
                     {isActive ? (
@@ -230,15 +258,15 @@ const Video: React.FC = () => {
 
 
       {(nextPage || previousPage) && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-            <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
-              Previous
-            </Button>
-            <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
-              Next
-            </Button>
-          </Box>
-        )}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
+            Previous
+          </Button>
+          <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
+            Next
+          </Button>
+        </Box>
+      )}
 
 
     </div>

@@ -177,7 +177,8 @@ const DashboardSurfer: React.FC = () => {
         Note! images and vidoe on our website stay availible for limited time, so you should download your purchased items before the are unavailible.  
       </Typography>
 
-    </Alert><div>
+    </Alert>
+    <div>
         <ImageList variant="masonry" cols={isMobile ? 2 : 4} gap={8} sx={{ margin: '20px' }}>
           {surferPurchases?.purchased_images &&
             renderItems(surferPurchases.purchased_images, 'image')}
