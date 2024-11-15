@@ -4,19 +4,28 @@ import { useMediaQuery } from '@mui/material';
 
 export default function CoverImageHomePage() {
   const isMobile = useMediaQuery('(max-width:600px)');
+  const [isLoading, setIsLoading] = React.useState(true);
 
 
+  const handleImageLoad = () => {
+    setIsLoading(false); // Set loading to false once the image has loaded
+  };
 
 
 
   return (
-  <Box
-  // style={{ marginTop: '70px', padding: '0px' }}
+    <Box
     sx={{
-      width: '100%',  // Ensure full width
-      height: 'auto', // Adjust height automatically based on the image ratio
+      width: '100%',
+      height: 'auto',
     }}
   >
+    {isLoading && (
+      <Box sx={{ width: '100%', height: 'auto', backgroundColor: 'gray' }}>
+        {/* Optional: You can add a placeholder here (like a spinner) */}
+      </Box>
+    )}
+
     <img
       src={isMobile ? `${process.env.PUBLIC_URL}/COVER.png` : `${process.env.PUBLIC_URL}/COVERslim.png`}
       alt="Cover"
@@ -25,6 +34,7 @@ export default function CoverImageHomePage() {
         height: 'auto',
         objectFit: 'cover', // Ensures the image covers the space
       }}
+      onLoad={handleImageLoad} // Trigger handleImageLoad once the image is loaded
     />
   </Box>
 
