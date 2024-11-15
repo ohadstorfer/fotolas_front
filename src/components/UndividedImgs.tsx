@@ -130,6 +130,7 @@ const UndividedImgs: React.FC = () => {
   <Button
     variant="text"
     sx={{
+      margin: '5px 0',
       fontSize: '0.9rem',
       color: teal[400],
       borderRadius: '8px',
