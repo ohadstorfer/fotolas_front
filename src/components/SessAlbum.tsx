@@ -328,7 +328,7 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
 
 
 
-        <Alert
+        {/* <Alert
       variant="outlined"
       color="neutral"
       startDecorator={<InfoIcon  />}
@@ -341,7 +341,7 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
       <Typography>
       Images and videos on our website are available for a limited time. Images remain accessible for 30 days, while videos are available for 5 days.      </Typography>
 
-    </Alert>
+    </Alert> */}
 
 
     

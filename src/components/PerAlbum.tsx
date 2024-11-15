@@ -334,6 +334,7 @@ const PerAlbum: React.FC = () => {
       <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="lg"
         PaperProps={{
           style: {
+            backgroundColor: "#FFEEAD",
             width: isMobile ? '100%' : '75%',
             margin: 'auto', // centers the dialog
           }
@@ -429,7 +430,6 @@ const PerAlbum: React.FC = () => {
         </IconButton>
 
         <DialogContent >
-          {/* Render the Images component within the dialog */}
           <Images />
         </DialogContent>
       </Dialog>

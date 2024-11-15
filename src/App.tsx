@@ -65,6 +65,7 @@ import BottomNav from './components/BottomNav';
 import About from './components/About';
 import ContactUs from './components/ContactUs';
 import { Box } from '@mui/joy';
+import LimitedTimeAlert from './components/LimitedTimeAlert';
 
 
 
@@ -199,6 +200,10 @@ const Root = () => {
           </div>
         </div>
 
+
+        {shouldShowCoverImage &&
+          <LimitedTimeAlert  />
+        }
         <Box sx={{ marginTop: '20px' }}>
           <BottomNav />
         </Box>
