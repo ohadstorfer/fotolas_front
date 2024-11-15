@@ -239,6 +239,9 @@ export const sessAlbumSlice = createSlice({
       state.newPrices = null;
       sessionStorage.removeItem('newPrices');
     },
+    clearSessAlbums: (state) => {
+      state.sess = [];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -334,7 +337,7 @@ export const sessAlbumSlice = createSlice({
   },
 });
 
-export const {setSelectedSessAlbum, removeSelectedSessAlbum , removeNewSess , removeNewPrices, removeNewSessDetails} = sessAlbumSlice.actions;
+export const {clearSessAlbums,setSelectedSessAlbum, removeSelectedSessAlbum , removeNewSess , removeNewPrices, removeNewSessDetails} = sessAlbumSlice.actions;
 
 export const selectSessAlbums = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.sess;
 export const selectNewSess = (state: { sessAlbum: sessAlbumState }) => state.sessAlbum.newSess;

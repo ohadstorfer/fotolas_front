@@ -61,6 +61,9 @@ import VerificationAlerts from './components/VerificationAlerts';
 import VerificationAlertsForSettings from './components/VerificationAlertsForSettings';
 import SignInForPayment from './components/SignInForPayment';
 import SignUpForPayment from './components/SignUpForPayment';
+import BottomNav from './components/BottomNav';
+import About from './components/About';
+import ContactUs from './components/ContactUs';
 
 
 
@@ -95,6 +98,8 @@ function App() {
         <Route path="/VerificationAlertsForSettings" element={<VerificationAlertsForSettings />} />
         <Route path="/SignInForPayment" element={<SignInForPayment />} />
         <Route path="/SignUpForPayment" element={<SignUpForPayment />} />
+        <Route path="/About" element={<About />} />
+        <Route path="/ContactUs" element={<ContactUs />} />
         
         
 
@@ -169,56 +174,35 @@ const Root = () => {
 
   return (
     <>
-      <div>
-        {!shouldHideNavbar && <Navbar />}
-        {shouldShowPhotographerNavbar && <PhotographerNavbar />}
-      </div>
-
-      {shouldShowCoverImage &&
-        <div style={{ marginTop: '70px', padding: '0px' }}>
-          <CoverImageHomePage />
-        </div>
-      }
-
-
-      <div
-        style={{
-          marginTop: shouldShowPhotographerNavbar ? '9px' : (!shouldShowCoverImage ? '80px' : '0px'),
-          padding: '0px'
-        }}
-      >
-
-
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <div>
-          <Outlet />
-          {/* <SignUpForPayment /> */}
+          {!shouldHideNavbar && <Navbar />}
+          {shouldShowPhotographerNavbar && <PhotographerNavbar />}
         </div>
-
-        {/* <PaymentSuccessfull></PaymentSuccessfull> */}
-        {/* <ErrorPage></ErrorPage> */}
-        {/* <ResetPassword></ResetPassword> */}
-        {/* <ResetPasswordStep2></ResetPasswordStep2> */}
-        {/* <Successfull></Successfull> */}
-        {/* <DashboardSurferImages></DashboardSurferImages> */}
-        {/* <DashboardPhotographer></DashboardPhotographer> */}
-        {/* <PleaseWorkneww></PleaseWorkneww> */}
-        {/* <Cart></Cart> */}
-        {/* <BecomePhotographer></BecomePhotographer> */}
-        {/* <BecomePhotographercopy></BecomePhotographercopy> */}
-        {/* <hr></hr> */}
-        {/* <CreatePricesForVideos></CreatePricesForVideos> */}
-        {/* <CreatePrices></CreatePrices> */}
-        {/* <CreatSessAlbumErrors></CreatSessAlbumErrors> */}
-        {/* <FailedUpload></FailedUpload> */}
-        {/* <PleaseWorkErrors></PleaseWorkErrors> */}
-        {/* <hr></hr> */}
-        {/* <PleaseWorkVideoS3Errors></PleaseWorkVideoS3Errors> */}
-        {/* <FailedUpload></FailedUpload> */}
-        {/* <SignUp></SignUp> */}
-
+  
+        {shouldShowCoverImage && (
+          <div style={{ marginTop: '70px', padding: '0px' }}>
+            <CoverImageHomePage />
+          </div>
+        )}
+  
+        <div
+          style={{
+            flex: 1, // This ensures that the content above takes up all available space
+            marginTop: shouldShowPhotographerNavbar ? '9px' : (!shouldShowCoverImage ? '80px' : '0px'),
+            padding: '0px'
+          }}
+        >
+          <div>
+            <Outlet />
+          </div>
+        </div>
+  
+        <BottomNav />
       </div>
     </>
-  )
+  );
+  
 }
 
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getDataAsync, selectPersonalAlbum, addToCart, removeFromCart, removeWaveFromCart, updateTotalPrice, selectNextPageWaves, selectPreviousPageWaves, selectServerError } from '../slicers/perAlbumSlice';
+import { getDataAsync, selectPersonalAlbum, addToCart, removeFromCart, removeWaveFromCart, updateTotalPrice, selectNextPageWaves, selectPreviousPageWaves, selectServerError, clearPerAlbums } from '../slicers/perAlbumSlice';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardMedia from '@mui/material/CardMedia';
@@ -60,6 +60,7 @@ const PerAlbum: React.FC = () => {
 
 
   useEffect(() => {
+    dispatch(clearPerAlbums())
     if (selectedSessAlbum) {
       const albumId = selectedSessAlbum.id
       dispatch(getDataAsync({ albumId, page: 1, pageSize: 21 }));

@@ -8,7 +8,7 @@ import Avatar from '@mui/joy/Avatar';
 import Typography from '@mui/joy/Typography';
 import Link from '@mui/joy/Link';
 import { useAppDispatch } from '../app/hooks';
-import { formatSessDate, selectNextPage, selectPreviousPage, selectSessAlbums, sessGetDataAsync, setSelectedSessAlbum } from '../slicers/sessAlbumSlice';
+import { clearSessAlbums, formatSessDate, selectNextPage, selectPreviousPage, selectSessAlbums, sessGetDataAsync, setSelectedSessAlbum } from '../slicers/sessAlbumSlice';
 import { fetchPricesForVideosBySessionAlbumId, getDataAsync } from '../slicers/perAlbumSlice';
 import { AspectRatio } from '@mui/joy';
 import { TiLocation } from 'react-icons/ti';
@@ -62,6 +62,7 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
 
 
   useEffect(() => {
+    dispatch(clearSessAlbums())
     dispatch(sessGetDataAsync({ filterType, filterId }));
   }, [dispatch, filterType, filterId]);
 

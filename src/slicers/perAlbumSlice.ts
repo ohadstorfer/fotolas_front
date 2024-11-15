@@ -126,6 +126,9 @@ export const perAlbumSlice = createSlice({
       state.prices = action.payload;
       sessionStorage.setItem('prices', JSON.stringify(state.prices)); // Save prices to session storage
     },
+    clearPerAlbums: (state) => {
+      state.albums = [];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -178,7 +181,7 @@ export const perAlbumSlice = createSlice({
   },
 });
 
-export const { addToCart, removeFromCart, removeWaveFromCart, updateTotalPrice, setPrices  } = perAlbumSlice.actions;
+export const { addToCart, removeFromCart, removeWaveFromCart, updateTotalPrice, setPrices , clearPerAlbums } = perAlbumSlice.actions;
 
 export const selectPersonalAlbum = (state: { perAlbum: perAlbumState }) => state.perAlbum.albums;
 export const selectNewPerAlbum = (state: { perAlbum: perAlbumState }) => state.perAlbum.newPerAlbum;

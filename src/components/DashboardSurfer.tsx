@@ -12,6 +12,8 @@ import axios from 'axios';
 import AutoDeleteIcon from '@mui/icons-material/AutoDelete';
 import red from '@mui/material/colors/red';
 import CloseIcon from '@mui/icons-material/Close';
+import { Alert, Typography } from '@mui/joy';
+import InfoIcon from '@mui/icons-material/Info';
 
 
 
@@ -100,7 +102,7 @@ const DashboardSurfer: React.FC = () => {
 
 
 
-            {item.days_until_expiration <= 3 && (
+            
               <Box
                 sx={{
                   position: 'absolute',
@@ -126,7 +128,7 @@ const DashboardSurfer: React.FC = () => {
                 )}
 
 
-                {item.days_until_expiration <= 3 && (
+                
                   <AutoDeleteIcon
                     style={{
                       color: item.days_until_expiration === 0 ? red[500] : 'white',
@@ -134,11 +136,11 @@ const DashboardSurfer: React.FC = () => {
                       cursor: 'pointer',
                     }}
                   />
-                )}
+                
 
 
               </Box>
-            )}
+            
 
             <IconButton
               sx={{
@@ -161,80 +163,93 @@ const DashboardSurfer: React.FC = () => {
   };
 
   return (
-    <div>
-      <ImageList variant="masonry" cols={isMobile ? 2 : 4} gap={8} sx={{ margin: '20px' }}>
-        {surferPurchases?.purchased_images &&
-          renderItems(surferPurchases.purchased_images, 'image')}
-      </ImageList>
+    <><Alert
+      variant="outlined"
+      color="neutral"
+      startDecorator={<InfoIcon  />}
+      sx={{
+        maxWidth: isMobile ? '90%' : '400px',
+        margin: '0 auto', // Center horizontally
+        textAlign: 'center',
+      }}
+    >
+      <Typography>
+        Note! images and vidoe on our website stay availible for limited time, so you should download your purchased items before the are unavailible.  
+      </Typography>
 
-      <ImageList variant="masonry" cols={isMobile ? 2 : 4} gap={8} sx={{ margin: '20px' }}>
-        {surferPurchases?.purchased_videos &&
-          renderItems(surferPurchases.purchased_videos, 'video')}
-      </ImageList>
+    </Alert><div>
+        <ImageList variant="masonry" cols={isMobile ? 2 : 4} gap={8} sx={{ margin: '20px' }}>
+          {surferPurchases?.purchased_images &&
+            renderItems(surferPurchases.purchased_images, 'image')}
+        </ImageList>
 
-
-
-
- {/* Dialog for viewing larger image */}
- <Dialog
-        open={open}
-        onClose={handleCloseDialog}
-        maxWidth="lg"
-        fullWidth
-        PaperProps={{
-          style: {
-            width: isMobile ? '100%' : '60%',
-            margin: 'auto', // centers the dialog
-          }
-        }}
-      >
+        <ImageList variant="masonry" cols={isMobile ? 2 : 4} gap={8} sx={{ margin: '20px' }}>
+          {surferPurchases?.purchased_videos &&
+            renderItems(surferPurchases.purchased_videos, 'video')}
+        </ImageList>
 
 
-        <IconButton
-          aria-label="close"
-          onClick={handleCloseDialog}
-          sx={{
-            position: 'absolute',
-            right: 8,
-            top: 8,
-            color: 'white', // Text/icon color
-            backgroundColor: '#9e9e9e', // Background color (grey)
-            '&:hover': {
-              backgroundColor: '#757575', // Darker grey on hover
-            },
-            '&:active': {
-              backgroundColor: '#616161', // Even darker grey when active
-            },
+
+
+        {/* Dialog for viewing larger image */}
+        <Dialog
+          open={open}
+          onClose={handleCloseDialog}
+          maxWidth="lg"
+          fullWidth
+          PaperProps={{
+            style: {
+              width: isMobile ? '100%' : '60%',
+              margin: 'auto', // centers the dialog
+            }
           }}
         >
-          <CloseIcon />
-        </IconButton>
 
-      <DialogContent
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 0, // Optional: removes padding around the image
-          }}
-        >
-          {selectedImage && (
-            <img
-              src={selectedImage}
-              alt="Larger View"
-              style={{
-                width: '100%',    // Ensures the image takes up full width
-                height: 'auto',   // Maintains aspect ratio
-                maxWidth: '100%', // Ensures it doesn’t exceed the container’s width
-                display: 'block',
-              }}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
 
-      
-    </div>
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseDialog}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: 'white', // Text/icon color
+              backgroundColor: '#9e9e9e', // Background color (grey)
+              '&:hover': {
+                backgroundColor: '#757575', // Darker grey on hover
+              },
+              '&:active': {
+                backgroundColor: '#616161', // Even darker grey when active
+              },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+
+          <DialogContent
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: 0, // Optional: removes padding around the image
+            }}
+          >
+            {selectedImage && (
+              <img
+                src={selectedImage}
+                alt="Larger View"
+                style={{
+                  width: '100%', // Ensures the image takes up full width
+                  height: 'auto', // Maintains aspect ratio
+                  maxWidth: '100%', // Ensures it doesn’t exceed the container’s width
+                  display: 'block',
+                }} />
+            )}
+          </DialogContent>
+        </Dialog>
+
+
+      </div></>
   );
 };
 
