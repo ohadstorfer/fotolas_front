@@ -231,44 +231,41 @@ const Home = () => {
   const picaInstance = pica();
 
   const compressImage = async (file: File): Promise<File> => {
-    console.log("compressinggggggggg");
-    
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
-    await new Promise<void>((resolve, reject) => {
-      img.onload = () => resolve();
-      img.onerror = reject;
-    });
-  
-    const targetHeight = 600;
-    const aspectRatio = img.width / img.height;
-    const targetWidth = Math.round(targetHeight * aspectRatio);
-  
-    // Create a canvas for resizing
-    const compressedCanvas = document.createElement('canvas');
-    compressedCanvas.width = targetWidth;
-    compressedCanvas.height = targetHeight;
-  
-    const ctx = compressedCanvas.getContext('2d');
-    if (!ctx) {
-      throw new Error('Canvas context not available');
-    }
-  
-    // Draw and resize the image directly on the canvas
-    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-  
-    return new Promise((resolve, reject) => {
-      compressedCanvas.toBlob((blob) => {
-        if (blob) {
-          const compressedFile = new File([blob], `compressed_${file.name}`, { type: 'image/jpeg' });
-          resolve(compressedFile);
-        } else {
-          reject(new Error('Blob creation failed'));
-        }
-      }, 'image/jpeg', 0.8); // JPEG quality for compression
-    });
-  };
+  const img = new Image();
+  img.src = URL.createObjectURL(file);
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = reject;
+  });
 
+  const targetHeight = 600;
+  const aspectRatio = img.width / img.height;
+  const targetWidth = Math.round(targetHeight * aspectRatio);
+
+  // Create a canvas for resizing
+  const compressedCanvas = document.createElement('canvas');
+  compressedCanvas.width = targetWidth;
+  compressedCanvas.height = targetHeight;
+
+  const ctx = compressedCanvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Canvas context not available');
+  }
+
+  // Draw and resize the image directly on the canvas
+  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+  return new Promise((resolve, reject) => {
+    compressedCanvas.toBlob((blob) => {
+      if (blob) {
+        const compressedFile = new File([blob], `compressed_${file.name}`, { type: 'image/jpeg' });
+        resolve(compressedFile);
+      } else {
+        reject(new Error('Blob creation failed'));
+      }
+    }, 'image/jpeg', 0.8); // JPEG quality for compression
+  });
+};
 
 
 

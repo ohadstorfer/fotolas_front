@@ -59,27 +59,18 @@ const compressImage = async (file: File): Promise<File> => {
   const aspectRatio = img.width / img.height;
   const targetWidth = Math.round(targetHeight * aspectRatio);
 
-  const offscreenCanvas = document.createElement('canvas');
-  offscreenCanvas.width = img.width;
-  offscreenCanvas.height = img.height;
-
-  const ctx = offscreenCanvas.getContext('2d');
-  if (!ctx) {
-    throw new Error('Canvas context not available');
-  }
-
-  ctx.drawImage(img, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
-
+  // Create a canvas for resizing
   const compressedCanvas = document.createElement('canvas');
   compressedCanvas.width = targetWidth;
   compressedCanvas.height = targetHeight;
 
-  await picaInstance.resize(offscreenCanvas, compressedCanvas, {
-    quality: 3, // Lower the quality for harder compression
-    unsharpAmount: 0,
-    unsharpRadius: 0,
-    unsharpThreshold: 0,
-  });
+  const ctx = compressedCanvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Canvas context not available');
+  }
+
+  // Draw and resize the image directly on the canvas
+  ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
 
   return new Promise((resolve, reject) => {
     compressedCanvas.toBlob((blob) => {
@@ -89,7 +80,7 @@ const compressImage = async (file: File): Promise<File> => {
       } else {
         reject(new Error('Blob creation failed'));
       }
-    }, 'image/jpeg', 0.8); // Set JPEG quality to 0.8 for compression
+    }, 'image/jpeg', 0.8); // JPEG quality for compression
   });
 };
 
@@ -100,31 +91,6 @@ const compressImage = async (file: File): Promise<File> => {
 
 
 
-const uploadOriginalFilesToS3 = async (file: File, retryCount = 3) => {
-  try {
-    const response = await axios.get(`https://oyster-app-b3323.ondigitalocean.app/presigned_urls_for_watermarked?num_urls=1`);
-    const presignedUrl = response.data.urls[0];
-
-    for (let attempt = 0; attempt < retryCount; attempt++) {
-      try {
-        await axios.put(presignedUrl, file, {
-          headers: {
-            'Content-Type': file.type,
-          },
-        });
-        return presignedUrl.split('?')[0];
-      } catch (err) {
-        if (attempt < retryCount - 1) {
-          console.warn(`Retrying upload for ${file.name}, attempt ${attempt + 1}`);
-        } else {
-          throw err;
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Error uploading file to S3:', error);
-  }
-};
 
 
 
@@ -267,6 +233,42 @@ export default function UserCard() {
 
 
 
+  const uploadOriginalFilesToS3 = async (file: File, retryCount = 3) => {
+    try {
+      const response = await axios.get(`https://oyster-app-b3323.ondigitalocean.app/presigned_urls_for_watermarked?num_urls=1`);
+      const presignedUrl = response.data.urls[0];
+  
+      for (let attempt = 0; attempt < retryCount; attempt++) {
+        try {
+          await axios.put(presignedUrl, file, {
+            headers: {
+              'Content-Type': file.type,
+            },
+          });
+          return presignedUrl.split('?')[0];
+        } catch (err) {
+          if (attempt < retryCount - 1) {
+            console.warn(`Retrying upload for ${file.name}, attempt ${attempt + 1}`);
+          } else {
+            throw err;
+          }
+        }
+      }
+    } catch (error) {
+      setIsLoading(false);
+        handleOpenMessage(spanish 
+          ? 'La carga falló. Por favor, inténtalo de nuevo más tarde y considera cambiar la imagen de portada.' 
+          : 'Upload failed. Please try again later, and consider changing the cover image.')
+      console.error('Error uploading file to S3:', error);
+    }
+  };
+
+
+
+
+
+
+
 
 
   const uploadImage = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> => {
@@ -311,6 +313,10 @@ export default function UserCard() {
       // handleSubmit();
 
     } catch (error) {
+      setIsLoading(false);
+      handleOpenMessage(spanish 
+        ? 'La carga falló. Por favor, inténtalo de nuevo más tarde y considera cambiar la imagen de portada.' 
+        : 'Upload failed. Please try again later, and consider changing the cover image.')
       console.error(error);
     }
     // finally {
@@ -373,6 +379,10 @@ export default function UserCard() {
       console.log(credentials);
       await dispatch(createSessAlbumAsync(credentials));
     } catch (error) {
+      setIsLoading(false);
+      handleOpenMessage(spanish 
+        ? 'La carga falló. Por favor, inténtalo de nuevo más tarde y considera cambiar la imagen de portada.' 
+        : 'Upload failed. Please try again later, and consider changing the cover image.')
       console.error('Error creating sess album:', error);
     }
   };
@@ -745,6 +755,40 @@ export default function UserCard() {
             </DialogActions>
           </Dialog>
         )}
+
+
+
+        {isLoading &&
+          <Alert
+            variant="soft"
+            color="success"
+            invertedColors
+
+            sx={{
+              maxWidth: isMobile ? '90%' : '400px',
+              margin: '0 auto', // Center horizontally
+              textAlign: 'center',
+            }}
+          >
+            <Box sx={{ flex: 1 }}>
+              <Typography sx={{ fontSize: '25px' }}>
+                Loading...
+              </Typography>
+            </Box>
+            <LinearProgress
+              variant="solid"
+              color="success"
+              value={40}
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                borderRadius: 0,
+              }}
+            />
+          </Alert>
+        }
 
 
 

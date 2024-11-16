@@ -28,7 +28,6 @@ export default function CoverImageHomePage() {
 
     <img
       src={isMobile ? `${process.env.PUBLIC_URL}/COVER.png` : `${process.env.PUBLIC_URL}/COVERslim.png`}
-      alt="Cover"
       style={{
         width: '100%',
         height: 'auto',
