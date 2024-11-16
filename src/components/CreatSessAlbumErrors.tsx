@@ -673,38 +673,6 @@ export default function UserCard() {
 
 
 
-        {isLoading &&
-          <Alert
-            variant="soft"
-            color="success"
-            invertedColors
-
-            sx={{
-              maxWidth: isMobile ? '90%' : '400px',
-              margin: '0 auto', // Center horizontally
-              textAlign: 'center',
-            }}
-          >
-            <Box sx={{ flex: 1 }}>
-              <Typography sx={{ fontSize: '25px' }}>
-                Loading...
-              </Typography>
-            </Box>
-            <LinearProgress
-              variant="solid"
-              color="success"
-              value={40}
-              sx={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                borderRadius: 0,
-              }}
-            />
-          </Alert>
-        }
-
 
 
         {openInfoCI &&
