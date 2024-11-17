@@ -15,7 +15,7 @@ import { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import SessAlbum from './SessAlbum';
 import { createSessAlbumAsync, removeNewPrices, removeNewSess, selectNewSess, selectVideos, sessGetDataAsync } from '../slicers/sessAlbumSlice';
 import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/profilePtgSlice';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, useMediaQuery } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Popper, TextField, useMediaQuery } from '@mui/material';
 import UploadButton from './UpdButton';
 import { loginAsync, selectLoggedIn, selectSpanish, selectToken, toggleSpanish } from '../slicers/sighnInSlice';
 import { becomePhotographerAsync } from '../slicers/becomePhotographerSlice';
@@ -406,6 +406,10 @@ export default function UserCard() {
   };
 
 
+  function CustomPopper(props: any) {
+    return <Popper {...props} sx={{ backgroundColor: 'white' }} />;
+  }
+
 
 
 
@@ -477,8 +481,7 @@ export default function UserCard() {
 
 
 
-        {/* Render CreateSpot conditionally */}
-        {showCreateSpot && <CreateSpot />}
+{showCreateSpot && <CreateSpot />}
 
 
 
@@ -494,7 +497,7 @@ export default function UserCard() {
 
               <Step
                 indicator={
-                  <StepIndicator sx={{ marginRight: spanish ? '120px' : '80px', backgroundColor: '#FFEEAD', whiteSpace: 'nowrap', }}> {spanish ? 'Imagen de portada' : 'Cover Image '}
+                  <StepIndicator onClick={() => { handleOpenInfoCI() }}  sx={{ cursor: 'pointer',marginRight: spanish ? '120px' : '80px', backgroundColor: '#FFEEAD', whiteSpace: 'nowrap', }}> {spanish ? 'Imagen de portada' : 'Cover Image '}
                     <IconButton
                       size="small"
                       sx={{ marginRight: '8px' }}
@@ -527,7 +530,7 @@ export default function UserCard() {
                     }}
                   >
                     <Typography sx={{ fontWeight: 400, marginLeft: '15px', color: 'rgba(0, 0, 0, 0.6)' }}>
-                      {spanish ? 'Subir una foto de perfil' : 'Upload a profile picture'}
+                    {spanish ? 'Imagen de portada' : 'Cover Image '}
                     </Typography>
                     <input
                       type="file"
@@ -581,35 +584,53 @@ export default function UserCard() {
 
               <Step indicator={<StepIndicator sx={{ marginRight: '16px', backgroundColor: '#FFEEAD', }}> {spanish ? 'Lugar' : 'Spot '} </StepIndicator>}>
 
-                <Autocomplete
-                  sx={{ width: isMobile ? 230 : 270 }}
-                  disablePortal
-                  onChange={(event, newValue) => setSelectedSpot(newValue)}
-                  id="combo-box-demo"
-                  options={allSpots}
-                  getOptionLabel={(spot) => spot.name}
-                  value={selectedSpot}
-                  onInputChange={(event, newInputValue) => setSearchValue(newInputValue)}
-                  renderInput={(params) => <TextField {...params} label={spanish ? 'Seleccionar un lugar' : "Select a Location"} />}
-                  renderOption={(props, option) => (
-                    <li
-                      {...props}
-                      key={option.name}
-                      style={{ backgroundColor: 'white', padding: '8px', borderBottom: '1px solid #ddd' }}
-                    >
-                      {option.name}
-                    </li>
-                  )}
-                  noOptionsText={
-                    searchValue ? (
-                      <Box onClick={handleAddSpotClick} sx={{ cursor: 'pointer', backgroundColor: '#ffffff', color: 'primary.main', p: 1, }}>
-                        {spanish ? 'Haz clic aquí para crear un nuevo lugar / spot' : 'Click here to create a new spot'}
-                      </Box>
-                    ) : (
-                      <Typography sx={{ p: 1 }}>No options</Typography>
-                    )
-                  }
-                />
+              <Autocomplete
+  sx={{ width: isMobile ? 230 : 270 }}
+  disablePortal
+  PopperComponent={CustomPopper} // Use the custom Popper to ensure options open "up"
+  onChange={(event, newValue) => setSelectedSpot(newValue)}
+  id="combo-box-demo"
+  options={allSpots}
+  getOptionLabel={(spot) => spot.name}
+  value={selectedSpot}
+  onInputChange={(event, newInputValue) => setSearchValue(newInputValue)}
+  renderInput={(params) => (
+    <TextField {...params} label={spanish ? 'Seleccionar un lugar' : "Select a Location"} />
+  )}
+  renderOption={(props, option) => (
+    <li
+      {...props}
+      key={option.name}
+      style={{
+        backgroundColor: 'white !important',
+        padding: '8px',
+        borderBottom: '1px solid #ddd',
+      }}
+    >
+      {option.name}
+    </li>
+  )}
+  componentsProps={{
+    paper: {
+      style: {
+        backgroundColor: 'white', // Ensure solid white background
+        zIndex: 1300, // Ensure it stays above other components
+      },
+    },
+  }}
+  noOptionsText={
+    searchValue ? (
+      <Box
+        onClick={handleAddSpotClick}
+        sx={{ cursor: 'pointer', backgroundColor: '#ffffff', color: 'primary.main', p: 1 }}
+      >
+        {spanish ? 'Haz clic aquí para crear un nuevo lugar / spot' : 'Click here to create a new spot'}
+      </Box>
+    ) : (
+      <Typography sx={{ p: 1 }}>No options</Typography>
+    )
+  }
+/>
               </Step>
 
 
@@ -757,6 +778,13 @@ export default function UserCard() {
             />
           </Alert>
         }
+
+
+
+
+
+
+
 
 
 
