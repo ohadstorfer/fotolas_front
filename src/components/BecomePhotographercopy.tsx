@@ -50,13 +50,14 @@ export default function UserCard() {
   const spanish = useSelector(selectSpanish)
   const [openMessage, setOpenMessage] = React.useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  
+
 
   const [accountCreatePending, setAccountCreatePending] = useState(false);
   const [accountLinkCreatePending, setAccountLinkCreatePending] = useState(false);
   const [error, setError] = useState(false);
   const [connectedAccountId, setConnectedAccountId] = useState();
   const [country, setCountry] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState(false);
 
 
 
@@ -71,9 +72,9 @@ export default function UserCard() {
 
 
   useEffect(() => {
-    
-      console.log(country);
-      
+
+    console.log(country);
+
   }, [country]);
 
 
@@ -647,7 +648,7 @@ export default function UserCard() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        width: '50%',
+        width: isMobile ? '95%' : '50%',
         margin: '0 auto'
       }}>
         <div className="banner">
@@ -659,7 +660,7 @@ export default function UserCard() {
 
           <Autocomplete
             id="country-select-demo"
-            sx={{ width: '70%', margin: '0 auto' }}
+            sx={{ width: isMobile ? '95%' : '70%', margin: '0 auto' }}
             options={countries}
             autoHighlight
             getOptionLabel={(option) => option.label}
@@ -694,7 +695,7 @@ export default function UserCard() {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Choose a country"
+                label={spanish ? "Elija el país del banco" : "Your bank's country"}
                 InputProps={{
                   ...params.InputProps,
                   autoComplete: 'new-password', // disable autocomplete and autofill
@@ -705,14 +706,17 @@ export default function UserCard() {
 
           {!accountCreatePending && !connectedAccountId && (
             <Button
-            sx={{
-              marginTop: '16px',
-              backgroundColor: teal[400],
-              color: 'white', 
-            }}
+              sx={{
+                marginTop: '16px',
+                backgroundColor: teal[400],
+                color: 'white',
+              }}
               onClick={async () => {
+                setLoading(true);
                 setAccountCreatePending(true);
                 setError(false);
+
+                // Create the account
                 fetch("https://oyster-app-b3323.ondigitalocean.app/account/", {
                   method: "POST",
                   headers: {
@@ -726,14 +730,44 @@ export default function UserCard() {
                     const { account, error } = json;
                     if (account) {
                       setConnectedAccountId(account);
+
+                      // Immediately create the account link and redirect
+                      setAccountLinkCreatePending(true);
+                      fetch("https://oyster-app-b3323.ondigitalocean.app/account_link/", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ account }),
+                      })
+                        .then((response) => response.json())
+                        .then((json) => {
+                          setAccountLinkCreatePending(false);
+                          const { url, error } = json;
+                          if (url) {
+                            window.location.href = url;
+                            setLoading(false);
+                          }
+                          if (error) {
+                            setError(true);
+                            setLoading(false);
+                          }
+                        })
+                        .catch(() => {
+                          setAccountLinkCreatePending(false);
+                          setError(true);
+                          setLoading(false);
+                        });
                     }
                     if (error) {
                       setError(true);
+                      setLoading(false);
                     }
                   })
                   .catch(() => {
                     setAccountCreatePending(false);
                     setError(true);
+                    setLoading(false);
                   });
               }}
               disabled={!country}
@@ -744,48 +778,56 @@ export default function UserCard() {
 
 
 
-          {connectedAccountId && !accountLinkCreatePending && (
-            <button
-              onClick={async () => {
-                setAccountLinkCreatePending(true);
-                setError(false);
-                fetch("https://oyster-app-b3323.ondigitalocean.app/account_link/", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    account: connectedAccountId,
-                  }),
-                })
-                  .then((response) => response.json())
-                  .then((json) => {
-                    setAccountLinkCreatePending(false);
-                    const { url, error } = json;
-                    if (url) {
-                      window.location.href = url;
-                    }
-                    if (error) {
-                      setError(true);
-                    }
-                  })
-                  .catch(() => {
-                    setAccountLinkCreatePending(false);
-                    setError(true);
-                  });
+
+
+          {error && <p className="error">{spanish ? "¡Algo salió mal!" : "Something went wrong!"}</p>}
+
+
+          {loading &&
+            <Alert
+              variant="soft"
+              color="success"
+              invertedColors
+
+              sx={{
+                maxWidth: isMobile ? '90%' : '400px',
+                margin: '0 auto', // Center horizontally
+                textAlign: 'center',
               }}
             >
-              {spanish ? "Agregar información" : "Add information"}
-            </button>
-          )}
-          {error && <p className="error">{spanish ? "¡Algo salió mal!" : "Something went wrong!"}</p>}
-          {(connectedAccountId || accountCreatePending || accountLinkCreatePending) && (
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontSize: '25px' }}>
+                  {spanish ? 'Cargando...' : 'Loading...'}
+                </Typography>
+              </Box>
+              <LinearProgress
+                variant="solid"
+                color="success"
+                value={40}
+                sx={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  borderRadius: 0,
+                }}
+              />
+            </Alert>
+          }
+
+
+
+
+
+          {/* {(connectedAccountId || accountCreatePending || accountLinkCreatePending) && (
             <div className="dev-callout">
               {connectedAccountId && <p>{spanish ? "Tu ID de cuenta conectada es: " : "Your connected account ID is: "} <code className="bold">{connectedAccountId}</code></p>}
               {accountCreatePending && <p>{spanish ? "Creando una cuenta conectada..." : "Creating a connected account..."}</p>}
               {accountLinkCreatePending && <p>{spanish ? "Creando un nuevo enlace de cuenta..." : "Creating a new Account Link..."}</p>}
             </div>
-          )}
+          )} */}
+
+          
         </div>
       </Box>
 

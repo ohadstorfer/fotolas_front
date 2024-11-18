@@ -164,41 +164,30 @@ export default function EditProfilePtg() {
 
 
   const compressImage = async (file: File): Promise<File> => {
-    const picaInstance = pica();
     const img = new Image();
     img.src = URL.createObjectURL(file);
     await new Promise<void>((resolve, reject) => {
       img.onload = () => resolve();
       img.onerror = reject;
     });
-
-    const targetHeight = 480;
+  
+    const targetHeight = 600;
     const aspectRatio = img.width / img.height;
     const targetWidth = Math.round(targetHeight * aspectRatio);
-
-    const offscreenCanvas = document.createElement('canvas');
-    offscreenCanvas.width = img.width;
-    offscreenCanvas.height = img.height;
-
-    const ctx = offscreenCanvas.getContext('2d');
-    if (!ctx) {
-      setUploadError('Upload failed. Please try again later.');
-      throw new Error('Canvas context not available');
-    }
-
-    ctx.drawImage(img, 0, 0, offscreenCanvas.width, offscreenCanvas.height);
-
+  
+    // Create a canvas for resizing
     const compressedCanvas = document.createElement('canvas');
     compressedCanvas.width = targetWidth;
     compressedCanvas.height = targetHeight;
-
-    await picaInstance.resize(offscreenCanvas, compressedCanvas, {
-      quality: 3,
-      unsharpAmount: 0,
-      unsharpRadius: 0,
-      unsharpThreshold: 0,
-    });
-
+  
+    const ctx = compressedCanvas.getContext('2d');
+    if (!ctx) {
+      throw new Error('Canvas context not available');
+    }
+  
+    // Draw and resize the image directly on the canvas
+    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+  
     return new Promise((resolve, reject) => {
       compressedCanvas.toBlob((blob) => {
         if (blob) {
@@ -206,9 +195,8 @@ export default function EditProfilePtg() {
           resolve(compressedFile);
         } else {
           reject(new Error('Blob creation failed'));
-          setUploadError('Upload failed. Please try again later.');
         }
-      }, 'image/jpeg', 0.8);
+      }, 'image/jpeg', 0.8); // JPEG quality for compression
     });
   };
 

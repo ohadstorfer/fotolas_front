@@ -6,8 +6,8 @@ import CardActionArea from '@mui/material/CardActionArea';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import {  Dialog, DialogContent, Grid, IconButton, ImageList, ImageListItem, useMediaQuery } from '@mui/material';
-import { AspectRatio } from '@mui/joy';
+import { Dialog, DialogContent, Grid, IconButton, ImageList, ImageListItem, useMediaQuery } from '@mui/material';
+import { AspectRatio, Box } from '@mui/joy';
 import CloseIcon from '@mui/icons-material/Close';
 
 const Images: React.FC = () => {
@@ -35,31 +35,32 @@ const Images: React.FC = () => {
 
 
 
-  
+
 
 
   return (
     <div>
 
-      <ImageList variant="standard" cols={isMobile ? 2 : 3} gap={3}  >
+      <Grid container spacing={3} sx={{ justifyContent: 'center', display: 'flex', }}>
         {imgs.map((img) => (
-          <ImageListItem key={img.id}>
-            <Card>
-              <CardActionArea onClick={() => handleOpenDialog(img.WatermarkedPhoto)}>
-                <AspectRatio ratio="4/3">
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={img.WatermarkedPhoto} // Use the image URL from your Redux store
-                    alt={`Image ${img.id}`}
-                  />
-                </AspectRatio>
-              </CardActionArea>
-
-            </Card>
-          </ImageListItem>
+          <Grid item key={img.id} xs={6} sm={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ width: '100%', maxWidth: '400px' }}>
+              <Card>
+                <CardActionArea onClick={() => handleOpenDialog(img.WatermarkedPhoto)}>
+                  <AspectRatio ratio="4/3">
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={img.WatermarkedPhoto} // Use the image URL from your Redux store
+                      alt={`Image ${img.id}`}
+                    />
+                  </AspectRatio>
+                </CardActionArea>
+              </Card>
+            </Box>
+          </Grid>
         ))}
-      </ImageList>
+      </Grid>
 
 
 

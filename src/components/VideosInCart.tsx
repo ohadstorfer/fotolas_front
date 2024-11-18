@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, Typography, Button, useMediaQuery, Collapse } from '@mui/material';
+import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, Typography, Button, useMediaQuery, Collapse, Grid } from '@mui/material';
 import { AspectRatio } from '@mui/joy';
 import { fetchVideosBySessionAsync, selectNextVideos, selectPreviousVideos, selectVideos } from '../slicers/ImagesSlice';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
@@ -142,71 +142,73 @@ const VideosInCart: React.FC = () => {
 
 
 
-      <ImageList variant="standard" cols={isMobile ? 1 : 1} sx={{ margin: '20px', display: 'flex', justifyContent: 'center' }}>
-        {videos.map((video) => {
-          const isInCart = cart.includes(video.id);
-          const isActive = activeVideos[video.id];
+<Grid container spacing={1} sx={{ justifyContent: 'center' }}>
+  {videos.map((video) => {
+    const isInCart = cart.includes(video.id);
+    const isActive = activeVideos[video.id];
 
-          return (
-            <ImageListItem sx={{ width: '400px', margin: '10px' }} key={video.id}>
-              <Card>
-                <CardActionArea onClick={() => handleVideoClick(video.id)}>
-                  <AspectRatio ratio="4/3">
-                    {isActive ? (
-                      <video controls autoPlay muted src={video.WatermarkedVideo} />
-                    ) : (
-                      <img src={video.img} alt={`Thumbnail for video ${video.id}`} />
-                    )}
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        p: 1,
-                        bgcolor: 'rgba(0, 0, 0, 0.6)',
-                        borderRadius: '0 0 8px 0',
-                      }}
-                    >
-                      <IconButton
-                        sx={{
-                          bgcolor: isInCart ? teal[100] : 'inherit',
-                          color: isInCart ? 'black' : teal[100],
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          isInCart ? handleRemoveFromCart(video.id) : handleAddToCart(video, video.SessionAlbum);
-                        }}
-                      >
-                        {isInCart ? <RemoveShoppingCartIcon /> : <AddShoppingCartIcon />}
-                      </IconButton>
-                    </Box>
-                    {!isActive && (
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          bottom: 0,
-                          left: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          // p: 1,
-                          // bgcolor: 'rgba(0, 0, 0, 0.5)',
-                          borderRadius: '0 8px 0 0',
-                        }}
-                      >
-                        <PlayCircleIcon sx={{ fontSize: 48 }} />
-                      </Box>
-                    )}
-                  </AspectRatio>
-                </CardActionArea>
-              </Card>
-            </ImageListItem>
-          );
-        })}
-      </ImageList>
+    return (
+      <Grid item xs={6} sm={4} key={video.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Box sx={{ width: '400px', margin: '5px' }}>
+        <Card>
+          <CardActionArea onClick={() => handleVideoClick(video.id)}>
+            <AspectRatio ratio="4/3">
+              {isActive ? (
+                <video controls autoPlay muted src={video.WatermarkedVideo} />
+              ) : (
+                <img src={video.img} alt={`Thumbnail for video ${video.id}`} />
+              )}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  p: 1,
+                  bgcolor: 'rgba(0, 0, 0, 0.6)',
+                  borderRadius: '0 0 8px 0',
+                }}
+              >
+                <IconButton
+                  sx={{
+                    bgcolor: isInCart ? teal[100] : 'inherit',
+                    color: isInCart ? 'black' : teal[100],
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    isInCart
+                      ? handleRemoveFromCart(video.id)
+                      : handleAddToCart(video, video.SessionAlbum);
+                  }}
+                >
+                  {isInCart ? <RemoveShoppingCartIcon /> : <AddShoppingCartIcon />}
+                </IconButton>
+              </Box>
+              {!isActive && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '0 8px 0 0',
+                  }}
+                >
+                  <PlayCircleIcon sx={{ fontSize: 48 }} />
+                </Box>
+              )}
+            </AspectRatio>
+          </CardActionArea>
+        </Card>
+        </Box>
+      </Grid>
+    );
+  })}
+</Grid>
 
 
 

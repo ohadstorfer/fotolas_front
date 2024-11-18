@@ -21,7 +21,7 @@ import { addToCart_singleImages, fetchPricesBySessionAlbumId, selectCart, addToC
 import { selectSelectedSessAlbum, selectSessAlbums } from '../slicers/sessAlbumSlice';
 import { TiLocation } from 'react-icons/ti';
 import SessAlbumDetails from './SessAlbumDetails';
-import { Button, useMediaQuery, Dialog, DialogContent, Collapse } from '@mui/material';
+import { Button, useMediaQuery, Dialog, DialogContent, Collapse, Grid } from '@mui/material';
 import Images from './Images';
 import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
@@ -63,7 +63,7 @@ const PerAlbumInCart: React.FC = () => {
 
   useEffect(() => {
     console.log("peralbumsss" + personalAlbums);
-    
+
     if (cart.length > 0) {
       dispatch(fetchWavesByListAsync(cart));
     }
@@ -209,94 +209,106 @@ const PerAlbumInCart: React.FC = () => {
     setOpen(!open);
   };
 
-  
+
 
   return (
     <div>
       {/* <SessAlbumDetails></SessAlbumDetails> */}
 
       {Prices && (
-      <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
-        <Button onClick={handleToggle} sx={{ color: 'black' }}>
-        {open ? 'Hide' : 'Price Details'} {!open && <ArrowDropDownIcon />}  {open && <ArrowDropUpIcon />} 
-        </Button>
-        <Collapse in={open}>
-          <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>
-          <Typography>For 6-50 images: {Prices.price_6_to_50} $</Typography>
-          <Typography>For 51+ images: {Prices.price_51_plus} $</Typography>
-        </Collapse>
-      </Box>
-    )}
+        <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
+          <Button onClick={handleToggle} sx={{ color: 'black' }}>
+            {open ? 'Hide' : 'Price Details'} {!open && <ArrowDropDownIcon />}  {open && <ArrowDropUpIcon />}
+          </Button>
+          <Collapse in={open}>
+            <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>
+            <Typography>For 6-50 images: {Prices.price_6_to_50} $</Typography>
+            <Typography>For 51+ images: {Prices.price_51_plus} $</Typography>
+          </Collapse>
+        </Box>
+      )}
 
 
 
 
-<ImageList variant="standard" cols={isMobile ? 1 : 1} sx={{ margin: '20px', display: 'flex', justifyContent: 'center' }}>
+      <Grid
+        container
+        spacing={1}
+        sx={{ justifyContent: 'center' }}
+      >
         {personalAlbums.map((personalAlbum) => {
           const isInCart = cart.includes(personalAlbum.id);
 
           return (
-            <ImageListItem sx={{ width: '400px', margin: '10px' }} key={personalAlbum.id}>
-              <Card>
-                <CardActionArea onClick={() => handleCardClick(personalAlbum.id, personalAlbum)}>
-                  <AspectRatio ratio="4/3">
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={personalAlbum.cover_image}
-                      alt={`Image ${personalAlbum.id}`}
-                    />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: isMobile ? 0.4 : 1,
-                        p: isMobile ? 0.2 : 1,
-                        bgcolor: 'rgba(0, 0, 0, 0.6)',
-                        borderRadius: '0 0 8px 0',
-                      }}
-                    >
-                      <Avatar
+            <Grid
+              item
+              key={personalAlbum.id}
+              xs={6} // 1 column on mobile
+              sm={4} // 3 columns on larger screens
+              sx={{ display: 'flex', justifyContent: 'center' }}
+            >
+              <Box sx={{ width: '400px', margin: '5px' }}>
+                <Card>
+                  <CardActionArea onClick={() => handleCardClick(personalAlbum.id, personalAlbum)}>
+                    <AspectRatio ratio="4/3">
+                      <CardMedia
+                        component="img"
+                        height="200"
+                        image={personalAlbum.cover_image}
+                        alt={`Image ${personalAlbum.id}`}
+                      />
+                      <Box
                         sx={{
-                          bgcolor: teal[100],
-                          width: isMobile ? 30 : 40,  // Width changes based on device
-                          height: isMobile ? 30 : 40, // Height changes based on device
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: isMobile ? 0.4 : 1,
+                          p: isMobile ? 0.2 : 1,
+                          bgcolor: 'rgba(0, 0, 0, 0.6)',
+                          borderRadius: '0 0 8px 0',
                         }}
                       >
-                        <span style={{ marginRight: isMobile ? '1px' : '4px', fontSize: '0.75rem', color: 'black' }}>
-                          {personalAlbum.image_count}
-                        </span>
-                        <IoImagesOutline style={{ color: 'black' }} />
-                      </Avatar>
-                      <IconButton
-                        sx={{
-                          width: isMobile ? '20px' : '40px',  // Width changes based on device
-                          height: isMobile ? '20px' : '40px',
-                          bgcolor: isInCart ? teal[100] : 'inherit',
-                          color: isInCart ? 'black' : teal[100],
-                          padding: isMobile ? '2px' : '8px',
-                        }}
-                        aria-label={isInCart ? 'remove from cart' : 'add to cart'}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          isInCart
-                            ? handleRemoveFromCart(personalAlbum.id, personalAlbum.image_count)
-                            : handleAddToCartNew(personalAlbum.id, personalAlbum.image_count, personalAlbum.session_album);
-                        }}
-                      >
-                        {isInCart ? <RemoveShoppingCartIcon /> : <AddShoppingCartIcon />}
-                      </IconButton>
-                    </Box>
-                  </AspectRatio>
-                </CardActionArea>
-              </Card>
-            </ImageListItem>
+                        <Avatar
+                          sx={{
+                            bgcolor: teal[100],
+                            width: isMobile ? 30 : 40,
+                            height: isMobile ? 30 : 40,
+                          }}
+                        >
+                          <span style={{ marginRight: isMobile ? '1px' : '4px', fontSize: '0.75rem', color: 'black' }}>
+                            {personalAlbum.image_count}
+                          </span>
+                          <IoImagesOutline style={{ color: 'black' }} />
+                        </Avatar>
+                        <IconButton
+                          sx={{
+                            width: isMobile ? '20px' : '40px',
+                            height: isMobile ? '20px' : '40px',
+                            bgcolor: isInCart ? teal[100] : 'inherit',
+                            color: isInCart ? 'black' : teal[100],
+                            padding: isMobile ? '2px' : '8px',
+                          }}
+                          aria-label={isInCart ? 'remove from cart' : 'add to cart'}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            isInCart
+                              ? handleRemoveFromCart(personalAlbum.id, personalAlbum.image_count)
+                              : handleAddToCartNew(personalAlbum.id, personalAlbum.image_count, personalAlbum.session_album);
+                          }}
+                        >
+                          {isInCart ? <RemoveShoppingCartIcon /> : <AddShoppingCartIcon />}
+                        </IconButton>
+                      </Box>
+                    </AspectRatio>
+                  </CardActionArea>
+                </Card>
+              </Box>
+            </Grid>
           );
         })}
-      </ImageList>
+      </Grid>
 
 
 

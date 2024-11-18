@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useAppDispatch } from '../app/hooks';
-import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, CardMedia, Typography, Button, useMediaQuery, Dialog, DialogContent, Collapse } from '@mui/material';
+import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, CardMedia, Typography, Button, useMediaQuery, Dialog, DialogContent, Collapse, Grid } from '@mui/material';
 import { AspectRatio } from '@mui/joy';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
@@ -140,11 +140,12 @@ const UndividedImgsInCart: React.FC = () => {
 
 
 
-      <ImageList variant="standard" cols={isMobile ? 1 : 1} sx={{ margin: '20px', display: 'flex', justifyContent: 'center' }}>
+<Grid container spacing={1} sx={{ justifyContent: 'center' }}>
         {imgs.map((img: Img) => {
           const isInCart = cart.includes(img.id);
           return (
-            <ImageListItem sx={{ width: '400px', margin: '10px' }} key={img.id}>
+            <Grid item xs={6} sm={4} key={img.id} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Box sx={{ width: '400px', margin: '5px' }}>
               <Card>
                 <CardActionArea onClick={() => handleOpenDialog(img.WatermarkedPhoto)}>
                   <AspectRatio ratio="4/3">
@@ -178,10 +179,11 @@ const UndividedImgsInCart: React.FC = () => {
                   </AspectRatio>
                 </CardActionArea>
               </Card>
-            </ImageListItem>
+              </Box>
+              </Grid>
           );
         })}
-      </ImageList>
+      </Grid>
 
 
 
