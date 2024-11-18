@@ -196,8 +196,7 @@ const Root = () => {
           }}
         >
           <div>
-            {/* <Outlet /> */}
-            <BecomePhotographercopy></BecomePhotographercopy>
+            <Outlet />
           </div>
         </div>
 
