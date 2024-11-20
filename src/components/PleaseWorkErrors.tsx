@@ -282,9 +282,8 @@ const Home = () => {
       img.crossOrigin = 'Anonymous';
   
       img.onload = () => {
-        const targetHeight = 600;
-        const aspectRatio = img.width / img.height;
-        const targetWidth = Math.round(targetHeight * aspectRatio);
+        const targetHeight = 540;
+        const targetWidth = 960;
   
         // Create a single canvas for both resizing and watermarking
         const canvas = document.createElement('canvas');

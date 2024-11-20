@@ -4,11 +4,13 @@ import { ConnectPayouts, ConnectComponentsProvider, ConnectBalances, ConnectPaym
 import { useSelector } from 'react-redux';
 import { selectUser } from '../slicers/userSlice';
 import { Box } from '@mui/joy';
+import { useMediaQuery } from '@mui/material';
 
 const App = () => {
   // Explicitly typing state as either null or StripeConnectInstance
   const [stripeConnectInstance, setStripeConnectInstance] = useState<StripeConnectInstance | null>(null);
   const user = useSelector(selectUser)
+  const isMobile = useMediaQuery('(max-width:600px)');
   console.log(user);
 
 
@@ -54,7 +56,9 @@ const App = () => {
     <ConnectComponentsProvider connectInstance={stripeConnectInstance}>
       <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
         <div style={{
-          width: '70%',
+          maxWidth: '100%',
+          overflowX: 'hidden',
+          width: isMobile ? '95%' : '70%',
           border: '2px solid rgba(0, 0, 0, 0.2)', // Thin border with semi-transparency
           borderRadius: '10px', // Rounded corners
           padding: '10px', // Optional padding inside the div
