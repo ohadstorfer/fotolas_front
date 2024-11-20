@@ -17,7 +17,7 @@ import { teal, orange } from '@mui/material/colors';
 import { GiSurferVan } from "react-icons/gi";
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../app/hooks';
-import { logout, parseJwt, selectIsExpired, selectLoggedIn, selectToken, validateTokenAsync } from '../slicers/sighnInSlice';
+import { logout, parseJwt, selectIsExpired, selectLoggedIn, selectToken, validateTokenAsync  } from '../slicers/sighnInSlice';
 import { Autocomplete, Avatar, InputAdornment, TextField, useMediaQuery } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/profilePtgSlice';
@@ -31,6 +31,7 @@ import { selectRefreshNavbar } from '../slicers/signUpSlice';
 import { fetchSurferPurchasedItemsAsync } from '../slicers/purchaseSlice';
 import { getAllSpots, selectAllSpots } from '../slicers/spotSlice';
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
+import { refreshNavbarActtion } from '../slicers/signUpSlice';
 
 
 
@@ -154,14 +155,41 @@ export default function PrimarySearchAppBar() {
 
 
 
+    // useEffect(() => {
+    //   const storedToken = localStorage.getItem('token');
+    //   let token = storedToken ? JSON.parse(storedToken) : null;
+    
+    //   if (user?.is_photographer && token && token.is_photographer === false) {
+    //     // Update the token's `is_photographer` to true and save it back to local storage
+    //     token.is_photographer = true;
+    //     localStorage.setItem('token', JSON.stringify(token));
+    //   }
+    
+    //   if (conectedUser?.id) {
+    //     const accessToken = conectedUser.access;
+    //     const tokenValue = typeof accessToken === 'string' ? accessToken : JSON.stringify(accessToken || '').replace(/"/g, '');
+    
+    //     dispatch(getPhotographerByUserId({ userId: Number(conectedUser.id), token: tokenValue }));
+    //   }
+    // }, [dispatch, user]);
+
+
+
+
+
     useEffect(() => {
       const storedToken = localStorage.getItem('token');
       let token = storedToken ? JSON.parse(storedToken) : null;
     
-      if (user?.is_photographer && token && token.is_photographer === false) {
-        // Update the token's `is_photographer` to true and save it back to local storage
-        token.is_photographer = true;
-        localStorage.setItem('token', JSON.stringify(token));
+      if (user?.is_photographer) {
+        if (token && token.is_photographer === false) {
+          // Update the token's `is_photographer` to true and save it back to local storage
+          token.is_photographer = true;
+          localStorage.setItem('token', JSON.stringify(token));
+    
+          // Dispatch refreshNavbar
+          dispatch(refreshNavbarActtion());
+        }
       }
     
       if (conectedUser?.id) {
@@ -170,25 +198,14 @@ export default function PrimarySearchAppBar() {
     
         dispatch(getPhotographerByUserId({ userId: Number(conectedUser.id), token: tokenValue }));
       }
+
+      console.log(user);
+      
     }, [dispatch, user]);
 
 
 
 
-
-  useEffect(() => {
-    if (selectedSpot) { navigate(`/Spot/${selectedSpot.id}`); }
-
-  }
-    , [selectedSpot]);
-
-
-
-
-  // useEffect(() => {
-  //   console.log("the user is: ", user?.fullName);
-  // }
-  //   , [user]);
 
 
 
@@ -299,13 +316,16 @@ export default function PrimarySearchAppBar() {
         <MenuItem key="logout" onClick={handleLogOut}>Log Out</MenuItem>
       ];
     } else {
-      if (user?.stripe_account_id){
+      if (user?.stripe_account_id && user?.verification_status === "Pending Verification" ){
         return[
           <MenuItem key="account" onClick={VerificationStatus}>Verification Status</MenuItem>,
           <MenuItem key="account" onClick={SurferDashboardClick}>My Albums</MenuItem>,
           <MenuItem key="logout" onClick={handleLogOut}>Log Out</MenuItem>,
         ]
       }else{
+        console.log(user?.stripe_account_id);
+        console.log(user?.verification_status);
+        
       return [
         <MenuItem key="becomePhotographer" onClick={BecomePhotographerClick}>Become a photographer</MenuItem>,
         <MenuItem key="account" onClick={SurferDashboardClick}>My Albums</MenuItem>,

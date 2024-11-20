@@ -15,7 +15,7 @@ import { TextField, useMediaQuery } from '@mui/material';
 import axios from 'axios';
 import pica from 'pica';
 import { fetchDefaultAlbumPricesImages, fetchDefaultAlbumPricesVideos, resetNewDefaultAlbumPricesImages, resetNewDefaultAlbumPricesVideos, resetUpdatedPhotographer, selectDefaultAlbumPricesImages, selectDefaultAlbumPricesVideos, selectNewDefaultAlbumPricesImages, selectNewDefaultAlbumPricesVideos, selectUpdatePhotographer, updateDefaultAlbumPricesForImagesAsync, updateDefaultAlbumPricesForVideosAsync, updatePhotographerAsync } from '../slicers/becomePhotographerSlice';
-import { refreshNavbar } from '../slicers/signUpSlice';
+import { refreshNavbarActtion } from '../slicers/signUpSlice';
 import { Alert } from '@mui/joy';
 import ReportIcon from '@mui/icons-material/Report';
 import { fileTypeFromBuffer } from 'file-type';
@@ -53,7 +53,7 @@ export default function EditProfilePtg() {
 
   useEffect(() => {
     if (updatePhotographer == true) {
-      dispatch(refreshNavbar());
+      dispatch(refreshNavbarActtion());
       dispatch(resetUpdatedPhotographer());
       // navigate('/');
     }

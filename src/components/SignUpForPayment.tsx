@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAppDispatch } from '../app/hooks';
-import { refreshNavbar, selectCredentials, selectExistedUseError, selectRefreshNavbar, selectSignUP, signUpAsync } from '../slicers/signUpSlice';
+import { refreshNavbarActtion, selectCredentials, selectExistedUseError, selectRefreshNavbar, selectSignUP, signUpAsync } from '../slicers/signUpSlice';
 import { teal } from '@mui/material/colors';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -104,7 +104,7 @@ export default function SignUp() {
         email: data.get("email") as string,
         password: data.get("password") as string,
       }));
-      dispatch(refreshNavbar());
+      dispatch(refreshNavbarActtion());
     } catch (error) {
       console.error('SignUp failed:', error);
     } finally {

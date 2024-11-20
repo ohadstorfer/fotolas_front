@@ -36,7 +36,7 @@ const signUpSlice = createSlice({
     removeCredentials: (state) => {
       state.credentials = null;
     },
-    refreshNavbar: (state) => {
+    refreshNavbarActtion: (state) => {
       state.refresh = !state.refresh;
     },
   },
@@ -63,7 +63,7 @@ const signUpSlice = createSlice({
 
 
 
-export const {refreshNavbar ,setCredentials, removeCredentials} = signUpSlice.actions;
+export const {refreshNavbarActtion ,setCredentials, removeCredentials} = signUpSlice.actions;
 
 export const selectSignUP = (state: { signUp: SignUpState }) => state.signUp.token;
 export const selectCredentials = (state: { signUp: SignUpState }) => state.signUp.credentials;

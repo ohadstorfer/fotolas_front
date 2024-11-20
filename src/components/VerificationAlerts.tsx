@@ -4,7 +4,8 @@ import { ConnectPayouts, ConnectComponentsProvider, ConnectBalances, ConnectPaym
 import { useSelector } from 'react-redux';
 import { selectUser } from '../slicers/userSlice';
 import { Box, Card } from '@mui/joy';
-import { useMediaQuery } from '@mui/material';
+import { Typography, useMediaQuery } from '@mui/material';
+import { Navigate } from 'react-router-dom';
 
 const VerificationAlerts = () => {
   // Explicitly typing state as either null or StripeConnectInstance
@@ -59,14 +60,31 @@ const VerificationAlerts = () => {
     return <div>Loading...</div>;
   }
 
+  if (user?.is_photographer === true) {
+        return <Navigate to="/EditProfilePtg" />;
+    }
+
 
 
 
 
   return (
 
+
     <ConnectComponentsProvider connectInstance={stripeConnectInstance}>
 
+      {/* Typography Message */}
+      <Box
+        sx={{
+          width: isMobile ? '90%' : '50%',
+          margin: '16px auto',
+          textAlign: 'center', // Center-align the text
+        }}
+      >
+        <Typography variant="body2" color="text.secondary">
+          Refresh the page to check for updates in your verification status.
+        </Typography>
+      </Box>
 
       <Box
         sx={{
@@ -77,10 +95,10 @@ const VerificationAlerts = () => {
         }}
       >
         <ConnectNotificationBanner
-        collectionOptions={{
-          fields: 'eventually_due',
-          futureRequirements: 'include',
-        }} />
+          collectionOptions={{
+            fields: 'eventually_due',
+            futureRequirements: 'include',
+          }} />
 
       </Box>
 

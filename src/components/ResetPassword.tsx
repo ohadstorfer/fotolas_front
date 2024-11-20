@@ -20,7 +20,7 @@ import { getUserById } from '../slicers/userSlice';
 import { getPhotographerByUserId } from '../slicers/profilePtgSlice';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { refreshNavbar } from '../slicers/signUpSlice';
+import { refreshNavbarActtion } from '../slicers/signUpSlice';
 import Container from '@mui/material/Container';
 
 
@@ -45,7 +45,7 @@ export default function ResetPassword() {
       if (isLoggedIn===true) { 
         console.log("isLoggedIn===true");
         
-        dispatch(refreshNavbar());
+        dispatch(refreshNavbarActtion());
         navigate('/'); 
       }
     }, [isLoggedIn]);

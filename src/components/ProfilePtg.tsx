@@ -40,9 +40,6 @@ export default function UserCard() {
 
 
   useEffect(() => {
-    console.log(isLoggedIn);
-    console.log(user?.is_photographer);
-    console.log(conectedUser);
     if (!isLoggedIn || !user?.is_photographer || !conectedUser) {
       setError(true);
       navigate(`/`);
