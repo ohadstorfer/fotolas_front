@@ -18,6 +18,8 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { loginAsync, selectLoggedIn } from '../slicers/sighnInSlice';
 import CircularProgress from '@mui/material/CircularProgress';
+import { FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, OutlinedInput } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 
 const defaultTheme = createTheme({
@@ -34,6 +36,8 @@ export default function SignUp() {
   const isLoggedIn222 = useSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
   const refreshNavbarbool = useSelector(selectRefreshNavbar);
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 
   // State for error messages
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -49,7 +53,7 @@ export default function SignUp() {
   useEffect(() => {
     if (existedUseError) {
       console.log(existedUseError);
-  
+
       // Check if the error message is related to email already registered
       if (existedUseError.includes("Request failed with status code 400")) {
         alert("This email is already registered. Please use a different email address.");
@@ -123,13 +127,42 @@ export default function SignUp() {
 
 
 
+
+
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
+
+  const handleMouseUpPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
+
+
+
+
+  const handleClickShowConfirmPassword = () => setShowConfirmPassword((show) => !show);
+
+  const handleMouseDownConfirmPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
+
+  const handleMouseUpConfirmPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
+
+
+
+
+
   return (
     <ThemeProvider theme={defaultTheme} >
       <Container component="main" maxWidth="xs" >
         <CssBaseline />
         <Box
           sx={{
-            marginTop: 8,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -192,32 +225,83 @@ export default function SignUp() {
                   helperText={errors.confirmEmail}
                 />
               </Grid>
+
+
               <Grid item xs={12}>
-                <TextField
+                <FormControl
                   required
                   fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                  error={!!errors.password}
-                  helperText={errors.password}
-                />
+                  variant="outlined"
+                >
+                  <InputLabel htmlFor="password">Password</InputLabel>
+                  <OutlinedInput
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    label="Password"
+                    autoComplete="current-password"
+                    error={!!errors.password}
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label={
+                            showPassword ? 'hide the password' : 'display the password'
+                          }
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          onMouseUp={handleMouseUpPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                  />
+                  {errors.password && (
+                    <FormHelperText sx={{ color: 'error.main' }}>{errors.password}</FormHelperText>
+                  )}
+                </FormControl>
               </Grid>
+
+
               <Grid item xs={12}>
-                <TextField
+                <FormControl
                   required
                   fullWidth
-                  name="confirmPassword"
-                  label="Confirm Password"
-                  type="password"
-                  id="confirmPassword"
-                  autoComplete="new-password"
-                  error={!!errors.confirmPassword}
-                  helperText={errors.confirmPassword}
-                />
+                  variant="outlined"
+                >
+                  <InputLabel htmlFor="confirmPassword">confirmPassword</InputLabel>
+                  <OutlinedInput
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    label="confirmPassword"
+                    autoComplete="current-password"
+                    error={!!errors.confirmPassword}
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label={
+                            showConfirmPassword ? 'hide the password' : 'display the password'
+                          }
+                          onClick={handleClickShowConfirmPassword}
+                          onMouseDown={handleMouseDownConfirmPassword}
+                          onMouseUp={handleMouseUpConfirmPassword}
+                          edge="end"
+                        >
+                          {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                  />
+                  {errors.confirmPassword && (
+                    <FormHelperText sx={{ color: 'error.main' }}>{errors.confirmPassword}</FormHelperText>
+                  )}
+                </FormControl>
               </Grid>
+
+
+
             </Grid>
             <Button
               type="submit"

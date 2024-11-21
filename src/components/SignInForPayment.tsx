@@ -22,6 +22,8 @@ import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { refreshNavbarActtion } from '../slicers/signUpSlice';
 import Container from '@mui/material/Container';
+import { FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, OutlinedInput } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 
 
@@ -37,6 +39,7 @@ export default function SignInSide() {
     const isLoggedIn = useSelector(selectLoggedIn)
     const badRequest = useSelector(selectError);
     const [isLoading, setIsLoading] = React.useState(false);
+    const [showPassword, setShowPassword] = React.useState(false);
 
 
 
@@ -78,6 +81,19 @@ export default function SignInSide() {
     const handleForgotPassword = () => {
       navigate('/RequestResetPassword');
     };
+
+
+
+
+    const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
+
+  const handleMouseUpPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
     
 
     return (
@@ -111,18 +127,42 @@ export default function SignInSide() {
                 error={!!badRequest}
                 helperText={badRequest ? 'Incorrect email or password.' : ''}
               />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
+              <FormControl
+              required
+              fullWidth
+              variant="outlined"
+            >
+              <InputLabel htmlFor="password">Password</InputLabel>
+              <OutlinedInput
                 id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                label="Password"
                 autoComplete="current-password"
                 error={!!badRequest}
-                helperText={badRequest ? 'Incorrect email or password.' : ''}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={
+                        showPassword ? 'hide the password' : 'display the password'
+                      }
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      onMouseUp={handleMouseUpPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
               />
+              {/* Display helper text for errors */}
+              {badRequest && (
+                <FormHelperText error>
+                  Incorrect email or password.
+                </FormHelperText>
+              )}
+            </FormControl>
               
               <Button
                 type="submit"
