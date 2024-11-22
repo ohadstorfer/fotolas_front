@@ -66,6 +66,7 @@ import About from './components/About';
 import ContactUs from './components/ContactUs';
 import { Box } from '@mui/joy';
 import LimitedTimeAlert from './components/LimitedTimeAlert';
+import Terms from './components/Terms';
 
 
 
@@ -102,7 +103,8 @@ function App() {
         <Route path="/SignUpForPayment" element={<SignUpForPayment />} />
         <Route path="/About" element={<About />} />
         <Route path="/ContactUs" element={<ContactUs />} />
-
+        <Route path="/Terms" element={<Terms />} />
+        
 
 
         <Route element={<ProtectedRoutesPhotographers />}>

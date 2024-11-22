@@ -24,6 +24,13 @@ export default function SimpleBottomNavigation() {
   };
 
 
+  const handleTermsClick = async () => {
+    navigate('/Terms');
+  };
+
+
+  
+
   return (
     <Box sx={{ fontSize: '17px', width: '100%' }}>
   <BottomNavigation
@@ -43,11 +50,12 @@ export default function SimpleBottomNavigation() {
       onClick={handleAboutClick}
     />
     <BottomNavigationAction
-      label="Terms of use"
+      label="Terms"
       sx={{
         fontSize: '17px',
         '& .MuiBottomNavigationAction-label': { fontSize: '17px' }, // Ensure font size applies to the label
       }}
+      onClick={handleTermsClick}
     />
         <BottomNavigationAction
       label="Contact us"
