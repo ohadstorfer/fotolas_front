@@ -67,6 +67,7 @@ import ContactUs from './components/ContactUs';
 import { Box } from '@mui/joy';
 import LimitedTimeAlert from './components/LimitedTimeAlert';
 import Terms from './components/Terms';
+import { useEffect } from 'react';
 
 
 
@@ -149,6 +150,12 @@ function App() {
 const Root = () => {
   const location = useLocation();
 
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+  
+
   const hideNavbarRoutes = [
     '/PleaseWorkVideoS3',
     '/PleaseWorkneww',
@@ -199,6 +206,8 @@ const Root = () => {
         >
           <div>
             <Outlet />
+            {/* <SignUpForPayment></SignUpForPayment> */}
+            {/* <SignUp></SignUp> */}
           </div>
         </div>
 

@@ -132,6 +132,7 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
         page: parseInt(page || '1', 10),
         pageSize: 21,
       }));
+      window.scrollTo(0, 0);
     }
   };
 
@@ -144,6 +145,7 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
         page: parseInt(page || '1', 10),
         pageSize: 21,
       }));
+      window.scrollTo(0, 0);
     }
   };
 

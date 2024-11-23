@@ -107,6 +107,7 @@ const Video: React.FC = () => {
           page: parseInt(page || '1', 10),
         })
       );
+      window.scrollTo(0, 0);
     }
   };
 
@@ -119,6 +120,7 @@ const Video: React.FC = () => {
           page: parseInt(page || '1', 10),
         })
       );
+      window.scrollTo(0, 0);
     }
   };
 

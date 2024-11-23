@@ -199,7 +199,6 @@ export default function PrimarySearchAppBar() {
         dispatch(getPhotographerByUserId({ userId: Number(conectedUser.id), token: tokenValue }));
       }
 
-      console.log(user);
       
     }, [dispatch, user]);
 
@@ -323,8 +322,6 @@ export default function PrimarySearchAppBar() {
           <MenuItem key="logout" onClick={handleLogOut}>Log Out</MenuItem>,
         ]
       }else{
-        console.log(user?.stripe_account_id);
-        console.log(user?.verification_status);
         
       return [
         <MenuItem key="becomePhotographer" onClick={BecomePhotographerClick}>Become a photographer</MenuItem>,

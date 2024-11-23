@@ -91,6 +91,7 @@ const UndividedImgs: React.FC = () => {
           page: parseInt(page || '1', 10),
         })
       );
+      window.scrollTo(0, 0);
     }
   };
 
@@ -103,6 +104,7 @@ const UndividedImgs: React.FC = () => {
           page: parseInt(page || '1', 10),
         })
       );
+      window.scrollTo(0, 0);
     }
   };
 

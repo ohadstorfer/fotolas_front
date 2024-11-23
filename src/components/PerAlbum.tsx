@@ -189,6 +189,7 @@ const PerAlbum: React.FC = () => {
           pageSize: 21, // Use your desired page size
         })
       );
+      window.scrollTo(0, 0);
     }
   };
 
@@ -202,6 +203,7 @@ const PerAlbum: React.FC = () => {
           pageSize: 21, // Use your desired page size
         })
       );
+      window.scrollTo(0, 0);
     }
   };
 

@@ -18,9 +18,10 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { loginAsync, selectLoggedIn } from '../slicers/sighnInSlice';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Dialog, DialogActions, DialogContent, DialogContentText, } from '@mui/material';
+import { Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, } from '@mui/material';
 import { FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, OutlinedInput } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import TermsForApprovment from './TermsForApprovment';
 
 
 const defaultTheme = createTheme({
@@ -44,6 +45,9 @@ export default function SignUp() {
   const [openMessage, setOpenMessage] = React.useState(true);
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const [openTerms, setOpenTerms] = React.useState(false);
+  const [isChecked, setIsChecked] = React.useState(false);
+  const [changeToRed, setChangeToRed] = React.useState(false);
 
 
 
@@ -89,8 +93,20 @@ export default function SignUp() {
     return newErrors;
   };
 
+
+
+
+
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    
+    if (!isChecked) {
+      setChangeToRed(true);
+      alert("Please agree to the terms and conditions before proceeding.");
+      return;
+    }
+    
     const data = new FormData(event.currentTarget);
     const validationErrors = validateForm(data);
 
@@ -165,6 +181,9 @@ export default function SignUp() {
 
 
 
+
+  const handleOpenTerms = () => setOpenTerms(true);
+  const handleCloseTerms = () => setOpenTerms(false);
 
 
 
@@ -284,6 +303,45 @@ export default function SignUp() {
                 </FormControl>
               </Grid>
             </Grid>
+
+
+
+
+            <Grid item xs={12}>
+                <FormControl
+                required
+                >
+                  <Box
+                    sx={{
+                      mt: 2,
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Checkbox
+                      checked={isChecked}
+                      onChange={(e) => setIsChecked(e.target.checked)}
+                      sx={{
+                        color: teal[400],
+                        '&.Mui-checked': {
+                          color: teal[400],
+                        },
+                      }}
+                    />
+                    <Typography
+                      variant="body2"
+                      color={changeToRed && !loading ? "red" : "textSecondary"}
+                      onClick={handleOpenTerms}
+                      sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+                    >
+                      Please read and approve our Terms and Conditions.
+                    </Typography>
+                  </Box>
+                </FormControl>
+              </Grid>
+
+
+              
             <Button
               type="submit"
               fullWidth
@@ -336,6 +394,31 @@ export default function SignUp() {
           </DialogActions>
         </Dialog>
       )}
+
+
+
+
+
+{openTerms && (
+        <Dialog
+          open={openTerms}
+          onClose={handleCloseTerms}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogContent>
+            <TermsForApprovment></TermsForApprovment>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseTerms} autoFocus>
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+
+
 
 
     </ThemeProvider>
