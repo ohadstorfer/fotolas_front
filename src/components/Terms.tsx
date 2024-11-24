@@ -126,7 +126,7 @@ const Terms = () => {
             revenue predictions, marketing and community engagement.<br /><br />
 
             The Service is offered subject to acceptance of all of the terms and conditions contained in these
-            Terms of Use, including the Privacy Policy available at https://www.surfpik.com/privacy, and all
+            Terms of Use, including the Privacy Policy available at https://www.surfpik.com/Terms, and all
             other operating rules, policies, and procedures that may be published on the Website by the
             Company, which are incorporated by reference. These Terms of Use apply to every user of the
             Service. In addition, some features offered through the Service may be subject to additional terms
@@ -1000,22 +1000,22 @@ const Terms = () => {
           <Typography variant="body1" paragraph align="left">
 
 
-            At Picawave, we respect individual privacy rights and intellectual property. If you find a Visual Matrial
+            At Surfpik, we respect individual privacy rights and intellectual property. If you find a Visual Matrial
             (photograph, video, footage or other media) on our Website that you want removed, please follow
             these steps:<br /><br />
 
             For Privacy Concerns:<br />
             If you appear in a Visual Material and want it removed for privacy reasons, email
-            takedown@picwave.com with:<br />
+            takedown@surfpik.com with:<br />
             · The URL of the Visual Material<br />
             · A brief explanation of why you want it removed<br />
             · Proof of your identity (e.g., a photo of yourself)<br /><br />
 
             For Copyright Issues:<br />
-            If you believe a Visual Material infringes on your copyright, email copyright@picwave.com with:<br />
+            If you believe a Visual Material infringes on your copyright, email copyright@surfpik.com with:<br />
             · The URL of the infringing Visual Material<br />
             · Proof of your copyright ownership<br />
-            · A statement that you have not authorized the use of the Visual Material on PicWave<br /><br />
+            · A statement that you have not authorized the use of the Visual Material on Surfpik<br /><br />
 
             We will review all requests within 10 business days. If the request is valid, we will remove the Visual
             Material promptly. We reserve the right to reinstate Visual Material if we receive evidence that a
