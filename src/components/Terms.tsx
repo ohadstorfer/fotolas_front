@@ -345,7 +345,7 @@ const Terms = () => {
             account details you provide to the Company.<br /><br />
 
             If you believe that you did not receive the Photographer Payments you are entitled to, you may file a
-            dispute by contacting our support team at support@surfpik.com within 30 days of the payment
+            dispute by contacting our support team at surfpik@surfpik.com within 30 days of the payment
             date. Provide details of the disputed payment in your claim. Our team will review your dispute and
             respond within 5 business days, requesting additional information if needed. We aim to resolve all
             payment disputes within 30 days of the initial filing. For complex cases, we may offer mediation
@@ -382,7 +382,7 @@ const Terms = () => {
             was advertised on the Photographer’s Page (e.g., significantly lower resolution or quality),
             you may request a refund within 48 hours of purchase.<br />
 
-            To request a refund, please contact our support team at support@surfpik.com with your order
+            To request a refund, please contact our support team at surfpik@surfpik.com with your order
             number and a detailed explanation of the issue. All refund requests will be reviewed on a case-by-
             case basis, and the decision to issue a refund is at the sole discretion of The Company.<br /><br />
 
@@ -570,7 +570,7 @@ const Terms = () => {
             suspicious or unauthorized fraudulent activity carried out by you) that can which may result in
             the forfeiture and deletion of all information associated with your use of the Website. If you
             wish to terminate your Photographer’s Page or Membership, please contact us at:
-            support@surfpik.com. The Commission amounts due to Company are non-refundable. All
+            surfpik@surfpik.com. The Commission amounts due to Company are non-refundable. All
             provisions of the Terms of Use that by their nature should survive termination shall survive
             termination, including, without limitation, ownership provisions, warranty disclaimers,
             indemnity, and limitations of liability.<br /><br />
@@ -890,7 +890,7 @@ const Terms = () => {
             the Website, it&#39;s important to understand that Photographers using Surfpik are independent
             contractors, not employees or agents of the Company. We do not have direct control over
             Photographers&#39; actions or their compliance with privacy laws outside of the Website. We encourage
-            all users to report any privacy concerns to privacy@surfpik.com, and we will investigate and respond
+            all users to report any privacy concerns to surfpik@surfpik.com, and we will investigate and respond
             to the best of our ability.<br /><br />
 
             Information Shared with Third Parties<br /><br />
@@ -935,7 +935,7 @@ const Terms = () => {
             · Access and Update: You can access and update most of your account information directly
             through your Surfpik account settings.<br />
             · Data Deletion: You can request deletion of your Surfpik account or specific personal
-            information by emailing privacy@surfpik.com. We will make efforts to delete such
+            information by emailing surfpik@surfpik.com. We will make efforts to delete such
             information within 30 days, subject to legal and operational requirements.<br />
             · Data Portability: You can request a copy of your personal data in a structured, commonly
             used, and machine-readable format.<br /><br />
@@ -950,10 +950,10 @@ const Terms = () => {
             Website without your consent, we will remove it promptly upon verification of your request.<br />
             · Marketing Communications: You can opt out of receiving marketing communications at any
             time by clicking the &quot;unsubscribe&quot; link in any marketing email or contacting us at
-            privacy@surfpik.com.<br />
+            surfpik@surfpik.com.<br />
             · Cookie Preferences: You can manage your cookie preferences through your browser
             settings. For more information, refer to our Cookie Policy.<br />
-            To exercise these rights, please contact us at privacy@surfpik.com. Include your full name,
+            To exercise these rights, please contact us at surfpik@surfpik.com. Include your full name,
             username, country of residence, and the specific right you wish to exercise. We may need to verify
             your identity before processing your request.<br />
             For EEA Residents: If you are a resident of the European Economic Area, you have additional rights
@@ -970,7 +970,7 @@ const Terms = () => {
             6. Contact Us<br />
             If you have any questions, concerns, or requests regarding this Privacy Policy or our privacy
             practices, please contact our Data Protection Team at:<br />
-            Email: privacy@surfpik.com<br />
+            Email: surfpik@surfpik.com<br />
             Picawave, LLC<br />
             Attention: Legalinc Corporate Services Inc.<br />
             131 Continental Dr, Suite 305<br />
@@ -1006,13 +1006,13 @@ const Terms = () => {
 
             For Privacy Concerns:<br />
             If you appear in a Visual Material and want it removed for privacy reasons, email
-            takedown@surfpik.com with:<br />
+            surfpik@surfpik.com with:<br />
             · The URL of the Visual Material<br />
             · A brief explanation of why you want it removed<br />
             · Proof of your identity (e.g., a photo of yourself)<br /><br />
 
             For Copyright Issues:<br />
-            If you believe a Visual Material infringes on your copyright, email copyright@surfpik.com with:<br />
+            If you believe a Visual Material infringes on your copyright, email surfpik@surfpik.com with:<br />
             · The URL of the infringing Visual Material<br />
             · Proof of your copyright ownership<br />
             · A statement that you have not authorized the use of the Visual Material on Surfpik<br /><br />
