@@ -631,7 +631,7 @@ const Terms = () => {
             Picawave, LLC<br />
             Attention: Legalinc Corporate Services Inc.<br />
             131 Continental Dr, Suite 305<br />
-            Newark, New Jersey 19713<br />
+            Newark, Delaware 19713<br />
           </Typography>
 
 
@@ -974,7 +974,7 @@ const Terms = () => {
             Picawave, LLC<br />
             Attention: Legalinc Corporate Services Inc.<br />
             131 Continental Dr, Suite 305<br />
-            Newark, New Jersey 19713<br />
+            Newark, Delaware 19713<br />
             We take all privacy concerns seriously and will investigate and respond to your inquiry promptly.<br />
 
           </Typography>
