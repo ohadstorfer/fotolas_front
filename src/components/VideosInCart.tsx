@@ -128,21 +128,20 @@ const VideosInCart: React.FC = () => {
 
 
       {Prices && (
-        <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
-          <Typography>
-            Price Details:
-          </Typography>
-          <Typography>
-            For 1-3 videos: {Prices.price_1_to_3} $
-          </Typography>
-          <Typography>
-            For 4-15 videos: {Prices.price_4_to_15} $
-          </Typography>
-          <Typography>
-            For 15+ videos: {Prices.price_16_plus} $
-          </Typography>
-        </Box>
-      )}
+      <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
+        <Button onClick={handleToggle} sx={{ color: 'black' }}>
+        {open ? 'Hide' : 'Price Details'} {!open && <ArrowDropDownIcon />}  {open && <ArrowDropUpIcon />} 
+        </Button>
+        <Collapse in={open}>
+          <Typography>For 1-3 videos: {Prices.price_1_to_3} $</Typography>
+          <Typography>For 4-15 videos: {Prices.price_4_to_15} $</Typography>
+          <Typography>For 15+ videos: {Prices.price_16_plus} $</Typography>
+        </Collapse>
+      </Box>
+    )}
+
+
+
 
 
 <Grid container spacing={1} sx={{ justifyContent: 'center' }}>
