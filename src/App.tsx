@@ -68,6 +68,7 @@ import { Box } from '@mui/joy';
 import LimitedTimeAlert from './components/LimitedTimeAlert';
 import Terms from './components/Terms';
 import { useEffect } from 'react';
+import PleaseWorkVideosPerAlbums from './components/PleaseWorkVideosPerAlbums';
 
 
 
@@ -205,7 +206,11 @@ const Root = () => {
           }}
         >
           <div>
-            <Outlet />
+            <PleaseWorkVideosPerAlbums></PleaseWorkVideosPerAlbums>
+            {/* <Outlet /> */}
+            {/* <VerificationAlertsForSettings></VerificationAlertsForSettings> */}
+            {/* <VerificationAlerts></VerificationAlerts> */}
+            {/* <VerificationProccess></VerificationProccess> */}
             {/* <SignUpForPayment></SignUpForPayment> */}
             {/* <SignUp></SignUp> */}
           </div>

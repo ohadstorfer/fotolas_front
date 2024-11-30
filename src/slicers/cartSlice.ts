@@ -39,6 +39,7 @@ interface sess {
     photographer_profile_image: string;
     photographer_stripe_account_id: string;
     videos: boolean;
+    videosPerAlbums: boolean;
     dividedToWaves: boolean;
     expiration_date: Date;
     days_until_expiration: number;

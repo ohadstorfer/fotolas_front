@@ -10,13 +10,13 @@ import { Navigate } from 'react-router-dom';
 const VerificationAlerts = () => {
   // Explicitly typing state as either null or StripeConnectInstance
   const [stripeConnectInstance, setStripeConnectInstance] = useState<StripeConnectInstance | null>(null);
+  const [hasContent, setHasContent] = useState(false);
   const user = useSelector(selectUser)
   const isMobile = useMediaQuery('(max-width:600px)');
 
   useEffect(() => {
     const fetchClientSecret = async () => {
       try {
-        console.log(user);
         const response = await fetch('https://oyster-app-b3323.ondigitalocean.app/create_account_session_for_alerts/', {
           method: 'POST',
           headers: {

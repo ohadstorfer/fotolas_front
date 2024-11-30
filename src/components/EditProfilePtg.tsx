@@ -64,7 +64,6 @@ export default function EditProfilePtg() {
 
   useEffect(() => {
     if (photographer) {
-      console.log("doing itttt");
       
       dispatch(fetchDefaultAlbumPricesImages(photographer.id));
       dispatch(fetchDefaultAlbumPricesVideos(photographer.id));
@@ -77,7 +76,6 @@ export default function EditProfilePtg() {
 
   useEffect(() => {
     if (newDefaultPricesImages != null || newDefaultPricesVideos != null) {
-      console.log(newDefaultPricesImages, newDefaultPricesVideos);
 
       handleOpenMessage(
         spanish
@@ -103,7 +101,6 @@ export default function EditProfilePtg() {
   useEffect(() => {
     if (newDefaultPricesVideos != null && photographer ) {
       dispatch(fetchDefaultAlbumPricesVideos(photographer.id));
-      console.log("newDefaultPricesImages");
     }
   }, [newDefaultPricesVideos]);
 

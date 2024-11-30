@@ -26,7 +26,7 @@ import ConfirmationDialog from './ConfirmationDialog';
 
 
 
-const PleaseWorkcopy = () => {
+const PleaseWorkVideosPerAlbums = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -160,14 +160,8 @@ const PleaseWorkcopy = () => {
     try {
       console.log(`Starting upload for ${files.length} files`);
 
-      // Fetch presigned URLs with Content-Type and extension
-      const fileParams = files.map(
-        (file) => `content_type=${encodeURIComponent(file.type)}&ext=${file.name.split('.').pop()}`
-      );
-      const response = await axios.get(
-        `${urlEndpoint}?num_urls=${files.length}&${fileParams.join('&')}`
-      );
-
+      // Fetch presigned URLs for the files
+      const response = await axios.get(`${urlEndpoint}?num_urls=${files.length}`);
       const presignedUrls = response.data.urls;
       console.log(`Received presigned URLs`);
 
@@ -702,4 +696,4 @@ const PleaseWorkcopy = () => {
   );
 };
 
-export default PleaseWorkcopy;
+export default PleaseWorkVideosPerAlbums;

@@ -17,6 +17,7 @@ interface sess {
   photographer_name: string;
   photographer_profile_image: string;
   videos: boolean;
+  videosPerAlbums: boolean;
   dividedToWaves: boolean;
   active: boolean;
   expiration_date: Date;

@@ -17,7 +17,6 @@ const VerificationAlerts = () => {
   useEffect(() => {
     const fetchClientSecret = async () => {
       try {
-        console.log(user);
         const response = await fetch('https://oyster-app-b3323.ondigitalocean.app/create_account_session_for_alerts/', {
           method: 'POST',
           headers: {
