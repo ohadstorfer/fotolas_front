@@ -206,8 +206,8 @@ const Root = () => {
           }}
         >
           <div>
-            <PleaseWorkVideosPerAlbums></PleaseWorkVideosPerAlbums>
-            {/* <Outlet /> */}
+            {/* <PleaseWorkVideosPerAlbums></PleaseWorkVideosPerAlbums> */}
+            <Outlet />
             {/* <VerificationAlertsForSettings></VerificationAlertsForSettings> */}
             {/* <VerificationAlerts></VerificationAlerts> */}
             {/* <VerificationProccess></VerificationProccess> */}
