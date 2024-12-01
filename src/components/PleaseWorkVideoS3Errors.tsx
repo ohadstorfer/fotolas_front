@@ -191,7 +191,8 @@ const PleaseWorkcopy = () => {
       const uploadPromises = files.map((file, index) => {
         const url = presignedUrls[index];
         let attempt = 0;
-
+        console.log("the file type: " + file.type);
+        
         // Retry function
         const uploadWithRetry = async (): Promise<string> => {
           try {
