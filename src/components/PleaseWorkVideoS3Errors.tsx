@@ -191,10 +191,11 @@ const PleaseWorkcopy = () => {
       const uploadPromises = files.map((file, index) => {
         const url = presignedUrls[index];
         let attempt = 0;
-        console.log("the file type: " + file.type);
+        
         
         // Retry function
         const uploadWithRetry = async (): Promise<string> => {
+          console.log("the file type: " + file.type);
           try {
             console.log(`Attempting to upload ${file.name}, attempt ${attempt + 1}`);
             await axios.put(url, file, {
