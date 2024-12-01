@@ -331,20 +331,19 @@ const PleaseWorkcopy = () => {
           if (!filename) {
             throw new Error('Filename is undefined');
           }
-          const transformedFilename = filename.replace(/\.[^/.]+$/, ".mp4-tuvsconverted.mp4");
           return url
             .replace('surfingram-original-video', 'surfingram-transformed-video')
-            .replace(filename, transformedFilename);
+            .replace(filename, filename + '-tuvsconverted.mp4');
         });
+
         const imgUrls = originalUploadedUrls.map(url => {
           const filename = url.split('/').pop();
           if (!filename) {
             throw new Error('Filename is undefined');
           }
-          const imgFilename = filename.replace(/\.[^/.]+$/, ".mp4-tuvsconverted.0000001.jpg");
           return url
             .replace('surfingram-original-video', 'surfingram-transformed-video')
-            .replace(filename, imgFilename);
+            .replace(filename, filename + '-tuvsconverted.0000001.jpg');
         });
         allWatermarkedUploadedUrls.push(...watermarkedUploadedUrls);
         allImgUrls.push(...imgUrls);
