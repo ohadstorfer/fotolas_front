@@ -173,11 +173,13 @@ const PleaseWorkcopy = () => {
   });
   
     
-    // Fetch presigned URLs with file types
-    const response = await axios.post(urlEndpoint, {
-      num_urls: files.length,
-      file_types: fileTypes  // Send MIME types to backend
-    });
+     // Fetch presigned URLs with file types using GET with params
+     const response = await axios.get(urlEndpoint, {
+      params: {
+          num_urls: files.length,
+          file_types: fileTypes.join(','),  // Convert array to comma-separated string
+      }
+  });
 
 
 
