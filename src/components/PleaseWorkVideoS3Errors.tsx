@@ -43,32 +43,12 @@ const PleaseWorkcopy = () => {
   let retryTimeout: ReturnType<typeof setTimeout> | null = null;
   const spanish = useSelector(selectSpanish)
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [videoType, setVideoType] = useState<string | null>(null);
 
 
 
 
 
-
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = ''; // Triggers the browser's default warning dialog
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload); // Clean up
-    };
-  }, [dispatch]);
-
-
-
-
-
-
-
-  const setSpanish = () => {
-    dispatch(toggleSpanish());
-  };
 
 
 
@@ -96,9 +76,9 @@ const PleaseWorkcopy = () => {
           invalidFiles.push(file.name);
         }
       }
-
       const totalSizeInGB = (totalSize / (1024 * 1024 * 1024)).toFixed(3);
       setFileInfo(`${fileList.length} videos, ${totalSizeInGB} GB`);
+
 
 
 
@@ -136,8 +116,31 @@ const PleaseWorkcopy = () => {
 
 
 
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = ''; // Triggers the browser's default warning dialog
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload); // Clean up
+    };
+  }, [dispatch]);
+
+
+
+
+
   const onUploadClick = () => {
     fileInputRef.current?.click();
+  };
+
+
+
+  
+  const setSpanish = () => {
+    dispatch(toggleSpanish());
   };
 
 
@@ -160,8 +163,25 @@ const PleaseWorkcopy = () => {
     try {
       console.log(`Starting upload for ${files.length} files`);
 
-      // Fetch presigned URLs for the files
-      const response = await axios.get(`${urlEndpoint}?num_urls=${files.length}`);
+       // Extract MIME types of the files
+    const fileTypes = files.map(file => file.type);
+
+    // Log request payload
+    console.log('Request Payload:', {
+      num_urls: files.length,
+      file_types: fileTypes
+  });
+  
+    
+    // Fetch presigned URLs with file types
+    const response = await axios.post(urlEndpoint, {
+      num_urls: files.length,
+      file_types: fileTypes  // Send MIME types to backend
+    });
+
+
+
+
       const presignedUrls = response.data.urls;
       console.log(`Received presigned URLs`);
 
