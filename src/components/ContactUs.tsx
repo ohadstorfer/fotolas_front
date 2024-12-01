@@ -53,13 +53,13 @@ const ContactUs = () => {
       <Typography variant="h6" gutterBottom>
         WhatsApp
       </Typography>
-      {/* <Typography variant="body2">
+      <Typography variant="body2">
         {"You can find us by the number"}
   <br />
   {"+972-544-673-407"}
-      </Typography> */}
+      </Typography>
 
-<Typography variant="body2"> {"WhatsApp support will be available soon! In the meantime, feel free to reach out to us via email for any assistance."} </Typography>
+{/* <Typography variant="body2"> {"WhatsApp support will be available soon! In the meantime, feel free to reach out to us via email for any assistance."} </Typography> */}
 
     </FeatureCard>
   </Grid>
