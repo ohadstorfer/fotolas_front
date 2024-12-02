@@ -4,8 +4,10 @@ import { ConnectPayouts, ConnectComponentsProvider, ConnectBalances, ConnectPaym
 import { useSelector } from 'react-redux';
 import { selectUser } from '../slicers/userSlice';
 import { Box, Card } from '@mui/joy';
-import { Typography, useMediaQuery } from '@mui/material';
+import { Button, Typography, useMediaQuery } from '@mui/material';
 import { Navigate } from 'react-router-dom';
+import { teal } from '@mui/material/colors';
+import { selectSpanish } from '../slicers/sighnInSlice';
 
 const VerificationAlerts = () => {
   // Explicitly typing state as either null or StripeConnectInstance
@@ -13,6 +15,12 @@ const VerificationAlerts = () => {
   const [hasContent, setHasContent] = useState(false);
   const user = useSelector(selectUser)
   const isMobile = useMediaQuery('(max-width:600px)');
+  const [accountCreatePending, setAccountCreatePending] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false)
+  const spanish = useSelector(selectSpanish)
+  const [accountLinkCreatePending, setAccountLinkCreatePending] = useState(false);
+  
 
   useEffect(() => {
     const fetchClientSecret = async () => {
@@ -60,6 +68,8 @@ const VerificationAlerts = () => {
     return <div>Loading...</div>;
   }
 
+
+  
   if (user?.is_photographer === true) {
         return <Navigate to="/EditProfilePtg" />;
     }
@@ -68,7 +78,54 @@ const VerificationAlerts = () => {
 
 
 
+
+    const createStripeAccountLink = async (stripeAccountId: string) => {
+      try {
+        setLoading(true);
+        setAccountLinkCreatePending(true);
+        setError(false);
+    
+        const response = await fetch("https://oyster-app-b3323.ondigitalocean.app/account_link/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ stripe_account_id: stripeAccountId }),
+        });
+    
+        const json = await response.json();
+        setAccountLinkCreatePending(false);
+    
+        const { url, error } = json;
+        if (url) {
+          window.location.href = url;
+        } else if (error) {
+          setError(true);
+        }
+      } catch (error) {
+        setAccountLinkCreatePending(false);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+
+
+
+
+    const handleButtonClick = () => {
+      const stripeAccountId = user?.stripe_account_id;
+      if (stripeAccountId) {
+        createStripeAccountLink(stripeAccountId);
+      } else {
+        console.error("Stripe account ID is missing");
+      }
+    };
+
+
   return (
+    
 
 
     <ConnectComponentsProvider connectInstance={stripeConnectInstance}>
@@ -85,6 +142,23 @@ const VerificationAlerts = () => {
           Refresh the page to check for updates in your verification status.
         </Typography>
       </Box>
+
+
+
+
+      <Button
+              sx={{
+                marginTop: '16px',
+                backgroundColor: teal[400],
+                color: 'white',
+              }}
+              onClick={handleButtonClick}
+            >
+              {spanish ? "¡Continúa con tu proceso de incorporación!" : "Continue with your onboarding process!"}
+            </Button>
+
+
+            
 
       <Box
         sx={{

@@ -69,6 +69,7 @@ import LimitedTimeAlert from './components/LimitedTimeAlert';
 import Terms from './components/Terms';
 import { useEffect } from 'react';
 import PleaseWorkVideosPerAlbums from './components/PleaseWorkVideosPerAlbums';
+import RefreshURL from './components/RefreshURL';
 
 
 
@@ -106,8 +107,9 @@ function App() {
         <Route path="/About" element={<About />} />
         <Route path="/ContactUs" element={<ContactUs />} />
         <Route path="/Terms" element={<Terms />} />
+        <Route path="/RefreshURL" element={<RefreshURL />} />
         
-
+        
 
         <Route element={<ProtectedRoutesPhotographers />}>
           <Route path="/ProfilePtg" element={<ProfilePhotographer />} />
