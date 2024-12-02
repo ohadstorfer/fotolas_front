@@ -118,6 +118,10 @@ const Video: React.FC = () => {
     '& .MuiPaginationItem-root': {
       color: teal[400], // Apply teal color to pagination items
     },
+    '& .Mui-selected': {
+      backgroundColor: "#26a69b", // Solid teal background for selected page
+      color: '#fff', // Ensure text is white on selected page
+    },
   });
 
 
@@ -171,6 +175,16 @@ const Video: React.FC = () => {
       )}
 
 </Box>
+
+
+<Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+    <CustomPagination
+      count={total_pages_Videos!}
+      page={currentPage}
+      onChange={handlePageChange}
+      variant="outlined"
+    />
+  </Box>
 
 
 
@@ -253,12 +267,11 @@ const Video: React.FC = () => {
 
 
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-    <Pagination
+    <CustomPagination
       count={total_pages_Videos!}
       page={currentPage}
       onChange={handlePageChange}
       variant="outlined"
-      color="primary"
     />
   </Box>
 

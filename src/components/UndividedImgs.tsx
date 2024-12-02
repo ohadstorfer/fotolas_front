@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useAppDispatch } from '../app/hooks';
-import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, CardMedia, Typography, Button, useMediaQuery, Dialog, DialogContent, Pagination } from '@mui/material';
+import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, CardMedia, Typography, Button, useMediaQuery, Dialog, DialogContent, Pagination, styled } from '@mui/material';
 import { AspectRatio } from '@mui/joy';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
@@ -115,6 +115,21 @@ const UndividedImgs: React.FC = () => {
   };
 
 
+
+  const CustomPagination = styled(Pagination)({
+    '& .MuiPaginationItem-root': {
+      color: teal[400], // Apply teal color to pagination items
+    },
+    '& .Mui-selected': {
+      backgroundColor: "#26a69b", // Solid teal background for selected page
+      color: '#fff', // Ensure text is white on selected page
+    },
+  });
+
+
+  
+
+
   return (
     <div>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -147,6 +162,20 @@ const UndividedImgs: React.FC = () => {
     </Box>
   )}
 </Box>
+
+
+
+<Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+    <CustomPagination
+      count={total_pages_Videos!}
+      page={currentPage}
+      onChange={handlePageChange}
+      variant="outlined"
+      color="primary"
+    />
+  </Box>
+
+
 
       <ImageList variant="standard" cols={isMobile ? 2 : 4} sx={{ margin: '20px' }}>
         {imgs.map((img: Img) => {
@@ -249,7 +278,7 @@ const UndividedImgs: React.FC = () => {
 
 
 <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-    <Pagination
+    <CustomPagination
       count={total_pages_Videos!}
       page={currentPage}
       onChange={handlePageChange}

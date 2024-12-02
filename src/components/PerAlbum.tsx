@@ -21,7 +21,7 @@ import { addToCart_singleImages, fetchPricesBySessionAlbumId, selectCart, addToC
 import { selectSelectedSessAlbum, selectSessAlbums } from '../slicers/sessAlbumSlice';
 import { TiLocation } from 'react-icons/ti';
 import SessAlbumDetails from './SessAlbumDetails';
-import { Button, useMediaQuery, Dialog, DialogContent, Pagination } from '@mui/material';
+import { Button, useMediaQuery, Dialog, DialogContent, Pagination, styled } from '@mui/material';
 import Images from './Images';
 import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
@@ -200,6 +200,17 @@ const PerAlbum: React.FC = () => {
   };
 
 
+  const CustomPagination = styled(Pagination)({
+    '& .MuiPaginationItem-root': {
+      color: teal[400], // Apply teal color to pagination items
+    },
+    '& .Mui-selected': {
+      backgroundColor: "#26a69b", // Solid teal background for selected page
+      color: '#fff', // Ensure text is white on selected page
+    },
+  });
+
+
 
   return (
     <div>
@@ -233,6 +244,17 @@ const PerAlbum: React.FC = () => {
     </Box>
   )}
 </Box>
+
+
+
+<Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+    <CustomPagination
+      count={total_pages!}
+      page={currentPage}
+      onChange={handlePageChange}
+      variant="outlined"
+    />
+  </Box>
 
 
 
@@ -315,12 +337,11 @@ const PerAlbum: React.FC = () => {
 
 
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-    <Pagination
+    <CustomPagination
       count={total_pages!}
       page={currentPage}
       onChange={handlePageChange}
       variant="outlined"
-      color="primary"
     />
   </Box>
 
