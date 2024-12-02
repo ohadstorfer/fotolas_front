@@ -126,7 +126,7 @@ export const sessGetDataAsync = createAsyncThunk<
   FetchParams
 >(
   'sessAlbum/fetchImages',
-  async ({ filterType, filterId, page = 1, pageSize = 21 }: FetchParams) => {
+  async ({ filterType, filterId, page = 1, pageSize = 20 }: FetchParams) => {
     let response;
 
     switch (filterType) {

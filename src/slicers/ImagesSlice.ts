@@ -31,6 +31,8 @@ interface imagesState {
   previousImages: string | null;
   nextVideos: string | null;
   previousVideos: string | null;
+  total_pages_Images: number | null;
+  total_pages_Videos: number | null;
 }
 
 const initialCart = sessionStorage.getItem('cart');
@@ -50,6 +52,8 @@ const initialState: imagesState = {
   previousImages: null,
   nextVideos: null,
   previousVideos: null,
+  total_pages_Images: null,
+  total_pages_Videos: null,
   error: null,
 };
 
@@ -68,7 +72,7 @@ export const fetchImagesAsync = createAsyncThunk<Img[], number>('images/fetchIma
 });
 
 export const fetchImagesBySessAsync = createAsyncThunk<
-  { images: Img[]; next: string | null; previous: string | null },
+  { images: Img[]; next: string | null; previous: string | null; total_pages_Images: number | null },
   { albumId: number; page?: number }
 >('images/fetchImagesBySess', async ({ albumId, page = 1 }) => {
   const response = await fetchImagesBySess(albumId, page);
@@ -76,11 +80,12 @@ export const fetchImagesBySessAsync = createAsyncThunk<
     images: response.data.results,
     next: response.data.next,
     previous: response.data.previous,
+    total_pages_Images: response.data.total_pages,
   };
 });
 
 export const fetchVideosBySessionAsync = createAsyncThunk<
-  { videos: Video[]; next: string | null; previous: string | null },
+  { videos: Video[]; next: string | null; previous: string | null; total_pages_Videos: number | null },
   { albumId: number; page?: number }
 >('images/fetchVideosBySession', async ({ albumId, page = 1 }) => {
   const response = await fetchVideosBySess(albumId, page);
@@ -88,6 +93,7 @@ export const fetchVideosBySessionAsync = createAsyncThunk<
     videos: response.data.results,
     next: response.data.next,
     previous: response.data.previous,
+    total_pages_Videos: response.data.total_pages,
   };
 });
 
@@ -157,6 +163,7 @@ export const imagesSlice = createSlice({
         state.imgs = action.payload.images;
         state.nextImages = action.payload.next;
         state.previousImages = action.payload.previous;
+        state.total_pages_Images = action.payload.total_pages_Images;
       })
       .addCase(fetchImagesBySessAsync.rejected, (state, action) => {
         state.status = 'failed';
@@ -171,6 +178,9 @@ export const imagesSlice = createSlice({
         state.videos = action.payload.videos;
         state.nextVideos = action.payload.next;
         state.previousVideos = action.payload.previous;
+        state.total_pages_Videos = action.payload.total_pages_Videos;
+        console.log(state.total_pages_Videos);
+        
       })
       .addCase(fetchVideosBySessionAsync.rejected, (state, action) => {
         state.status = 'failed';
@@ -197,5 +207,7 @@ export const selectNextImages = (state: { images: imagesState }) => state.images
 export const selectPreviousImages = (state: { images: imagesState }) => state.images.previousImages;
 export const selectNextVideos = (state: { images: imagesState }) => state.images.nextVideos;
 export const selectPreviousVideos = (state: { images: imagesState }) => state.images.previousVideos;
+export const select_total_pages_Videos = (state: { images: imagesState }) => state.images.total_pages_Videos;
+export const select_total_pages_Images = (state: { images: imagesState }) => state.images.total_pages_Images;
 
 export default imagesSlice.reducer;

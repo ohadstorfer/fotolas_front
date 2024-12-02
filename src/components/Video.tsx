@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, Typography, Button, useMediaQuery } from '@mui/material';
+import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, Typography, Button, useMediaQuery, Pagination, styled } from '@mui/material';
 import { AspectRatio } from '@mui/joy';
-import { fetchVideosBySessionAsync, selectNextVideos, selectPreviousVideos, selectVideos } from '../slicers/ImagesSlice';
+import { fetchVideosBySessionAsync, select_total_pages_Videos, selectNextVideos, selectPreviousVideos, selectVideos } from '../slicers/ImagesSlice';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
 import { selectSelectedSessAlbum } from '../slicers/sessAlbumSlice';
@@ -34,10 +34,12 @@ const Video: React.FC = () => {
   const Prices = useSelector((state: any) => state.cart.prices);
   const nextPage = useSelector(selectNextVideos);
   const previousPage = useSelector(selectPreviousVideos);
+  const total_pages_Videos = useSelector(select_total_pages_Videos);
   const isMobile = useMediaQuery('(max-width:600px)');
   const [activeVideos, setActiveVideos] = useState<{ [key: number]: boolean }>({});
   const navigate = useNavigate();
   const spanish = useSelector(selectSpanish)
+  const [currentPage, setCurrentPage] = React.useState(1);
 
 
 
@@ -98,36 +100,29 @@ const Video: React.FC = () => {
 
 
 
-  const handleNextPage = () => {
-    if (nextPage) {
-      const page = new URL(nextPage).searchParams.get('page');
-      dispatch(
-        fetchVideosBySessionAsync({
-          albumId: selectedSessAlbum!.id,
-          page: parseInt(page || '1', 10),
-        })
-      );
-      window.scrollTo(0, 0);
-    }
-  };
 
-  const handlePreviousPage = () => {
-    if (previousPage) {
-      const page = new URL(previousPage).searchParams.get('page');
-      dispatch(
-        fetchVideosBySessionAsync({
-          albumId: selectedSessAlbum!.id,
-          page: parseInt(page || '1', 10),
-        })
-      );
-      window.scrollTo(0, 0);
-    }
+
+
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
+    dispatch(
+      fetchVideosBySessionAsync({
+        albumId: selectedSessAlbum!.id,
+        page: page,
+      })
+    );
+    window.scrollTo(0, 0);
   };
 
 
 
 
-
+  const CustomPagination = styled(Pagination)({
+    '& .MuiPaginationItem-root': {
+      color: teal[400], // Apply teal color to pagination items
+    },
+  });
 
 
 
@@ -260,16 +255,21 @@ const Video: React.FC = () => {
       </ImageList>
 
 
-      {(nextPage || previousPage) && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
-            Previous
-          </Button>
-          <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
-            Next
-          </Button>
-        </Box>
-      )}
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+    <Pagination
+      count={total_pages_Videos!}
+      page={currentPage}
+      onChange={handlePageChange}
+      variant="outlined"
+      color="primary"
+    />
+  </Box>
+
+  
+
+
+
 
 
     </div>
