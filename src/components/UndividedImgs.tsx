@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useAppDispatch } from '../app/hooks';
-import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, CardMedia, Typography, Button, useMediaQuery, Dialog, DialogContent } from '@mui/material';
+import { ImageList, ImageListItem, Card, CardActionArea, Box, IconButton, CardMedia, Typography, Button, useMediaQuery, Dialog, DialogContent, Pagination } from '@mui/material';
 import { AspectRatio } from '@mui/joy';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import RemoveShoppingCartIcon from '@mui/icons-material/RemoveShoppingCart';
-import { fetchImagesBySessAsync, selectImg, selectNextImages, selectPreviousImages } from '../slicers/ImagesSlice';
+import { fetchImagesBySessAsync, fetchVideosBySessionAsync, select_total_pages_Images, selectImg, selectNextImages, selectPreviousImages } from '../slicers/ImagesSlice';
 import { addToCart_singleImages, calculatePriceForImages, fetchPricesBySessionAlbumId, removeCartType, removeFromCart_singleImages, removeSessAlbumOfCart, selectCart, selectSessAlbumOfCart, setCartType, setSessAlbumOfCart } from '../slicers/cartSlice';
 import { teal } from '@mui/material/colors';
 import SessAlbumDetails from './SessAlbumDetails';
@@ -27,11 +27,12 @@ const UndividedImgs: React.FC = () => {
   const isMobile = useMediaQuery('(max-width:600px)');
   const navigate = useNavigate();
   const spanish = useSelector(selectSpanish)
-
-  // Dialog state for opening the image in larger view
+  const total_pages_Videos = useSelector(select_total_pages_Images);
+  const [currentPage, setCurrentPage] = React.useState(1);
   const [open, setOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  
   interface Img {
     id: number;
     photo: string;
@@ -82,31 +83,21 @@ const UndividedImgs: React.FC = () => {
 
 
 
-  const handleNextPage = () => {
-    if (nextPage) {
-      const page = new URL(nextPage).searchParams.get('page');
-      dispatch(
-        fetchImagesBySessAsync({
-          albumId: selectedSessAlbum!.id,
-          page: parseInt(page || '1', 10),
-        })
-      );
-      window.scrollTo(0, 0);
-    }
+  
+
+
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
+    dispatch(
+      fetchImagesBySessAsync({
+        albumId: selectedSessAlbum!.id,
+        page: page,
+      })
+    );
+    window.scrollTo(0, 0);
   };
 
-  const handlePreviousPage = () => {
-    if (previousPage) {
-      const page = new URL(previousPage).searchParams.get('page');
-      dispatch(
-        fetchImagesBySessAsync({
-          albumId: selectedSessAlbum!.id,
-          page: parseInt(page || '1', 10),
-        })
-      );
-      window.scrollTo(0, 0);
-    }
-  };
 
   // Handle opening the dialog with the clicked image
   const handleOpenDialog = (image: string) => {
@@ -204,16 +195,7 @@ const UndividedImgs: React.FC = () => {
         })}
       </ImageList>
 
-      {(nextPage || previousPage) && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-            <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
-              Previous
-            </Button>
-            <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
-              Next
-            </Button>
-          </Box>
-        )}
+
 
 
 
@@ -263,6 +245,21 @@ const UndividedImgs: React.FC = () => {
             padding: 0, // Optional: removes padding around the image
           }}
         >
+
+
+
+<Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+    <Pagination
+      count={total_pages_Videos!}
+      page={currentPage}
+      onChange={handlePageChange}
+      variant="outlined"
+      color="primary"
+    />
+  </Box>
+
+
+  
           {selectedImage && (
             <img
               src={selectedImage}

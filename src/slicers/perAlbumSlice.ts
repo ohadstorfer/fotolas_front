@@ -19,6 +19,7 @@ interface perAlbumState {
   prices: any;
   next: string | null;
   previous: string | null;
+  total_pages: number | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   serverError: string | null;
 }
@@ -38,12 +39,13 @@ const initialState: perAlbumState = {
   prices : initialPrices ? JSON.parse(initialPrices) : 0,
   next: null,
   previous: null,
+  total_pages: null,
   status: 'idle',
   serverError: null,
 };
 
 export const getDataAsync = createAsyncThunk<
-  { albums: personalAlbum[]; next: string | null; previous: string | null },
+  { albums: personalAlbum[]; next: string | null; previous: string | null ; total_pages: number | null},
   { albumId: number; page: number; pageSize: number }
 >(
   'perAlbum/fetchPersonalAlbums',
@@ -55,6 +57,7 @@ export const getDataAsync = createAsyncThunk<
       albums: response.data.results,
       next: response.data.next,
       previous: response.data.previous,
+      total_pages: response.data.total_pages,
     };
   }
 );
@@ -141,6 +144,7 @@ export const perAlbumSlice = createSlice({
       state.albums = action.payload.albums;
       state.next = action.payload.next;
       state.previous = action.payload.previous;
+      state.total_pages = action.payload.total_pages;
       state.status = 'succeeded';
     })
     .addCase(getDataAsync.rejected, (state) => {
@@ -193,6 +197,7 @@ export const selectPrices_WAVES = (state: { perAlbum: perAlbumState }) => state.
 export const selectNextPageWaves = (state: { perAlbum: perAlbumState }) => state.perAlbum.next;
 export const selectPreviousPageWaves = (state: { perAlbum: perAlbumState }) => state.perAlbum.previous;
 export const selectServerError = (state: { perAlbum: perAlbumState }) => state.perAlbum.serverError;
+export const select_total_pages = (state: { perAlbum: perAlbumState }) => state.perAlbum.total_pages;
 
 
 export default perAlbumSlice.reducer;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getDataAsync, selectPersonalAlbum, addToCart, removeFromCart, removeWaveFromCart, updateTotalPrice, selectNextPageWaves, selectPreviousPageWaves, selectServerError, clearPerAlbums } from '../slicers/perAlbumSlice';
+import { getDataAsync, selectPersonalAlbum, addToCart, removeFromCart, removeWaveFromCart, updateTotalPrice, selectNextPageWaves, selectPreviousPageWaves, selectServerError, clearPerAlbums, select_total_pages } from '../slicers/perAlbumSlice';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardMedia from '@mui/material/CardMedia';
@@ -21,7 +21,7 @@ import { addToCart_singleImages, fetchPricesBySessionAlbumId, selectCart, addToC
 import { selectSelectedSessAlbum, selectSessAlbums } from '../slicers/sessAlbumSlice';
 import { TiLocation } from 'react-icons/ti';
 import SessAlbumDetails from './SessAlbumDetails';
-import { Button, useMediaQuery, Dialog, DialogContent } from '@mui/material';
+import { Button, useMediaQuery, Dialog, DialogContent, Pagination } from '@mui/material';
 import Images from './Images';
 import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
@@ -47,6 +47,9 @@ const PerAlbum: React.FC = () => {
   const [isInCart, setIsInCart] = useState(false);
   const serverError = useSelector(selectServerError);
   const spanish = useSelector(selectSpanish)
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const total_pages = useSelector(select_total_pages);
+
 
 
 
@@ -179,33 +182,23 @@ const PerAlbum: React.FC = () => {
   };
 
 
-  const handleNextPage = () => {
-    if (nextPage) {
-      const page = new URL(nextPage).searchParams.get('page');
-      dispatch(
-        getDataAsync({
-          albumId: selectedSessAlbum!.id,
-          page: parseInt(page || '1', 10),
-          pageSize: 21, // Use your desired page size
-        })
-      );
-      window.scrollTo(0, 0);
-    }
+
+
+
+
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
+    dispatch(
+      getDataAsync({
+        albumId: selectedSessAlbum!.id,
+        page: page,
+        pageSize: 20,
+      })
+    );
+    window.scrollTo(0, 0);
   };
 
-  const handlePreviousPage = () => {
-    if (previousPage) {
-      const page = new URL(previousPage).searchParams.get('page');
-      dispatch(
-        getDataAsync({
-          albumId: selectedSessAlbum!.id,
-          page: parseInt(page || '1', 10),
-          pageSize: 21, // Use your desired page size
-        })
-      );
-      window.scrollTo(0, 0);
-    }
-  };
 
 
   return (
@@ -251,6 +244,7 @@ const PerAlbum: React.FC = () => {
           const isInCart = cart.includes(personalAlbum.id);
 
           return (
+            
             <ImageListItem key={personalAlbum.id}>
               <Card
                 sx={{
@@ -317,16 +311,22 @@ const PerAlbum: React.FC = () => {
         })}
       </ImageList>
 
-      {(nextPage || previousPage) && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
-            Previous
-          </Button>
-          <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
-            Next
-          </Button>
-        </Box>
-      )}
+
+
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+    <Pagination
+      count={total_pages!}
+      page={currentPage}
+      onChange={handlePageChange}
+      variant="outlined"
+      color="primary"
+    />
+  </Box>
+
+
+  
+
 
 
 
