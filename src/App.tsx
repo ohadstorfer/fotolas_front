@@ -70,6 +70,7 @@ import Terms from './components/Terms';
 import { useEffect } from 'react';
 import PleaseWorkVideosPerAlbums from './components/PleaseWorkVideosPerAlbums';
 import RefreshURL from './components/RefreshURL';
+import ExpiredSessAlbum from './components/ExpiredSessAlbum';
 
 
 
@@ -108,6 +109,7 @@ function App() {
         <Route path="/ContactUs" element={<ContactUs />} />
         <Route path="/Terms" element={<Terms />} />
         <Route path="/RefreshURL" element={<RefreshURL />} />
+        <Route path="/ExpiredSessAlbum" element={<ExpiredSessAlbum />} />
         
         
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export function allSessAlbum(page: number = 1, pageSize: number = 21) {
+export function allSessAlbum(page: number = 1, pageSize: number = 20) {
   const MY_SERVER = 'https://oyster-app-b3323.ondigitalocean.app/session-albums-with-details/';
   return axios.get(MY_SERVER, {
     params: {
@@ -16,7 +16,7 @@ export function sessById(session_album: number) {
   return axios.get(MY_SERVER);
 }
 
-export function sessAlbumsByPhotographer(photographerId: number, page: number = 1, pageSize: number = 21) {
+export function sessAlbumsByPhotographer(photographerId: number, page: number = 1, pageSize: number = 20) {
   const MY_SERVER = `https://oyster-app-b3323.ondigitalocean.app/session-albums-by-photographer/${photographerId}/`;
   return axios.get(MY_SERVER, {
     params: {
@@ -29,7 +29,7 @@ export function sessAlbumsByPhotographer(photographerId: number, page: number = 
 
 
 
-export function sessAlbumsBySpot(spotId: number, page: number = 1, pageSize: number = 21) {
+export function sessAlbumsBySpot(spotId: number, page: number = 1, pageSize: number = 20) {
   const MY_SERVER = `https://oyster-app-b3323.ondigitalocean.app/session-albums-by-spot/${spotId}/`;
   return axios.get(MY_SERVER, {
     params: {

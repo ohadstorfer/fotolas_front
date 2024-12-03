@@ -27,6 +27,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
 import { selectSpanish } from '../slicers/sighnInSlice';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ExpiredSessAlbum from './ExpiredSessAlbum';
 
 const PerAlbum: React.FC = () => {
   const personalAlbums = useSelector(selectPersonalAlbum);
@@ -69,7 +70,7 @@ const PerAlbum: React.FC = () => {
     dispatch(clearPerAlbums())
     if (selectedSessAlbum) {
       const albumId = selectedSessAlbum.id
-      dispatch(getDataAsync({ albumId, page: 1, pageSize: 21 }));
+      dispatch(getDataAsync({ albumId, page: 1, pageSize: 20 }));
       dispatch(fetchPricesBySessionAlbumId(albumId));
 
     }
@@ -136,7 +137,7 @@ const PerAlbum: React.FC = () => {
   useEffect(() => {
     if (selectedSessAlbum) {
       const albumId = selectedSessAlbum.id
-      dispatch(getDataAsync({ albumId, page: 1, pageSize: 21 }));
+      dispatch(getDataAsync({ albumId, page: 1, pageSize: 20 }));
     }
   }, [dispatch]);
 
@@ -212,49 +213,55 @@ const PerAlbum: React.FC = () => {
 
 
 
+  if (selectedSessAlbum?.days_until_expiration! < 0) {
+    return <ExpiredSessAlbum />;
+  }
+
+
+
   return (
     <div>
-<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-  <SessAlbumDetails />
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <SessAlbumDetails />
 
-  <Button
-    variant="text"
-    sx={{
-      margin: '5px 0',
-      fontSize: '0.9rem',
-      color: teal[400],
-      borderRadius: '8px',
-      cursor: 'pointer',
-      '&:hover': {
-        backgroundColor: teal[400],
-        color: 'white',
-      },
-    }}
-    onClick={handleNavigateHome}
-  >
-    <ArrowBackIosIcon fontSize="small" /> {spanish ? 'Ir a la página principal' : 'Back to Homepage'}
-  </Button>
+        <Button
+          variant="text"
+          sx={{
+            margin: '5px 0',
+            fontSize: '0.9rem',
+            color: teal[400],
+            borderRadius: '8px',
+            cursor: 'pointer',
+            '&:hover': {
+              backgroundColor: teal[400],
+              color: 'white',
+            },
+          }}
+          onClick={handleNavigateHome}
+        >
+          <ArrowBackIosIcon fontSize="small" /> {spanish ? 'Ir a la página principal' : 'Back to Homepage'}
+        </Button>
 
-  {Prices && (
-    <Box sx={{ padding: '5px', borderRadius: '8px'}}>
-      <Typography>Price Details:</Typography>
-      <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>
-      <Typography>For 6-50 images: {Prices.price_6_to_50} $</Typography>
-      <Typography>For 51+ images: {Prices.price_51_plus} $</Typography>
-    </Box>
-  )}
-</Box>
+        {Prices && (
+          <Box sx={{ padding: '5px', borderRadius: '8px' }}>
+            <Typography>Price Details:</Typography>
+            <Typography>For 1-5 images: {Prices.price_1_to_5} $</Typography>
+            <Typography>For 6-50 images: {Prices.price_6_to_50} $</Typography>
+            <Typography>For 51+ images: {Prices.price_51_plus} $</Typography>
+          </Box>
+        )}
+      </Box>
 
 
 
-<Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-    <CustomPagination
-      count={total_pages!}
-      page={currentPage}
-      onChange={handlePageChange}
-      variant="outlined"
-    />
-  </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+        <CustomPagination
+          count={total_pages!}
+          page={currentPage}
+          onChange={handlePageChange}
+          variant="outlined"
+        />
+      </Box>
 
 
 
@@ -266,7 +273,7 @@ const PerAlbum: React.FC = () => {
           const isInCart = cart.includes(personalAlbum.id);
 
           return (
-            
+
             <ImageListItem key={personalAlbum.id}>
               <Card
                 sx={{
@@ -337,16 +344,16 @@ const PerAlbum: React.FC = () => {
 
 
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-    <CustomPagination
-      count={total_pages!}
-      page={currentPage}
-      onChange={handlePageChange}
-      variant="outlined"
-    />
-  </Box>
+        <CustomPagination
+          count={total_pages!}
+          page={currentPage}
+          onChange={handlePageChange}
+          variant="outlined"
+        />
+      </Box>
 
 
-  
+
 
 
 

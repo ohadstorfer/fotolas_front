@@ -15,6 +15,7 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { selectSpanish } from '../slicers/sighnInSlice';
+import ExpiredSessAlbum from './ExpiredSessAlbum';
 
 
 interface Video {
@@ -130,6 +131,12 @@ const Video: React.FC = () => {
     navigate('/'); // Navigate to the home page
   };
 
+
+
+
+  if (selectedSessAlbum?.days_until_expiration! < 0) {
+    return <ExpiredSessAlbum />;
+  }
 
 
 

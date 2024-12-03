@@ -130,7 +130,7 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
         filterType,
         filterId,
         page: parseInt(page || '1', 10),
-        pageSize: 21,
+        pageSize: 20,
       }));
       window.scrollTo(0, 0);
     }
@@ -143,7 +143,7 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
         filterType,
         filterId,
         page: parseInt(page || '1', 10),
-        pageSize: 21,
+        pageSize: 20,
       }));
       window.scrollTo(0, 0);
     }
@@ -233,27 +233,23 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
                             bgcolor: 'rgba(0, 0, 0, 0.0)',
                           }}
                         >
-
-                          {sessAlbum.days_until_expiration === 0 ? (
+                          {sessAlbum.days_until_expiration < 0 ? (
+                            <span style={{ color: red[500], fontSize: isMobile ? '14px' : '16px', fontWeight: 'bold' }}>
+                              Expired
+                            </span>
+                          ) : sessAlbum.days_until_expiration === 0 ? (
                             <span style={{ color: red[500], fontSize: isMobile ? '14px' : '16px', fontWeight: 'bold' }}>
                               Last Day
                             </span>
                           ) : (
-                            // <div style={{ lineHeight: '0.8' }}>
-                            // <span style={{ color: 'white', fontSize: isMobile ? '14px' : '16px', fontWeight: 'bold' }}>
-                            //   {sessAlbum.days_until_expiration} <br style={{ lineHeight: '0.6' }} /> {sessAlbum.days_until_expiration === 1 ? 'day' : 'days'}
-                            // </span>
-                            // </div>
                             <div style={{ lineHeight: '0.7' }}>
                               <span style={{ color: 'white', fontSize: isMobile ? '12px' : '12px', fontWeight: 'bold', marginRight: '5px' }}>
-                                {sessAlbum.days_until_expiration}  {sessAlbum.days_until_expiration === 1 ? 'day' : 'days'}  <br style={{ lineHeight: '0.8' }} /> remaining
+                                {sessAlbum.days_until_expiration} {sessAlbum.days_until_expiration === 1 ? 'day' : 'days'} <br style={{ lineHeight: '0.8' }} /> remaining
                               </span>
                             </div>
-
                           )}
 
-
-                          {sessAlbum.days_until_expiration <= 3 && (
+                          {sessAlbum.days_until_expiration <= 3 && sessAlbum.days_until_expiration >= 0 && (
                             <AutoDeleteIcon
                               style={{
                                 color: sessAlbum.days_until_expiration === 0 ? red[500] : 'white',
@@ -262,8 +258,6 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
                               }}
                             />
                           )}
-
-
                         </Box>
                       )}
 

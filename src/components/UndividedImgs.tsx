@@ -14,6 +14,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { selectSpanish } from '../slicers/sighnInSlice';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ExpiredSessAlbum from './ExpiredSessAlbum';
 
 const UndividedImgs: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -127,6 +128,10 @@ const UndividedImgs: React.FC = () => {
   });
 
 
+
+  if (selectedSessAlbum?.days_until_expiration! < 0) {
+    return <ExpiredSessAlbum />;
+  }
   
 
 
