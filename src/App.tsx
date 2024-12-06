@@ -215,7 +215,7 @@ const Root = () => {
           <div>
              <Outlet />
 
-            <CartErrorscopy></CartErrorscopy>
+            {/* <CartErrorscopy></CartErrorscopy> */}
             {/* <PaymentSuccessfull></PaymentSuccessfull> */}
             {/* <CartErrors></CartErrors> */}
             {/* <PleaseWorkVideoS3Errors></PleaseWorkVideoS3Errors> */}
