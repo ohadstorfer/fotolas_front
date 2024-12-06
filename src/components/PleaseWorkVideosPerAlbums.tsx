@@ -34,7 +34,7 @@ const PleaseWorkVideosPerAlbums = () => {
   const [fileError, setFileError] = useState<string | null>(null);
   const [fileInfo, setFileInfo] = useState<string | null>(null);
   const [timeEstimation, setTimeEstimation] = useState<string | null>(null);
-  const [totalSize, setTotalSize] = useState<number | null>(null);
+  const [totalSize, setTotalSize] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const newSess = useSelector(selectNewSess);
   const navigate = useNavigate();
@@ -43,6 +43,7 @@ const PleaseWorkVideosPerAlbums = () => {
   let retryTimeout: ReturnType<typeof setTimeout> | null = null;
   const spanish = useSelector(selectSpanish)
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [surferVideos, setSurferVideos] = useState<File[][]>([[]]);
 
 
 
@@ -73,62 +74,66 @@ const PleaseWorkVideosPerAlbums = () => {
 
 
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
+  const handleFileChange = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
       const fileList = Array.from(e.target.files);
       const invalidFiles: string[] = [];
-      const maxFileSize = 20 * 1024 * 1024 * 1024; // 20 GB in bytes
-      let totalSize = 0;
-
-      // Define the number of bytes to read from the start of the file
-      const bytesToRead = 4100;
+      const maxFileSize = 20 * 1024 * 1024 * 1024; // 20 GB
+      const bytesToRead = 4100; // Number of bytes to read from each file
+      let newTotalSize = totalSize;
 
       for (const file of fileList) {
-        // Accumulate the total size of the files
-        totalSize += file.size;
+        // Accumulate the total size of the files in the local variable
+        newTotalSize += file.size;
 
         // Read the first `bytesToRead` bytes of the file
         const buffer = await file.slice(0, bytesToRead).arrayBuffer();
         const type = await fileTypeFromBuffer(new Uint8Array(buffer));
 
-        // Check if the file type is a video and is either MP4, WebM, or MOV
+        // Validate file type
         if (!type || (type.mime !== 'video/mp4' && type.mime !== 'video/webm' && type.mime !== 'video/quicktime')) {
           invalidFiles.push(file.name);
         }
       }
 
-      const totalSizeInGB = (totalSize / (1024 * 1024 * 1024)).toFixed(3);
-      setFileInfo(`${fileList.length} videos, ${totalSizeInGB} GB`);
 
 
-
-      // Check if the total file size exceeds the limit
-      if (totalSize > maxFileSize) {
-        setFileError(spanish
-          ? 'Solo puedes subir hasta un límite de 20 GB. Por favor, selecciona menos videos.'
-          : 'You can upload a maximum of 20 GB. Please select fewer videos.'
+      // Check total file size limit
+      if (newTotalSize > maxFileSize) {
+        setFileError(
+          spanish
+            ? 'Solo puedes subir hasta un límite de 20 GB. Por favor, selecciona menos videos.'
+            : 'You can upload a maximum of 20 GB. Please select fewer videos.'
         );
-        setFiles([]); // Clear the files if the total size exceeds the limit
+        setFiles([]);
       } else if (invalidFiles.length > 0) {
-        setFileError(spanish
-          ? `Por favor, selecciona solo videos en formato MP4, WebM o MOV. Archivos inválidos: ${invalidFiles.join(', ')}`
-          : `Please select only MP4, WebM, or MOV videos. Invalid files: ${invalidFiles.join(', ')}`
+        setFileError(
+          spanish
+            ? `Por favor, selecciona solo videos en formato MP4, WebM o MOV. Archivos inválidos: ${invalidFiles.join(', ')}`
+            : `Please select only MP4, WebM, or MOV videos. Invalid files: ${invalidFiles.join(', ')}`
         );
-        setFiles([]); // Clear the files if any are invalid
+        setFiles([]);
       } else {
-        // Calculate the estimated upload time
-        const uploadSpeedMbps = 20; // Upload speed in Mbps
-        const uploadSpeedBps = uploadSpeedMbps * 1_000_000; // Convert to bits per second
-        const totalSizeInBits = totalSize * 8; // Convert total size to bits
-        const estimatedTimeInSeconds = totalSizeInBits / uploadSpeedBps; // Calculate time in seconds
-        const estimatedTimeInMinutes = (estimatedTimeInSeconds / 60).toFixed(0); // Convert to minutes
+        const uploadSpeedMbps = 20;
+        const uploadSpeedBps = uploadSpeedMbps * 1_000_000;
+        const totalSizeInBits = newTotalSize * 8;
+        const estimatedTimeInSeconds = totalSizeInBits / uploadSpeedBps;
+        const estimatedTimeInMinutes = (estimatedTimeInSeconds / 60).toFixed(0);
 
-        // Set the time estimation message
         setFileError(null);
-        setFiles(fileList); // Update state with valid files
-        setTimeEstimation(spanish
-          ? `Subir esto puede tardar más de ${estimatedTimeInMinutes} minutos con una buena conexión a Internet.`
-          : `Uploading this can take more than ${estimatedTimeInMinutes} minutes with a good internet connection.`
+        const updatedSurferVideos = [...surferVideos];
+        updatedSurferVideos[index] = fileList;
+        setSurferVideos(updatedSurferVideos);
+
+        const totalVideos = updatedSurferVideos.flat().length;
+        setTotalSize(newTotalSize); // Update the state after accumulating size
+        const totalSizeInGB = (newTotalSize / (1024 * 1024 * 1024)).toFixed(3);
+        setFileInfo(`${totalVideos} videos, ${totalSizeInGB} GB`);
+
+        setTimeEstimation(
+          spanish
+            ? `Subir esto puede tardar más de ${estimatedTimeInMinutes} minutos con una buena conexión a Internet.`
+            : `Uploading this can take more than ${estimatedTimeInMinutes} minutes with a good internet connection.`
         );
       }
     }
@@ -160,8 +165,26 @@ const PleaseWorkVideosPerAlbums = () => {
     try {
       console.log(`Starting upload for ${files.length} files`);
 
+      // Extract MIME types of the files
+    const fileTypes = files.map(file => file.type);
+
+    // Log request payload
+    console.log('Request Payload:', {
+      num_urls: files.length,
+      file_types: fileTypes
+  });
+  
+    
+     // Fetch presigned URLs with file types using GET with params
+     const response = await axios.get(urlEndpoint, {
+      params: {
+          num_urls: files.length,
+          file_types: fileTypes.join(','),  // Convert array to comma-separated string
+      }
+  });
+
       // Fetch presigned URLs for the files
-      const response = await axios.get(`${urlEndpoint}?num_urls=${files.length}`);
+      // const response = await axios.get(`${urlEndpoint}?num_urls=${files.length}`);
       const presignedUrls = response.data.urls;
       console.log(`Received presigned URLs`);
 
@@ -273,77 +296,76 @@ const PleaseWorkVideosPerAlbums = () => {
 
 
   const handleUpload = async () => {
-
-
-    if (files.length === 0) {
+    if (surferVideos.length === 0 || surferVideos.every(batch => batch.length === 0)) {
       console.error('No files selected.');
       return;
     }
-
+  
     setUploading(true);
     setError(null);
     console.log('Starting file upload process');
-
+  
     try {
-      const batchSize = 5; // Number of videos to upload in each batch
-      const allOriginalUploadedUrls: string[] = [];
-      const allWatermarkedUploadedUrls: string[] = [];
-      const allImgUrls: string[] = [];
-
-      for (let i = 0; i < files.length; i += batchSize) {
-        const batch = files.slice(i, i + batchSize);
-        console.log(`Processing batch of ${batch.length} videos`);
-
-        // Upload original files
-        const originalUploadPromises = batch.map(file => uploadFilesToS3([file], 'https://oyster-app-b3323.ondigitalocean.app/presigned_urls_for_original_videos'));
-        const originalUploadedUrlsBatch = await Promise.all(originalUploadPromises);
-        const originalUploadedUrls = originalUploadedUrlsBatch.flat();
-        console.log('Original videos uploaded successfully:', originalUploadedUrls);
-        allOriginalUploadedUrls.push(...originalUploadedUrls);
-
-        console.log('Starting watermark and image URL transformation for the batch');
-
-        // Transform URLs
-        const watermarkedUploadedUrls = originalUploadedUrls.map(url => {
-          const filename = url.split('/').pop();
-          if (!filename) {
-            throw new Error('Filename is undefined');
-          }
-          const transformedFilename = filename.replace(/\.[^/.]+$/, ".mp4-tuvsconverted.mp4");
-          return url
-            .replace('surfingram-original-video', 'surfingram-transformed-video')
-            .replace(filename, transformedFilename);
-        });
-        const imgUrls = originalUploadedUrls.map(url => {
-          const filename = url.split('/').pop();
-          if (!filename) {
-            throw new Error('Filename is undefined');
-          }
-          const imgFilename = filename.replace(/\.[^/.]+$/, ".mp4-tuvsconverted.0000001.jpg");
-          return url
-            .replace('surfingram-original-video', 'surfingram-transformed-video')
-            .replace(filename, imgFilename);
-        });
-        allWatermarkedUploadedUrls.push(...watermarkedUploadedUrls);
-        allImgUrls.push(...imgUrls);
+      const batchSize = 5;
+      const allOriginalUploadedUrls: string[][] = [];
+      const allWatermarkedUploadedUrls: string[][] = [];
+      const allImgUrls: string[][] = [];
+  
+      for (const batch of surferVideos) {
+        const batchOriginalUrls: string[] = [];
+        const batchWatermarkedUrls: string[] = [];
+        const batchImgUrls: string[] = [];
+  
+        for (let i = 0; i < batch.length; i += batchSize) {
+          const subBatch = batch.slice(i, i + batchSize);
+          console.log(`Processing sub-batch of ${subBatch.length} videos`);
+  
+          const originalUploadPromises = subBatch.map(file =>
+            uploadFilesToS3([file], 'http://127.0.0.1:8000/presigned_urls_for_original_videos')
+          );
+          const originalUploadedUrlsBatch = await Promise.all(originalUploadPromises);
+          const originalUploadedUrls = originalUploadedUrlsBatch.flat();
+          console.log('Original videos uploaded successfully:', originalUploadedUrls);
+          batchOriginalUrls.push(...originalUploadedUrls);
+  
+          const watermarkedUploadedUrls = originalUploadedUrls.map(url => {
+            const filename = url.split('/').pop();
+            if (!filename) {
+              throw new Error('Filename is undefined');
+            }
+            const transformedFilename = filename.replace(/\.[^/.]+$/, ".mp4-tuvsconverted.mp4");
+            return url
+              .replace('surfingram-original-video', 'surfingram-transformed-video')
+              .replace(filename, transformedFilename);
+          });
+  
+          const imgUrls = originalUploadedUrls.map(url => {
+            const filename = url.split('/').pop();
+            if (!filename) {
+              throw new Error('Filename is undefined');
+            }
+            const imgFilename = filename.replace(/\.[^/.]+$/, ".mp4-tuvsconverted.0000001.jpg");
+            return url
+              .replace('surfingram-original-video', 'surfingram-transformed-video')
+              .replace(filename, imgFilename);
+          });
+  
+          batchWatermarkedUrls.push(...watermarkedUploadedUrls);
+          batchImgUrls.push(...imgUrls);
+        }
+  
+        allOriginalUploadedUrls.push(batchOriginalUrls);
+        allWatermarkedUploadedUrls.push(batchWatermarkedUrls);
+        allImgUrls.push(batchImgUrls);
       }
-
-      // Filter, transform URLs, and remove acceleration endpoint
-      const validOriginalUrls = allOriginalUploadedUrls
-        .filter((url): url is string => !!url)
-        .map(removeAccelerationEndpoint);
-
-      const validWatermarkedUrls = allWatermarkedUploadedUrls
-        .filter((url): url is string => !!url)
-        .map(removeAccelerationEndpoint);
-
-      const validImgUrls = allImgUrls
-        .filter((url): url is string => !!url)
-        .map(removeAccelerationEndpoint);
-
-      console.log('Calling createVideos with valid URLs');
+  
+      const validOriginalUrls = allOriginalUploadedUrls.map(batch => batch.map(removeAccelerationEndpoint));
+      const validWatermarkedUrls = allWatermarkedUploadedUrls.map(batch => batch.map(removeAccelerationEndpoint));
+      const validImgUrls = allImgUrls.map(batch => batch.map(removeAccelerationEndpoint));
+  
+      console.log('Calling createVideos with valid arrays of arrays of URLs');
       const videosCreatedSuccessfully = await createVideos(validOriginalUrls, validWatermarkedUrls, validImgUrls);
-
+  
       if (videosCreatedSuccessfully) {
         console.log('Upload process completed successfully');
         setUploading(false);
@@ -361,10 +383,10 @@ const PleaseWorkVideosPerAlbums = () => {
         if (error.message.includes('Network error')) {
           setError('Network error: Please reconnect to continue the upload process.');
         } else {
-          navigate('/FailedUpload'); // Navigate to /FailedUpload if not a network error
+          navigate('/FailedUpload');
         }
       } else {
-        navigate('/FailedUpload'); // Navigate to /FailedUpload for non-Error objects
+        navigate('/FailedUpload');
       }
       setUploading(false);
     }
@@ -374,14 +396,27 @@ const PleaseWorkVideosPerAlbums = () => {
 
 
 
-  const createVideos = async (originalUrls: string[], watermarkedUrls: string[], imgUrls: string[]) => {
+  const createVideos = async (
+    originalUrls: string[][],
+    watermarkedUrls: string[][],
+    imgUrls: string[][],
+    // newSessId: string
+  ) => {
     try {
-      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/create-multuple-videos/', {
-        video: originalUrls,
-        WatermarkedVideo: watermarkedUrls,
-        img: imgUrls,
-        SessionAlbum: newSess?.id,
+      // Map the original, watermarked, and img URLs into the correct structure
+      const videosData = originalUrls.map((originalUrlsGroup, index) => 
+        originalUrlsGroup.map((originalUrl, idx) => ({
+          original: originalUrl,
+          transformed: watermarkedUrls[index][idx],  // Assuming the arrays are of the same length
+          img: imgUrls[index][idx]  // Similarly, assuming the arrays are of the same length
+        }))
+      );
+  
+      const response = await axios.post('http://127.0.0.1:8000/create-multuple-videos/', {
+        videos: videosData,
+        session_album: newSess?.id,
       });
+  
       console.log(response.data.message);
       return true;
     } catch (error) {
@@ -409,6 +444,15 @@ const PleaseWorkVideosPerAlbums = () => {
     dispatch(removeNewSessDetails());
     navigate('/'); // Navigate after confirmation
     setDialogOpen(false); // Close the dialog
+  };
+
+
+
+
+
+
+  const addSurfer = () => {
+    setSurferVideos([...surferVideos, []]);
   };
 
 
@@ -469,7 +513,7 @@ const PleaseWorkVideosPerAlbums = () => {
             {spanish ? 'Puedes subir hasta 20 GB' : 'You can upload up to 20 GB'}
           </Typography>
 
-          <Button onClick={onUploadClick} startIcon={<VideoCallIcon />} size="large">{spanish ? 'Seleccionar videos' : 'Select Videos'} </Button>
+          {/* <Button onClick={onUploadClick} startIcon={<VideoCallIcon />} size="large">{spanish ? 'Seleccionar videos' : 'Select Videos'} </Button>
           <input
             ref={fileInputRef}
             type="file"
@@ -477,9 +521,46 @@ const PleaseWorkVideosPerAlbums = () => {
             accept="video/*"
             onChange={handleFileChange}
             style={{ display: 'none' }}
+          /> */}
+
+
+
+<div>
+      {surferVideos.map((surferVideo, index) => (
+        <div key={index} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <Button onClick={() => document.getElementById(`file-input-${index}`)?.click()}>
+            Select Videos for Surfer "{index + 1}"
+          </Button>
+          <input
+            id={`file-input-${index}`}
+            type="file"
+            multiple
+            accept="video/mp4,video/webm,video/quicktime"
+            style={{ display: 'none' }}
+            onChange={(e) => handleFileChange(index, e)}
           />
+          {surferVideo.length > 0 && (
+            <Typography>
+               - {surferVideo.length} videos
+            </Typography>
+          )}
+        </div>
+      ))}
+      {surferVideos[surferVideos.length - 1]?.length > 0 && (
+    <Button onClick={addSurfer} variant="contained">
+      Add Surfer
+    </Button>
+  )}
+    </div>
+
+
+
         </>
       )}
+
+
+
+<br></br><br></br>
 
 
 
@@ -499,6 +580,9 @@ const PleaseWorkVideosPerAlbums = () => {
           {timeEstimation}
         </Typography>
       )}
+
+
+      <Button onClick={handleUpload} variant="contained" color="primary">Upload All</Button>
 
 
 
@@ -543,7 +627,7 @@ const PleaseWorkVideosPerAlbums = () => {
 
 
 
-      {!uploading && files.length > 0 && (
+      {/* {!uploading && files.length > 0 && (
         <>
           <Button onClick={onUploadClick} sx={{ marginBottom: '100px' }} startIcon={<ChangeCircleIcon />} >{spanish ? 'Cambiar videos' : 'Change Videos'} </Button>
           <input
@@ -555,7 +639,7 @@ const PleaseWorkVideosPerAlbums = () => {
             style={{ display: 'none' }}
           />
         </>
-      )}
+      )} */}
 
       <br></br>
 

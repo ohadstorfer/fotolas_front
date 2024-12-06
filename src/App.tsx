@@ -71,6 +71,7 @@ import { useEffect } from 'react';
 import PleaseWorkVideosPerAlbums from './components/PleaseWorkVideosPerAlbums';
 import RefreshURL from './components/RefreshURL';
 import ExpiredSessAlbum from './components/ExpiredSessAlbum';
+import CartErrorscopy from './components/CartErrorscopy';
 
 
 
@@ -110,6 +111,8 @@ function App() {
         <Route path="/Terms" element={<Terms />} />
         <Route path="/RefreshURL" element={<RefreshURL />} />
         <Route path="/ExpiredSessAlbum" element={<ExpiredSessAlbum />} />
+        <Route path="/CartErrorscopy" element={<CartErrorscopy />} />
+        
         
         
 
@@ -210,8 +213,13 @@ const Root = () => {
           }}
         >
           <div>
+             <Outlet />
+
+            <CartErrorscopy></CartErrorscopy>
+            {/* <PaymentSuccessfull></PaymentSuccessfull> */}
+            {/* <CartErrors></CartErrors> */}
+            {/* <PleaseWorkVideoS3Errors></PleaseWorkVideoS3Errors> */}
             {/* <PleaseWorkVideosPerAlbums></PleaseWorkVideosPerAlbums> */}
-            <Outlet />
             {/* <VerificationAlertsForSettings></VerificationAlertsForSettings> */}
             {/* <VerificationAlerts></VerificationAlerts> */}
             {/* <VerificationProccess></VerificationProccess> */}

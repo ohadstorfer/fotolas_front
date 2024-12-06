@@ -197,8 +197,9 @@ const PleaseWorkcopy = () => {
         const uploadWithRetry = async (): Promise<string> => {
           console.log("the file type: " + file.type);
           try {
+            const fileBlob = new Blob([file], { type: file.type });
             console.log(`Attempting to upload ${file.name}, attempt ${attempt + 1}`);
-            await axios.put(url, file, {
+            await axios.put(url, fileBlob, {
               headers: {
                 'Content-Type': file.type,
               },
@@ -458,6 +459,8 @@ const PleaseWorkcopy = () => {
       </Stepper>
 
 
+
+      
 
 
 

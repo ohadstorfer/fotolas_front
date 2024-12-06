@@ -130,7 +130,7 @@ const MyAlbums: React.FC = () => {
         filterType: "photographer",
         filterId: photographerId,
         page: parseInt(page || '1', 10),
-        pageSize: 21,
+        pageSize: 20,
       }));
     }
   };
@@ -142,7 +142,7 @@ const MyAlbums: React.FC = () => {
         filterType: "photographer",
         filterId: photographerId,
         page: parseInt(page || '1', 10),
-        pageSize: 21,
+        pageSize: 20,
       }));
     }
   };

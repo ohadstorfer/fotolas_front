@@ -295,54 +295,54 @@ const PaymentSuccessfull = () => {
 
 
 
-// const downloadVideos = async () => {
-//   try {
-//     const response = await axios.post(
-//       'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
-//       { video_ids: cartCopy }
-//     );
-//     const videos = response.data;
+const downloadVideos = async () => {
+  try {
+    const response = await axios.post(
+      'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
+      { video_ids: cartCopy }
+    );
+    const videos = response.data;
 
-//     const maxConcurrentDownloads = 3;
-//     let currentDownloads = 0;
+    const maxConcurrentDownloads = 3;
+    let currentDownloads = 0;
 
-//     const downloadVideo = async (video: any) => {
-//       try {
-//         const videoResponse = await axios.get(video.video, { responseType: 'blob' });
-//         const url = window.URL.createObjectURL(new Blob([videoResponse.data]));
+    const downloadVideo = async (video: any) => {
+      try {
+        const videoResponse = await axios.get(video.video, { responseType: 'blob' });
+        const url = window.URL.createObjectURL(new Blob([videoResponse.data]));
 
-//         const link = document.createElement('a');
-//         link.href = url;
-//         link.setAttribute('download', video.video.split('/').pop());
-//         document.body.appendChild(link);
-//         link.click();
-//         document.body.removeChild(link);
-//         window.URL.revokeObjectURL(url);
-//       } catch (error) {
-//         console.error(`Error downloading video ${video.video}:`, error);
-//       } finally {
-//         currentDownloads--;
-//       }
-//     };
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', video.video.split('/').pop());
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error(`Error downloading video ${video.video}:`, error);
+      } finally {
+        currentDownloads--;
+      }
+    };
 
-//     // Create a queue for controlled concurrency
-//     const downloadQueue = async () => {
-//       while (videos.length > 0 && currentDownloads < maxConcurrentDownloads) {
-//         const video = videos.shift();
-//         currentDownloads++;
-//         await downloadVideo(video);
-//       }
-//     };
+    // Create a queue for controlled concurrency
+    const downloadQueue = async () => {
+      while (videos.length > 0 && currentDownloads < maxConcurrentDownloads) {
+        const video = videos.shift();
+        currentDownloads++;
+        await downloadVideo(video);
+      }
+    };
 
-//     // Start initial concurrent downloads
-//     const initialDownloads = Array.from({ length: maxConcurrentDownloads }, downloadQueue);
-//     await Promise.all(initialDownloads);
+    // Start initial concurrent downloads
+    const initialDownloads = Array.from({ length: maxConcurrentDownloads }, downloadQueue);
+    await Promise.all(initialDownloads);
 
-//     console.log('All videos downloaded.');
-//   } catch (error) {
-//     console.error('Error downloading videos:', error);
-//   }
-// };
+    console.log('All videos downloaded.');
+  } catch (error) {
+    console.error('Error downloading videos:', error);
+  }
+};
 
 
 
