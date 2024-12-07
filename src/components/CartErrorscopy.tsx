@@ -455,34 +455,58 @@ const Cart: React.FC = () => {
   //   }
   // };
 
-  
+
   const downloadVideos2 = async () => {
     try {
       const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cart });
       const videos = response.data;
   
       const zip = new JSZip();
-      
-      // Create a function to handle batches
-      const downloadInBatches = async (batchSize: any) => {
+  
+      // Function to download videos in small batches
+      const downloadInBatches = async (batchSize: number) => {
         const batches = [];
         for (let i = 0; i < videos.length; i += batchSize) {
           batches.push(videos.slice(i, i + batchSize));
         }
-        
+  
         // Process each batch one by one
         for (const batch of batches) {
           const downloadPromises = batch.map(async (video: any) => {
             try {
-              // Convert the video URL to the Transfer Acceleration endpoint
               const url = new URL(video.video);
               url.hostname = `${url.hostname.split('.')[0]}.s3-accelerate.amazonaws.com`;
   
-              // Fetch the video blob using the accelerated URL
-              const response = await fetch(url.toString(), { mode: "cors" });
-              const blob = await response.blob();
-              const fileName = url.pathname.split('/').pop() || 'unnamed_video';
-              zip.file(fileName, blob);
+              // Fetch video and stream it to the ZIP progressively
+              const response = await fetch(url.toString(), { mode: 'cors' });
+  
+              // Check if response.body is not null before using it
+              if (response.body) {
+                const reader = response.body.getReader();
+                const stream = new ReadableStream({
+                  start(controller) {
+                    function push() {
+                      reader.read().then(({ done, value }) => {
+                        if (done) {
+                          controller.close();
+                          return;
+                        }
+                        controller.enqueue(value);
+                        push();
+                      });
+                    }
+                    push();
+                  }
+                });
+  
+                // Convert the stream to a Blob and add to the zip
+                const blob = await streamToBlob(stream);
+                const fileName = url.pathname.split('/').pop() || 'unnamed_video';
+                zip.file(fileName, blob);
+              } else {
+                console.error('Response body is null');
+              }
+  
             } catch (error) {
               console.error(`Error downloading video from accelerated URL: ${video.video}`, error);
             }
@@ -493,16 +517,36 @@ const Cart: React.FC = () => {
         }
       };
   
-      // Process videos in batches of 3
-      await downloadInBatches(3);
+      // Process videos in batches of 2–3 for reduced memory usage
+      await downloadInBatches(2);
   
       // Generate the ZIP file and trigger download
-      const content = await zip.generateAsync({ type: "blob" });
-      saveAs(content, "videos.zip");
+      const content = await zip.generateAsync({ type: 'blob' });
+      saveAs(content, 'videos.zip');
     } catch (error) {
-      console.error("Error creating ZIP file:", error);
+      console.error('Error creating ZIP file:', error);
     }
   };
+  
+  // Helper function to convert a ReadableStream to a Blob
+  function streamToBlob(stream: ReadableStream): Promise<Blob> {
+    const chunks: Uint8Array[] = [];
+    const reader = stream.getReader();
+  
+    return new Promise((resolve, reject) => {
+      function read() {
+        reader.read().then(({ done, value }) => {
+          if (done) {
+            resolve(new Blob(chunks));
+          } else {
+            chunks.push(value);
+            read();
+          }
+        }).catch(reject);
+      }
+      read();
+    });
+  }
 
 
 
