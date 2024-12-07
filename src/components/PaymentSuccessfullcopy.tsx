@@ -177,29 +177,64 @@ const PaymentSuccessfull = () => {
 
 
 
+  // const downloadVideos2 = async () => {
+  //   setIsDownloading(true);
+  //   try {
+  //     const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cartCopy });
+  //     const videos = response.data;
+
+  //     const zip = new JSZip();
+  //     for (const video of videos) {
+  //       try {
+  //         const imageResponse = await axios.get(video.video, { responseType: 'blob' });
+  //         zip.file(video.video.split('/').pop(), imageResponse.data);
+  //       } catch (downloadError) {
+  //         console.error(`Error downloading image ${video.video}:`, downloadError);
+  //       }
+  //     }
+
+  //     const content = await zip.generateAsync({ type: 'blob' });
+  //     saveAs(content, 'surfpik.zip');
+  //   } catch (error) {
+  //     console.error('Error creating ZIP file:', error);
+  //   } finally {
+  //     setIsDownloading(false);
+  //     handleOpenMessage()
+  //   }
+  // };
+
+
+
+
   const downloadVideos2 = async () => {
-    setIsDownloading(true);
     try {
       const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cartCopy });
-      const videos = response.data;
-
+      const videos: { video: string }[] = response.data; // Assuming the response contains an array of objects with a 'video' property
+  
       const zip = new JSZip();
-      for (const video of videos) {
+  
+      // Use a helper function to add videos to the zip file
+      const addVideoToZip = async (videoUrl: string) => { // Explicitly set the type of videoUrl to string
         try {
-          const imageResponse = await axios.get(video.video, { responseType: 'blob' });
-          zip.file(video.video.split('/').pop(), imageResponse.data);
+          // Stream the video blob directly into the zip file
+          const videoResponse = await axios.get(videoUrl, { responseType: 'blob' });
+          zip.file(videoUrl.split('/').pop() || 'unnamed_video', videoResponse.data);
         } catch (downloadError) {
-          console.error(`Error downloading image ${video.video}:`, downloadError);
+          console.error(`Error downloading video ${videoUrl}:`, downloadError);
         }
+      };
+  
+      // Process videos sequentially
+      for (const video of videos) {
+        await addVideoToZip(video.video);
       }
-
+  
+      // Generate the zip file and trigger download
       const content = await zip.generateAsync({ type: 'blob' });
       saveAs(content, 'surfpik.zip');
+  
     } catch (error) {
       console.error('Error creating ZIP file:', error);
-    } finally {
-      setIsDownloading(false);
-      handleOpenMessage()
     }
   };
 
@@ -343,6 +378,10 @@ const downloadVideos = async () => {
     console.error('Error downloading videos:', error);
   }
 };
+
+
+
+
 
 
 
