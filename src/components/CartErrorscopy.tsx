@@ -423,35 +423,84 @@ const Cart: React.FC = () => {
 
 
 
+  // const downloadVideos2 = async () => {
+  //   try {
+  //     const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cart });
+  //     const videos: { video: string }[] = response.data; // Assuming the response contains an array of objects with a 'video' property
+  
+  //     const zip = new JSZip();
+  
+  //     // Use a helper function to add videos to the zip file
+  //     const addVideoToZip = async (videoUrl: string) => { // Explicitly set the type of videoUrl to string
+  //       try {
+  //         // Stream the video blob directly into the zip file
+  //         const videoResponse = await axios.get(videoUrl, { responseType: 'blob' });
+  //         zip.file(videoUrl.split('/').pop() || 'unnamed_video', videoResponse.data);
+  //       } catch (downloadError) {
+  //         console.error(`Error downloading video ${videoUrl}:`, downloadError);
+  //       }
+  //     };
+  
+  //     // Process videos sequentially
+  //     for (const video of videos) {
+  //       await addVideoToZip(video.video);
+  //     }
+  
+  //     // Generate the zip file and trigger download
+  //     const content = await zip.generateAsync({ type: 'blob' });
+  //     saveAs(content, 'surfpik.zip');
+  
+  //   } catch (error) {
+  //     console.error('Error creating ZIP file:', error);
+  //   }
+  // };
+
+  
   const downloadVideos2 = async () => {
     try {
       const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cart });
-      const videos: { video: string }[] = response.data; // Assuming the response contains an array of objects with a 'video' property
+      const videos = response.data;
   
       const zip = new JSZip();
+      
+      // Create a function to handle batches
+      const downloadInBatches = async (batchSize: any) => {
+        const batches = [];
+        for (let i = 0; i < videos.length; i += batchSize) {
+          batches.push(videos.slice(i, i + batchSize));
+        }
+        
+        // Process each batch one by one
+        for (const batch of batches) {
+          const downloadPromises = batch.map(async (video: any) => {
+            try {
+              // Convert the video URL to the Transfer Acceleration endpoint
+              const url = new URL(video.video);
+              url.hostname = `${url.hostname.split('.')[0]}.s3-accelerate.amazonaws.com`;
   
-      // Use a helper function to add videos to the zip file
-      const addVideoToZip = async (videoUrl: string) => { // Explicitly set the type of videoUrl to string
-        try {
-          // Stream the video blob directly into the zip file
-          const videoResponse = await axios.get(videoUrl, { responseType: 'blob' });
-          zip.file(videoUrl.split('/').pop() || 'unnamed_video', videoResponse.data);
-        } catch (downloadError) {
-          console.error(`Error downloading video ${videoUrl}:`, downloadError);
+              // Fetch the video blob using the accelerated URL
+              const response = await fetch(url.toString(), { mode: "cors" });
+              const blob = await response.blob();
+              const fileName = url.pathname.split('/').pop() || 'unnamed_video';
+              zip.file(fileName, blob);
+            } catch (error) {
+              console.error(`Error downloading video from accelerated URL: ${video.video}`, error);
+            }
+          });
+  
+          // Wait for the current batch of downloads to finish
+          await Promise.all(downloadPromises);
         }
       };
   
-      // Process videos sequentially
-      for (const video of videos) {
-        await addVideoToZip(video.video);
-      }
+      // Process videos in batches of 3
+      await downloadInBatches(3);
   
-      // Generate the zip file and trigger download
-      const content = await zip.generateAsync({ type: 'blob' });
-      saveAs(content, 'surfpik.zip');
-  
+      // Generate the ZIP file and trigger download
+      const content = await zip.generateAsync({ type: "blob" });
+      saveAs(content, "videos.zip");
     } catch (error) {
-      console.error('Error creating ZIP file:', error);
+      console.error("Error creating ZIP file:", error);
     }
   };
 
