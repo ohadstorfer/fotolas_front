@@ -378,29 +378,29 @@ const Cart: React.FC = () => {
 
 
 
-    const downloadVideos = async () => {
+  const downloadVideos = async () => {
     try {
       // Make a request to get video URLs for the provided video IDs
       const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cart });
       const videos = response.data;
       console.log(videos);
-
-      // Download all videos concurrently
-      await Promise.all(videos.map(async (video: any) => {
+  
+      // Sequentially download each video (one at a time)
+      for (let video of videos) {
         try {
           // Fetch the video as a blob
           const videoResponse = await axios.get(video.video, { responseType: 'blob' });
-
+  
           // Create a blob URL for the video
           const url = window.URL.createObjectURL(new Blob([videoResponse.data]));
-
+  
           // Create an anchor element for downloading the video
           const link = document.createElement('a');
           link.href = url;
           link.setAttribute('download', video.video.split('/').pop()); // Set the file name based on the URL
           document.body.appendChild(link);
           link.click();
-
+  
           // Clean up the DOM and release the blob URL
           document.body.removeChild(link);
           window.URL.revokeObjectURL(url);
@@ -408,7 +408,7 @@ const Cart: React.FC = () => {
           // Handle individual download errors without stopping the entire process
           console.error(`Error downloading video ${video.video}:`, downloadError);
         }
-      }));
+      }
     } catch (error) {
       // Log general errors related to the API request or response parsing
       console.error('Error downloading videos:', error);
