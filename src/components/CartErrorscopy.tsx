@@ -346,45 +346,75 @@ const Cart: React.FC = () => {
       );
       const videos = response.data;
   
-      const maxConcurrentDownloads = 3;
-      let currentDownloads = 0;
-  
       // Function to handle downloading a single video
-      const downloadVideo = async (video: any) => {
-        try {
-          // Create a link element for the S3 URL
-          const link = document.createElement('a');
-          link.href = video.video; // S3 URL
-          link.setAttribute('download', video.video.split('/').pop()); // Extract filename
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        } catch (error) {
-          console.error(`Error downloading video ${video.video}:`, error);
-        } finally {
-          currentDownloads--;
-        }
+      const downloadVideo = async (video: any): Promise<void> => {
+        return new Promise((resolve, reject) => {
+          try {
+            const link = document.createElement('a');
+            link.href = video.video; // S3 URL
+            link.setAttribute('download', video.video.split('/').pop() || 'video'); // Extract filename or fallback
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            resolve();
+          } catch (error) {
+            console.error(`Error downloading video ${video.video}:`, error);
+            reject(error);
+          }
+        });
       };
   
-      // Queue system for concurrency control
-      const downloadQueue = async () => {
-        while (videos.length > 0 && currentDownloads < maxConcurrentDownloads) {
-          const video = videos.shift();
-          currentDownloads++;
-          await downloadVideo(video);
-        }
-      };
+      // Download all videos sequentially
+      for (const video of videos) {
+        await downloadVideo(video);
+      }
   
-      // Start downloads with controlled concurrency
-      const initialDownloads = Array.from({ length: maxConcurrentDownloads }, downloadQueue);
-      await Promise.all(initialDownloads);
-  
-      console.log('All videos downloaded.');
+      console.log('All videos downloaded successfully.');
     } catch (error) {
       console.error('Error downloading videos:', error);
     }
   };
-  
+
+
+
+
+    const downloadVideos = async () => {
+    try {
+      // Make a request to get video URLs for the provided video IDs
+      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cart });
+      const videos = response.data;
+      console.log(videos);
+
+      // Download all videos concurrently
+      await Promise.all(videos.map(async (video: any) => {
+        try {
+          // Fetch the video as a blob
+          const videoResponse = await axios.get(video.video, { responseType: 'blob' });
+
+          // Create a blob URL for the video
+          const url = window.URL.createObjectURL(new Blob([videoResponse.data]));
+
+          // Create an anchor element for downloading the video
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', video.video.split('/').pop()); // Set the file name based on the URL
+          document.body.appendChild(link);
+          link.click();
+
+          // Clean up the DOM and release the blob URL
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        } catch (downloadError) {
+          // Handle individual download errors without stopping the entire process
+          console.error(`Error downloading video ${video.video}:`, downloadError);
+        }
+      }));
+    } catch (error) {
+      // Log general errors related to the API request or response parsing
+      console.error('Error downloading videos:', error);
+    }
+  };
+
 
 
 
@@ -507,7 +537,7 @@ const Cart: React.FC = () => {
               backgroundColor: teal[600], // Custom color on hover (optional)
             },
           }}
-          onClick={downloadVideosFromS3}
+          onClick={downloadVideos}
         >
           Download 
         </Button>
