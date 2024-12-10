@@ -555,6 +555,31 @@ const Cart: React.FC = () => {
 
 
 
+  const handleDownload = () => {
+    const fileUrl = 'https://surfingram-original-video.s3.us-east-2.amazonaws.com/archive.zip';
+    const fileName = 'archive.zip'; // Set the desired file name
+
+    // Create an anchor element to trigger the download
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = fileName;
+
+    // Append the link to the body (for Safari mobile compatibility)
+    document.body.appendChild(link);
+
+    // Trigger the click event to start download
+    link.click();
+
+    // Clean up the DOM
+    document.body.removeChild(link);
+  };
+
+
+
+
+
+
+
   return (
     <div>
       <Button
@@ -673,6 +698,21 @@ const Cart: React.FC = () => {
           onClick={downloadVideos2}
         >
           Download 
+        </Button>
+
+
+        <Button
+          variant="contained"
+          sx={{
+            marginTop: 2,
+            backgroundColor: teal[400], // Set custom background color
+            '&:hover': {
+              backgroundColor: teal[600], // Custom color on hover (optional)
+            },
+          }}
+          onClick={handleDownload}
+        >
+          Download the 6 GB file
         </Button>
       
 

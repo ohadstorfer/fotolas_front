@@ -80,7 +80,7 @@ export default function PhotographerNavbar() {
           color: isActive("/MyAlbums") ? 'black' : 'black'
         }}
       >
-        {spanish ? 'Mi Álbumes' : 'My Albums'}
+        {spanish ? 'Mis Álbumes' : 'My Albums'}
         
       </Button>
 
