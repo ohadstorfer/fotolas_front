@@ -37,7 +37,7 @@ const PaymentSuccessfull = () => {
   // const [cartTypeCopy, setCartTypeCopy] = useState<any>();
   const cartCopy = useSelector(selectCopyCart);
   const cartTypeCopy = useSelector(selectCopyCartType);
-  const purchasID = useSelector(selectPurchaseID);
+  const purchaseID = useSelector(selectPurchaseID);
   const wavesInCart = useSelector(selectCartOfWaves);
   const cartTotalPrice = useSelector((state: any) => state.cart.cartTotalPrice);
   const sessAlbumOfCart = useSelector(selectSessAlbumOfCart);
@@ -45,26 +45,29 @@ const PaymentSuccessfull = () => {
   const [isCartCopied, setIsCartCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [openMessage, setOpenMessage] = React.useState(false);
+  
 
 
 
   // First useEffect: Copy cart and cartType, then trigger a flag when done
   useEffect(() => {
-    // dispatch(setCopyCart())
+    dispatch(setCopyCart())
+    console.log(cartTypeCopy);
+    
 
     // Call the appropriate purchase function based on cartType
-    if (cartTypeCopy === 'singleImages') {
+    if (cartType === 'singleImages') {
       console.log("handlePurchaseForImages");
       handlePurchaseForImages();
-      downloadSingleImages2();
-    } else if (cartTypeCopy === 'videos') {
+      // callLambdaSingleImages();
+    } else if (cartType === 'videos') {
       console.log("handlePurchaseForVideos");
       handlePurchaseForVideos();
-      downloadVideos2();
-    } else if (cartTypeCopy === 'waves') {
+      // callLambdaVideo();
+    } else if (cartType === 'waves') {
       console.log("handlePurchaseForWaves");
       handlePurchaseForWaves();
-      downloadWaves2();
+      // callLambdaWaves();
     }
 
     // Once the cart has been copied and processed, set the flag to true
@@ -73,7 +76,8 @@ const PaymentSuccessfull = () => {
 
 
 
-  
+
+
   // Second useEffect: Clear cart only after the first useEffect is done
   useEffect(() => {
     if (cartCopy && cartTypeCopy) {
@@ -86,17 +90,42 @@ const PaymentSuccessfull = () => {
 
 
 
-  const handleDownload = async () => {
+
+  useEffect(() => {
+    if (purchaseID) {
+      console.log("purchaseID" + purchaseID);
+      setTimeout(() => {
+       
+        if (cartTypeCopy === 'singleImages') {
+          console.log("callLambdaSingleImages");
+          callLambdaSingleImages();
+        }  if (cartTypeCopy === 'videos') {
+          console.log("callLambdaVideo");
+          callLambdaVideo();
+        }  if (cartTypeCopy === 'waves') {
+          console.log("callLambdaWaves");
+          callLambdaWaves();
+        }
+      }, 0);
+    }
+  }, [purchaseID]);
+
+
+
+
+
+
+  const Downloading = async () => {
     try {
       if (cartTypeCopy === 'singleImages') {
         console.log('Downloading single images...');
-        await downloadSingleImages2();
-      } else if (cartTypeCopy === 'waves') {
+        await callLambdaSingleImages();
+      }  if (cartTypeCopy === 'waves') {
         console.log('Downloading wave images...');
-        await downloadWaves2();
-      } else if (cartTypeCopy === 'videos') {
+        await callLambdaWaves();
+      }  if (cartTypeCopy === 'videos') {
         console.log('Downloading videos...');
-        await downloadVideos2();
+        await callLambdaVideo();
       }
     } catch (error) {
       console.error('Error during download process:', error);
@@ -124,84 +153,239 @@ const PaymentSuccessfull = () => {
 
 
 
-  const downloadWaves2 = async () => {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const callLambdaVideo = async () => {
     setIsDownloading(true);
     try {
-      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/', { waveIds: cartCopy });
-      const images = response.data;
+      const bucket = 'surfingram-original-video';
 
-      const zip = new JSZip();
-      for (const image of images) {
-        try {
-          const imageResponse = await axios.get(image.photo, { responseType: 'blob' });
-          zip.file(image.photo.split('/').pop(), imageResponse.data);
-        } catch (downloadError) {
-          console.error(`Error downloading image ${image.photo}:`, downloadError);
-        }
+      // Step 1: Get video URLs from the backend
+      const videoResponse = await axios.post(
+        'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
+        { video_ids: cartCopy }
+      );
+
+      const videos: { video: string }[] = videoResponse.data;
+
+      // Step 2: Extract file names from URLs
+      const filenames = videos
+        .map((videoObj) => {
+          const videoUrl = videoObj.video;
+          const url = new URL(videoUrl);
+          return url.pathname.split('/').pop(); // Extract file name
+        })
+        .filter((filename): filename is string => filename !== undefined); // Filter out undefined values
+
+      if (filenames.length === 0) {
+        console.error('No valid filenames were retrieved.');
+        return;
       }
 
-      const content = await zip.generateAsync({ type: 'blob' });
-      saveAs(content, 'surfpik.zip');
+      // Step 3: Construct the zip file name
+      const zipFileName = `surfpik_${purchaseID}.zip`;
+
+      // Step 4: Prepare query parameters
+      const params = new URLSearchParams();
+      params.append('bucket', bucket);
+      params.append('zipFileName', zipFileName);
+      filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
+
+      // Step 5: Make the GET request to Django
+      const response = await axios.get(
+        'https://oyster-app-b3323.ondigitalocean.app/invoke-lambda/',
+        { params }
+      );
+
+      // Step 6: Handle response
+      if (response.status === 200) {
+        console.log('Lambda function executed successfully:', response.data);
+
+        // Parse the body to get the actual response
+        const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
+
+        // Now you can extract the publicUrl from the parsed object
+        const { publicUrl } = body;
+        console.log(publicUrl); // Should now print the URL
+
+        handleDownload(publicUrl); // Trigger the download
+        return publicUrl; // Return the URL
+      } else {
+        console.error('Lambda function failed:', response.data);
+      }
     } catch (error) {
-      console.error('Error creating ZIP file:', error);
-    } finally {
-      setIsDownloading(false);
+      console.error('Error calling Django view:', error);
+    }finally{
+      setIsDownloading(false)
       handleOpenMessage()
     }
   };
 
 
 
-  const downloadSingleImages2 = async () => {
+
+
+
+
+  
+
+  const callLambdaWaves = async () => {
     setIsDownloading(true);
     try {
-      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/', { image_ids: cartCopy });
-      const images = response.data;
+      const bucket = 'surfingram';
 
-      const zip = new JSZip();
-      for (const image of images) {
-        try {
-          const imageResponse = await axios.get(image.photo, { responseType: 'blob' });
-          zip.file(image.photo.split('/').pop(), imageResponse.data);
-        } catch (downloadError) {
-          console.error(`Error downloading image ${image.photo}:`, downloadError);
-        }
+      // Step 1: Get video URLs from the backend
+      const imagesResponse = await axios.post(
+        'https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/',
+        { waveIds: cartCopy }
+      );
+      console.log(imagesResponse.data);
+
+      const images: { photo: string }[] = imagesResponse.data; // Assuming each image object has a 'photo' property
+
+      // Step 2: Extract file names from URLs
+      const filenames = images
+        .map((imageObj) => {
+          const imageUrl = imageObj.photo; // Accessing 'photo' inside each image object
+          console.log('Extracting file name from URL:', imageUrl); // Log the image URL
+
+          const url = new URL(imageUrl);
+          const fileName = url.pathname.split('/').pop(); // Extract file name
+          console.log('Extracted file name:', fileName); // Log the extracted file name
+
+          return fileName;
+        })
+        .filter((filename): filename is string => filename !== undefined); // Filter out undefined values
+
+      console.log('Final list of file names:', filenames); // Log the final list of file names
+      if (filenames.length === 0) {
+        console.error('No valid filenames were retrieved.');
+        return;
       }
 
-      const content = await zip.generateAsync({ type: 'blob' });
-      saveAs(content, 'surfpik.zip');
+      // Step 3: Construct the zip file name
+      const zipFileName = `surfpik_${purchaseID}.zip`;
+
+      // Step 4: Prepare query parameters
+      const params = new URLSearchParams();
+      params.append('bucket', bucket);
+      params.append('zipFileName', zipFileName);
+      filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
+
+      // Step 5: Make the GET request to Django
+      const response = await axios.get(
+        'https://oyster-app-b3323.ondigitalocean.app/invoke-lambda/',
+        { params }
+      );
+
+      // Step 6: Handle response
+      if (response.status === 200) {
+        console.log('Lambda function executed successfully:', response.data);
+
+        // Parse the body to get the actual response
+        const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
+
+        // Now you can extract the publicUrl from the parsed object
+        const { publicUrl } = body;
+        console.log(publicUrl); // Should now print the URL
+
+        handleDownload(publicUrl); // Trigger the download
+        return publicUrl; // Return the URL
+      } else {
+        console.error('Lambda function failed:', response.data);
+      }
     } catch (error) {
-      console.error('Error creating ZIP file:', error);
-    } finally {
-      setIsDownloading(false);
+      console.error('Error calling Django view:', error);
+    }finally{
+      setIsDownloading(false)
       handleOpenMessage()
     }
   };
 
 
 
-  const downloadVideos2 = async () => {
+
+
+
+
+
+
+  const callLambdaSingleImages = async () => {
     setIsDownloading(true);
     try {
-      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cartCopy });
-      const videos = response.data;
+      const bucket = 'surfingram';
 
-      const zip = new JSZip();
-      for (const video of videos) {
-        try {
-          const imageResponse = await axios.get(video.video, { responseType: 'blob' });
-          zip.file(video.video.split('/').pop(), imageResponse.data);
-        } catch (downloadError) {
-          console.error(`Error downloading image ${video.video}:`, downloadError);
-        }
+      // Step 1: Get video URLs from the backend
+      const imagesResponse = await axios.post(
+        'https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/',
+        { waveIds: cartCopy }
+      );
+
+      const images: { images: string }[] = imagesResponse.data;
+
+      // Step 2: Extract file names from URLs
+      const filenames = images
+        .map((imagesObj) => {
+          const imagesUrl = imagesObj.images;
+          const url = new URL(imagesUrl);
+          return url.pathname.split('/').pop(); // Extract file name
+        })
+        .filter((filename): filename is string => filename !== undefined); // Filter out undefined values
+
+      if (filenames.length === 0) {
+        console.error('No valid filenames were retrieved.');
+        return;
       }
 
-      const content = await zip.generateAsync({ type: 'blob' });
-      saveAs(content, 'surfpik.zip');
+      // Step 3: Construct the zip file name
+      const zipFileName = `surfpik_${purchaseID}.zip`;
+
+      // Step 4: Prepare query parameters
+      const params = new URLSearchParams();
+      params.append('bucket', bucket);
+      params.append('zipFileName', zipFileName);
+      filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
+
+      // Step 5: Make the GET request to Django
+      const response = await axios.get(
+        'https://oyster-app-b3323.ondigitalocean.app/invoke-lambda/',
+        { params }
+      );
+
+      // Step 6: Handle response
+      if (response.status === 200) {
+        console.log('Lambda function executed successfully:', response.data);
+
+        // Parse the body to get the actual response
+        const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
+
+        // Now you can extract the publicUrl from the parsed object
+        const { publicUrl } = body;
+        console.log(publicUrl); // Should now print the URL
+
+        handleDownload(publicUrl); // Trigger the download
+        return publicUrl; // Return the URL
+      } else {
+        console.error('Lambda function failed:', response.data);
+      }
     } catch (error) {
-      console.error('Error creating ZIP file:', error);
-    } finally {
-      setIsDownloading(false);
+      console.error('Error calling Django view:', error);
+    }finally{
+      setIsDownloading(false)
       handleOpenMessage()
     }
   };
@@ -210,181 +394,24 @@ const PaymentSuccessfull = () => {
 
 
 
+  const handleDownload = (url: any) => {
+    const fileUrl = url;
+    const fileName = 'Surfpik.zip'; // Set the desired file name
 
+    // Create an anchor element to trigger the download
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = fileName;
 
+    // Append the link to the body (for Safari mobile compatibility)
+    document.body.appendChild(link);
 
+    // Trigger the click event to start download
+    link.click();
 
-  // const downloadWaves = async () => {
-  //   try {
-  //     // Make a request to get the image URLs for the specified wave IDs in the cart
-  //     const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/', { waveIds: cartCopy });
-  //     const images = response.data;
-  //     console.log(images);
-
-  //     // Download all images concurrently
-  //     await Promise.all(images.map(async (image: any) => {
-  //       try {
-  //         // Fetch the image as a blob
-  //         const imageResponse = await axios.get(image.photo, { responseType: 'blob' });
-
-  //         // Create a blob URL for the image
-  //         const url = window.URL.createObjectURL(new Blob([imageResponse.data]));
-
-  //         // Create an anchor element for downloading the image
-  //         const link = document.createElement('a');
-  //         link.href = url;
-  //         link.setAttribute('download', image.photo.split('/').pop()); // Set the file name based on the URL
-  //         document.body.appendChild(link);
-  //         link.click();
-
-  //         // Clean up the DOM and release the blob URL
-  //         document.body.removeChild(link);
-  //         window.URL.revokeObjectURL(url);
-  //       } catch (downloadError) {
-  //         // Handle individual download errors without stopping the entire process
-  //         console.error(`Error downloading image ${image.photo}:`, downloadError);
-  //       }
-  //     }));
-  //   } catch (error) {
-  //     // Log general errors related to the API request or response parsing
-  //     console.error('Error downloading images:', error);
-  //   }
-  // };
-
-
-
-
-
-  // const downloadSingleImages = async () => {
-  //   try {
-  //     // Make a request to get image URLs for the provided image IDs
-  //     const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/', { image_ids: cartCopy });
-  //     const images = response.data;
-  //     console.log(images);
-
-  //     // Download all images concurrently
-  //     await Promise.all(images.map(async (image: any) => {
-  //       try {
-  //         // Fetch the image as a blob
-  //         const imageResponse = await axios.get(image.photo, { responseType: 'blob' });
-
-  //         // Create a blob URL for the image
-  //         const url = window.URL.createObjectURL(new Blob([imageResponse.data]));
-
-  //         // Create an anchor element for downloading the image
-  //         const link = document.createElement('a');
-  //         link.href = url;
-  //         link.setAttribute('download', image.photo.split('/').pop()); // Set the file name based on the URL
-  //         document.body.appendChild(link);
-  //         link.click();
-
-  //         // Clean up the DOM and release the blob URL
-  //         document.body.removeChild(link);
-  //         window.URL.revokeObjectURL(url);
-  //       } catch (downloadError) {
-  //         // Handle individual download errors without stopping the entire process
-  //         console.error(`Error downloading image ${image.photo}:`, downloadError);
-  //       }
-  //     }));
-  //   } catch (error) {
-  //     // Log general errors related to the API request or response parsing
-  //     console.error('Error downloading images:', error);
-  //   }
-  // };
-
-
-
-
-
-
-
-// const downloadVideos = async () => {
-//   try {
-//     const response = await axios.post(
-//       'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
-//       { video_ids: cartCopy }
-//     );
-//     const videos = response.data;
-
-//     const maxConcurrentDownloads = 3;
-//     let currentDownloads = 0;
-
-//     const downloadVideo = async (video: any) => {
-//       try {
-//         const videoResponse = await axios.get(video.video, { responseType: 'blob' });
-//         const url = window.URL.createObjectURL(new Blob([videoResponse.data]));
-
-//         const link = document.createElement('a');
-//         link.href = url;
-//         link.setAttribute('download', video.video.split('/').pop());
-//         document.body.appendChild(link);
-//         link.click();
-//         document.body.removeChild(link);
-//         window.URL.revokeObjectURL(url);
-//       } catch (error) {
-//         console.error(`Error downloading video ${video.video}:`, error);
-//       } finally {
-//         currentDownloads--;
-//       }
-//     };
-
-//     // Create a queue for controlled concurrency
-//     const downloadQueue = async () => {
-//       while (videos.length > 0 && currentDownloads < maxConcurrentDownloads) {
-//         const video = videos.shift();
-//         currentDownloads++;
-//         await downloadVideo(video);
-//       }
-//     };
-
-//     // Start initial concurrent downloads
-//     const initialDownloads = Array.from({ length: maxConcurrentDownloads }, downloadQueue);
-//     await Promise.all(initialDownloads);
-
-//     console.log('All videos downloaded.');
-//   } catch (error) {
-//     console.error('Error downloading videos:', error);
-//   }
-// };
-
-
-
-  // const downloadVideos = async () => {
-  //   try {
-  //     // Make a request to get video URLs for the provided video IDs
-  //     const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cartCopy });
-  //     const videos = response.data;
-  //     console.log(videos);
-
-  //     // Download all videos concurrently
-  //     await Promise.all(videos.map(async (video: any) => {
-  //       try {
-  //         // Fetch the video as a blob
-  //         const videoResponse = await axios.get(video.video, { responseType: 'blob' });
-
-  //         // Create a blob URL for the video
-  //         const url = window.URL.createObjectURL(new Blob([videoResponse.data]));
-
-  //         // Create an anchor element for downloading the video
-  //         const link = document.createElement('a');
-  //         link.href = url;
-  //         link.setAttribute('download', video.video.split('/').pop()); // Set the file name based on the URL
-  //         document.body.appendChild(link);
-  //         link.click();
-
-  //         // Clean up the DOM and release the blob URL
-  //         document.body.removeChild(link);
-  //         window.URL.revokeObjectURL(url);
-  //       } catch (downloadError) {
-  //         // Handle individual download errors without stopping the entire process
-  //         console.error(`Error downloading video ${video.video}:`, downloadError);
-  //       }
-  //     }));
-  //   } catch (error) {
-  //     // Log general errors related to the API request or response parsing
-  //     console.error('Error downloading videos:', error);
-  //   }
-  // };
+    // Clean up the DOM
+    document.body.removeChild(link);
+  };
 
 
 
@@ -479,7 +506,7 @@ const PaymentSuccessfull = () => {
 
 
   const handlePurchaseForWaves = async () => {
-    console.log("handlePurchaseForImages");
+    console.log("handlePurchaseForWaves");
 
     const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
     const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
@@ -583,7 +610,7 @@ const PaymentSuccessfull = () => {
               backgroundColor: teal[600], // Custom color on hover (optional)
             },
           }}
-          onClick={handleDownload}
+          onClick={Downloading}
         >
           Download Again <ArrowCircleDownIcon sx={{ marginLeft: '5px' }} />
         </Button>
@@ -670,3 +697,9 @@ const PaymentSuccessfull = () => {
 };
 
 export default PaymentSuccessfull;
+
+
+
+
+
+
