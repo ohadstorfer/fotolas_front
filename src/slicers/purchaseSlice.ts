@@ -74,6 +74,7 @@ export const createPurchaseWithVideosAsync = createAsyncThunk(
 export const createPurchaseWithWavesAsync = createAsyncThunk(
   'purchase/createWithWaves',
   async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string, photographer_name: string, surfer_name: string, wave_ids: number[] }) => {
+    console.log("slicerinng");
     const response = await createPurchaseWithWaves(purchaseData);
     return response.data;
   }
@@ -137,6 +138,8 @@ const purchaseSlice = createSlice({
       })
       .addCase(createPurchaseAsync.fulfilled, (state, action) => {
         state.purchaseCreated = true;
+        console.log("purchaseID from slicer: " + action.payload.id);
+        
         state.purchaseID = action.payload.id;
         state.error = null;
       })
@@ -158,10 +161,23 @@ const purchaseSlice = createSlice({
       })
       .addCase(createPurchaseWithImagesAsync.fulfilled, (state, action) => {
         state.purchaseCreated = true;
+        console.log("purchaseID from slicer: " + action.payload.id);
         state.purchaseID = action.payload.id;
         state.error = null;
       })
       .addCase(createPurchaseWithImagesAsync.rejected, (state, action) => {
+        state.error = action.error.message || 'An error occurred';
+      })
+      .addCase(createPurchaseWithWavesAsync.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(createPurchaseWithWavesAsync.fulfilled, (state, action) => {
+        state.purchaseCreated = true;
+        console.log("purchaseID from slicer: " + action.payload.id);
+        state.purchaseID = action.payload.id;
+        state.error = null;
+      })
+      .addCase(createPurchaseWithWavesAsync.rejected, (state, action) => {
         state.error = action.error.message || 'An error occurred';
       })
       .addCase(createPurchaseWithVideosAsync.pending, (state) => {
@@ -169,6 +185,7 @@ const purchaseSlice = createSlice({
       })
       .addCase(createPurchaseWithVideosAsync.fulfilled, (state, action) => {
         state.purchaseCreated = true;
+        console.log("purchaseID from slicer: " + action.payload.id);
         state.purchaseID = action.payload.id;
         state.error = null;
       })

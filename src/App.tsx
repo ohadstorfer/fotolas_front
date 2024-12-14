@@ -72,6 +72,7 @@ import PleaseWorkVideosPerAlbums from './components/PleaseWorkVideosPerAlbums';
 import RefreshURL from './components/RefreshURL';
 import ExpiredSessAlbum from './components/ExpiredSessAlbum';
 import CartErrorscopy from './components/CartErrorscopy';
+import PaymentSuccessfullcopy from './components/PaymentSuccessfullcopy';
 
 
 
@@ -112,7 +113,7 @@ function App() {
         <Route path="/RefreshURL" element={<RefreshURL />} />
         <Route path="/ExpiredSessAlbum" element={<ExpiredSessAlbum />} />
         <Route path="/CartErrorscopy" element={<CartErrorscopy />} />
-        
+        <Route path="/PaymentSuccessfullcopy" element={<PaymentSuccessfullcopy />} />
         
         
 

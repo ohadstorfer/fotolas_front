@@ -554,49 +554,197 @@ const Cart: React.FC = () => {
 
 
 
-  const callLambdaThroughDjango = async (bucket: any) => {
-
-    const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cart });
-    const videos: { video: string }[] = response.data;
-
-    // Extract only the file names from the public S3 URLs
-    const filenames = videos.map((videoObj) => {
-      const videoUrl = videoObj.video;
-      const url = new URL(videoUrl);
-      return url.pathname.split('/').pop(); // Extract the file name
-    });
-
-
-    // if (!purchaseID) {
-    //   console.error('Purchase ID is not available');
-    //   return;
-    // }
-
-    // Construct the zip file name
-    // const zipFileName = `surfpik_${purchaseID}.zip`;
-    const zipFileName = `surfpik_123.zip`;
-
-    // Prepare the query parameters
-    const params = {
-      bucket: bucket,
-      filenames: filenames,
-      zipFileName: zipFileName,
-    };
-
+  const callLambdaVideo = async () => {
     try {
-      // Make the request to the Django view
-      const response = await axios.get('https://oyster-app-b3323.ondigitalocean.app/invoke-lambda/', { params });
+      const bucket = 'surfingram-original-video';
 
-      // Check the response status
+      // Step 1: Get video URLs from the backend
+      const videoResponse = await axios.post(
+        'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
+        { video_ids: cart }
+      );
+
+      const videos: { video: string }[] = videoResponse.data;
+
+      // Step 2: Extract file names from URLs
+      const filenames = videos
+        .map((videoObj) => {
+          const videoUrl = videoObj.video;
+          const url = new URL(videoUrl);
+          return url.pathname.split('/').pop(); // Extract file name
+        })
+        .filter((filename): filename is string => filename !== undefined); // Filter out undefined values
+
+      if (filenames.length === 0) {
+        console.error('No valid filenames were retrieved.');
+        return;
+      }
+
+      // Step 3: Construct the zip file name
+      const zipFileName = `surfpik_123.zip`;
+
+      // Step 4: Prepare query parameters
+      const params = new URLSearchParams();
+      params.append('bucket', bucket);
+      params.append('zipFileName', zipFileName);
+      filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
+
+      // Step 5: Make the GET request to Django
+      const response = await axios.get(
+        'https://oyster-app-b3323.ondigitalocean.app/invoke-lambda/',
+        { params }
+      );
+
+      // Step 6: Handle response
       if (response.status === 200) {
         console.log('Lambda function executed successfully:', response.data);
-        const { publicUrl } = response.data;
-        handleDownload(publicUrl)
 
-        // Return or use the zip file's public URL
-        return publicUrl;
+        // Parse the body to get the actual response
+        const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
+
+        // Now you can extract the publicUrl from the parsed object
+        const { publicUrl } = body;
+        console.log(publicUrl); // Should now print the URL
+
+        handleDownload(publicUrl); // Trigger the download
+        return publicUrl; // Return the URL
       } else {
-        console.error('Failed to execute Lambda function:', response.data);
+        console.error('Lambda function failed:', response.data);
+      }
+    } catch (error) {
+      console.error('Error calling Django view:', error);
+    }
+  };
+
+
+
+  const callLambdaWaves = async () => {
+    try {
+      const bucket = 'surfingram';
+
+      // Step 1: Get video URLs from the backend
+      const imagesResponse = await axios.post(
+        'https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/',
+        { waveIds: cart }
+      );
+      console.log(imagesResponse.data);
+
+      const images: { photo: string }[] = imagesResponse.data; // Assuming each image object has a 'photo' property
+
+      // Step 2: Extract file names from URLs
+      const filenames = images
+        .map((imageObj) => {
+          const imageUrl = imageObj.photo; // Accessing 'photo' inside each image object
+          console.log('Extracting file name from URL:', imageUrl); // Log the image URL
+
+          const url = new URL(imageUrl);
+          const fileName = url.pathname.split('/').pop(); // Extract file name
+          console.log('Extracted file name:', fileName); // Log the extracted file name
+
+          return fileName;
+        })
+        .filter((filename): filename is string => filename !== undefined); // Filter out undefined values
+
+      console.log('Final list of file names:', filenames); // Log the final list of file names
+      if (filenames.length === 0) {
+        console.error('No valid filenames were retrieved.');
+        return;
+      }
+
+      // Step 3: Construct the zip file name
+      const zipFileName = `surfpik_123.zip`;
+
+      // Step 4: Prepare query parameters
+      const params = new URLSearchParams();
+      params.append('bucket', bucket);
+      params.append('zipFileName', zipFileName);
+      filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
+
+      // Step 5: Make the GET request to Django
+      const response = await axios.get(
+        'https://oyster-app-b3323.ondigitalocean.app/invoke-lambda/',
+        { params }
+      );
+
+      // Step 6: Handle response
+      if (response.status === 200) {
+        console.log('Lambda function executed successfully:', response.data);
+
+        // Parse the body to get the actual response
+        const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
+
+        // Now you can extract the publicUrl from the parsed object
+        const { publicUrl } = body;
+        console.log(publicUrl); // Should now print the URL
+
+        handleDownload(publicUrl); // Trigger the download
+        return publicUrl; // Return the URL
+      } else {
+        console.error('Lambda function failed:', response.data);
+      }
+    } catch (error) {
+      console.error('Error calling Django view:', error);
+    }
+  };
+
+
+
+  const callLambdaSingleImages = async () => {
+    try {
+      const bucket = 'surfingram';
+
+      // Step 1: Get video URLs from the backend
+      const imagesResponse = await axios.post(
+        'https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/',
+        { waveIds: cart }
+      );
+
+      const images: { images: string }[] = imagesResponse.data;
+
+      // Step 2: Extract file names from URLs
+      const filenames = images
+        .map((imagesObj) => {
+          const imagesUrl = imagesObj.images;
+          const url = new URL(imagesUrl);
+          return url.pathname.split('/').pop(); // Extract file name
+        })
+        .filter((filename): filename is string => filename !== undefined); // Filter out undefined values
+
+      if (filenames.length === 0) {
+        console.error('No valid filenames were retrieved.');
+        return;
+      }
+
+      // Step 3: Construct the zip file name
+      const zipFileName = `surfpik_123.zip`;
+
+      // Step 4: Prepare query parameters
+      const params = new URLSearchParams();
+      params.append('bucket', bucket);
+      params.append('zipFileName', zipFileName);
+      filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
+
+      // Step 5: Make the GET request to Django
+      const response = await axios.get(
+        'https://oyster-app-b3323.ondigitalocean.app/invoke-lambda/',
+        { params }
+      );
+
+      // Step 6: Handle response
+      if (response.status === 200) {
+        console.log('Lambda function executed successfully:', response.data);
+
+        // Parse the body to get the actual response
+        const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
+
+        // Now you can extract the publicUrl from the parsed object
+        const { publicUrl } = body;
+        console.log(publicUrl); // Should now print the URL
+
+        handleDownload(publicUrl); // Trigger the download
+        return publicUrl; // Return the URL
+      } else {
+        console.error('Lambda function failed:', response.data);
       }
     } catch (error) {
       console.error('Error calling Django view:', error);
@@ -742,30 +890,26 @@ const Cart: React.FC = () => {
         variant="contained"
         sx={{
           marginTop: 2,
-          backgroundColor: teal[400], // Set custom background color
+          backgroundColor: teal[400],
           '&:hover': {
-            backgroundColor: teal[600], // Custom color on hover (optional)
+            backgroundColor: teal[600],
           },
         }}
-        onClick={() => callLambdaThroughDjango("surfingram-original-video")} // Correct syntax for passing argument
+        onClick={() => {
+          if (cartType === 'videos') {
+            callLambdaVideo(); // Call the video Lambda function
+          } else if (cartType === 'waves') {
+            callLambdaWaves(); // Call the waves Lambda function
+          } else if (cartType === 'singleImages') {
+            callLambdaSingleImages(); // Call the single images Lambda function
+          }
+        }}
       >
         Download
       </Button>
 
 
-      <Button
-        variant="contained"
-        sx={{
-          marginTop: 2,
-          backgroundColor: teal[400], // Set custom background color
-          '&:hover': {
-            backgroundColor: teal[600], // Custom color on hover (optional)
-          },
-        }}
-        onClick={handleDownload}
-      >
-        Download the 6 GB file
-      </Button>
+
 
 
 

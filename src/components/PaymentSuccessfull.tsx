@@ -71,6 +71,9 @@ const PaymentSuccessfull = () => {
     setIsCartCopied(true); // Set this flag to notify the second useEffect
   }, [dispatch]);
 
+
+
+  
   // Second useEffect: Clear cart only after the first useEffect is done
   useEffect(() => {
     if (cartCopy && cartTypeCopy) {
