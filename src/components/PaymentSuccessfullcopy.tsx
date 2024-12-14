@@ -14,7 +14,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { selectSpanish } from '../slicers/sighnInSlice';
 import axios from 'axios';
 import { clearCart, selectCart, selectCartOfWaves, selectCopyCart, selectCopyCartType, selectSessAlbumOfCart, setCopyCart } from '../slicers/cartSlice';
-import { createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync } from '../slicers/purchaseSlice';
+import { createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync, selectPurchaseID } from '../slicers/purchaseSlice';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -37,7 +37,7 @@ const PaymentSuccessfull = () => {
   // const [cartTypeCopy, setCartTypeCopy] = useState<any>();
   const cartCopy = useSelector(selectCopyCart);
   const cartTypeCopy = useSelector(selectCopyCartType);
-
+  const purchaseID = useSelector(selectPurchaseID);
   const wavesInCart = useSelector(selectCartOfWaves);
   const cartTotalPrice = useSelector((state: any) => state.cart.cartTotalPrice);
   const sessAlbumOfCart = useSelector(selectSessAlbumOfCart);
@@ -116,6 +116,64 @@ const PaymentSuccessfull = () => {
       window.removeEventListener('beforeunload', handleBeforeUnload); // Clean up
     };
   }, [dispatch]);
+
+
+
+
+
+
+
+
+  const callLambdaThroughDjango = async (bucket: any, cartCopy: any) => {
+
+    const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cartCopy });
+    const videos: { video: string }[] = response.data;
+
+    // Extract only the file names from the public S3 URLs
+    const filenames = videos.map((videoObj) => {
+      const videoUrl = videoObj.video;
+      const url = new URL(videoUrl);
+      return url.pathname.split('/').pop(); // Extract the file name
+    });
+
+  
+    if (!purchaseID) {
+      console.error('Purchase ID is not available');
+      return;
+    }
+  
+    // Construct the zip file name
+    const zipFileName = `surfpik_${purchaseID}.zip`;
+  
+    // Prepare the query parameters
+    const params = {
+      bucket: bucket,
+      filenames: filenames,
+      zipFileName: zipFileName,
+    };
+  
+    try {
+      // Make the request to the Django view
+      const response = await axios.get('https://oyster-app-b3323.ondigitalocean.app/invoke-lambda/', { params });
+  
+      // Check the response status
+      if (response.status === 200) {
+        console.log('Lambda function executed successfully:', response.data);
+        const { publicUrl } = response.data;
+  
+        // Return or use the zip file's public URL
+        return publicUrl;
+      } else {
+        console.error('Failed to execute Lambda function:', response.data);
+      }
+    } catch (error) {
+      console.error('Error calling Django view:', error);
+    }
+  };
+
+
+
+
 
 
 
@@ -237,6 +295,41 @@ const PaymentSuccessfull = () => {
       console.error('Error creating ZIP file:', error);
     }
   };
+
+
+
+
+
+  const invokeLambda = async () => {
+
+    const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cartCopy });
+    const videos = response.data;
+    const bucketName = "surfingram-original-video"; // Your bucket name
+    const zipFileName = "Surfpik.zip"; // Desired zip file name
+
+    // Extract filenames from URLs
+    const filenames = videos.map((url: string) => {
+        const parts = url.split('/');
+        return parts[parts.length - 1]; // Get the last part of the URL
+    });
+
+    // Construct the request payload
+    const requestBody = {
+        bucket: bucketName,
+        filenames: filenames,
+        zipFileName: zipFileName,
+    };
+
+    try {
+        // Replace with your Lambda endpoint or API Gateway URL
+        const lambdaEndpoint = "https://your-api-gateway-url.amazonaws.com/path-to-lambda";
+
+        const response = await axios.post(lambdaEndpoint, requestBody);
+        console.log('Lambda response:', response.data);
+    } catch (error) {
+        console.error('Error invoking Lambda:', error);
+    }
+};
 
 
 

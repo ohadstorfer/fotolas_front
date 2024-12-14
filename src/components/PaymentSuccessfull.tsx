@@ -14,7 +14,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { selectSpanish } from '../slicers/sighnInSlice';
 import axios from 'axios';
 import { clearCart, selectCart, selectCartOfWaves, selectCopyCart, selectCopyCartType, selectSessAlbumOfCart, setCopyCart } from '../slicers/cartSlice';
-import { createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync } from '../slicers/purchaseSlice';
+import { createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync, selectPurchaseID } from '../slicers/purchaseSlice';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -37,7 +37,7 @@ const PaymentSuccessfull = () => {
   // const [cartTypeCopy, setCartTypeCopy] = useState<any>();
   const cartCopy = useSelector(selectCopyCart);
   const cartTypeCopy = useSelector(selectCopyCartType);
-
+  const purchasID = useSelector(selectPurchaseID);
   const wavesInCart = useSelector(selectCartOfWaves);
   const cartTotalPrice = useSelector((state: any) => state.cart.cartTotalPrice);
   const sessAlbumOfCart = useSelector(selectSessAlbumOfCart);

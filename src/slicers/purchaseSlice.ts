@@ -3,6 +3,7 @@ import { createPurchase, createPurchaseItem, createPurchaseWithImages, createPur
 
 interface PurchaseState {
   purchaseCreated: boolean;
+  purchaseID: any;
   purchaseItemCreated: boolean;
   photographerPurchases: purchase[];
   surferPurchases: any;
@@ -38,6 +39,7 @@ interface purchaseItem {
 const initialState: PurchaseState = {
   purchaseCreated: false,
   purchaseItemCreated: false,
+  purchaseID: null,
   photographerPurchases: [],
   // surferPurchases: {},
   error: null,
@@ -133,8 +135,9 @@ const purchaseSlice = createSlice({
       .addCase(createPurchaseAsync.pending, (state) => {
         state.error = null;
       })
-      .addCase(createPurchaseAsync.fulfilled, (state) => {
+      .addCase(createPurchaseAsync.fulfilled, (state, action) => {
         state.purchaseCreated = true;
+        state.purchaseID = action.payload.id;
         state.error = null;
       })
       .addCase(createPurchaseAsync.rejected, (state, action) => {
@@ -153,8 +156,9 @@ const purchaseSlice = createSlice({
       .addCase(createPurchaseWithImagesAsync.pending, (state) => {
         state.error = null;
       })
-      .addCase(createPurchaseWithImagesAsync.fulfilled, (state) => {
+      .addCase(createPurchaseWithImagesAsync.fulfilled, (state, action) => {
         state.purchaseCreated = true;
+        state.purchaseID = action.payload.id;
         state.error = null;
       })
       .addCase(createPurchaseWithImagesAsync.rejected, (state, action) => {
@@ -163,8 +167,9 @@ const purchaseSlice = createSlice({
       .addCase(createPurchaseWithVideosAsync.pending, (state) => {
         state.error = null;
       })
-      .addCase(createPurchaseWithVideosAsync.fulfilled, (state) => {
+      .addCase(createPurchaseWithVideosAsync.fulfilled, (state, action) => {
         state.purchaseCreated = true;
+        state.purchaseID = action.payload.id;
         state.error = null;
       })
       .addCase(createPurchaseWithVideosAsync.rejected, (state, action) => {
@@ -199,6 +204,7 @@ const purchaseSlice = createSlice({
 
 export const selectPurchaseCreated = (state: { purchase: PurchaseState }) => state.purchase.purchaseCreated;
 export const selectPurchaseItemCreated = (state: { purchase: PurchaseState }) => state.purchase.purchaseItemCreated;
+export const selectPurchaseID = (state: { purchase: PurchaseState }) => state.purchase.purchaseID;
 export const selectPhotographerPurchases = (state: { purchase: PurchaseState }) => state.purchase.photographerPurchases;
 export const selectSurferPurchases = (state: { purchase: PurchaseState }) => state.purchase.surferPurchases;
 export const selectPurchasedImages = (state: { purchase: PurchaseState }) => state.purchase.purchasedImages;

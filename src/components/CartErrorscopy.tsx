@@ -63,7 +63,7 @@ const Cart: React.FC = () => {
 
 
 
- 
+
 
 
 
@@ -109,8 +109,8 @@ const Cart: React.FC = () => {
   const handleIsConnected = () => {
     if (user && conectedUser) {
       handleCheckout()
-    } else{
-       navigate('/SignUpForPayment')
+    } else {
+      navigate('/SignUpForPayment')
     }
   };
 
@@ -304,15 +304,15 @@ const Cart: React.FC = () => {
         },
         body: JSON.stringify({
           product_name: cartType,
-          amount: cartTotalPrice * 100 , // Amount in cents, e.g., $10.00 -> 1000
+          amount: cartTotalPrice * 100, // Amount in cents, e.g., $10.00 -> 1000
           currency: 'usd',
           quantity: 1,
           connected_account_id: sessAlbumOfCart?.photographer_stripe_account_id,
         }),
       });
-  
+
       const data = await response.json();
-  
+
       // Redirect to the Stripe Checkout URL
       if (data.url) {
         window.location.href = data.url;
@@ -347,7 +347,7 @@ const Cart: React.FC = () => {
         { video_ids: cart }
       );
       const videos = response.data;
-  
+
       // Function to handle downloading a single video
       const downloadVideo = async (video: any): Promise<void> => {
         return new Promise((resolve, reject) => {
@@ -365,12 +365,12 @@ const Cart: React.FC = () => {
           }
         });
       };
-  
+
       // Download all videos sequentially
       for (const video of videos) {
         await downloadVideo(video);
       }
-  
+
       console.log('All videos downloaded successfully.');
     } catch (error) {
       console.error('Error downloading videos:', error);
@@ -386,23 +386,23 @@ const Cart: React.FC = () => {
       const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cart });
       const videos = response.data;
       console.log(videos);
-  
+
       // Sequentially download each video (one at a time)
       for (let video of videos) {
         try {
           // Fetch the video as a blob
           const videoResponse = await axios.get(video.video, { responseType: 'blob' });
-  
+
           // Create a blob URL for the video
           const url = window.URL.createObjectURL(new Blob([videoResponse.data]));
-  
+
           // Create an anchor element for downloading the video
           const link = document.createElement('a');
           link.href = url;
           link.setAttribute('download', video.video.split('/').pop()); // Set the file name based on the URL
           document.body.appendChild(link);
           link.click();
-  
+
           // Clean up the DOM and release the blob URL
           document.body.removeChild(link);
           window.URL.revokeObjectURL(url);
@@ -427,9 +427,9 @@ const Cart: React.FC = () => {
   //   try {
   //     const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cart });
   //     const videos: { video: string }[] = response.data; // Assuming the response contains an array of objects with a 'video' property
-  
+
   //     const zip = new JSZip();
-  
+
   //     // Use a helper function to add videos to the zip file
   //     const addVideoToZip = async (videoUrl: string) => { // Explicitly set the type of videoUrl to string
   //       try {
@@ -440,16 +440,16 @@ const Cart: React.FC = () => {
   //         console.error(`Error downloading video ${videoUrl}:`, downloadError);
   //       }
   //     };
-  
+
   //     // Process videos sequentially
   //     for (const video of videos) {
   //       await addVideoToZip(video.video);
   //     }
-  
+
   //     // Generate the zip file and trigger download
   //     const content = await zip.generateAsync({ type: 'blob' });
   //     saveAs(content, 'surfpik.zip');
-  
+
   //   } catch (error) {
   //     console.error('Error creating ZIP file:', error);
   //   }
@@ -460,26 +460,26 @@ const Cart: React.FC = () => {
     try {
       const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cart });
       const videos = response.data;
-  
+
       const zip = new JSZip();
-  
+
       // Function to download videos in small batches
       const downloadInBatches = async (batchSize: number) => {
         const batches = [];
         for (let i = 0; i < videos.length; i += batchSize) {
           batches.push(videos.slice(i, i + batchSize));
         }
-  
+
         // Process each batch one by one
         for (const batch of batches) {
           const downloadPromises = batch.map(async (video: any) => {
             try {
               const url = new URL(video.video);
               url.hostname = `${url.hostname.split('.')[0]}.s3-accelerate.amazonaws.com`;
-  
+
               // Fetch video and stream it to the ZIP progressively
               const response = await fetch(url.toString(), { mode: 'cors' });
-  
+
               // Check if response.body is not null before using it
               if (response.body) {
                 const reader = response.body.getReader();
@@ -498,7 +498,7 @@ const Cart: React.FC = () => {
                     push();
                   }
                 });
-  
+
                 // Convert the stream to a Blob and add to the zip
                 const blob = await streamToBlob(stream);
                 const fileName = url.pathname.split('/').pop() || 'unnamed_video';
@@ -506,20 +506,20 @@ const Cart: React.FC = () => {
               } else {
                 console.error('Response body is null');
               }
-  
+
             } catch (error) {
               console.error(`Error downloading video from accelerated URL: ${video.video}`, error);
             }
           });
-  
+
           // Wait for the current batch of downloads to finish
           await Promise.all(downloadPromises);
         }
       };
-  
+
       // Process videos in batches of 2–3 for reduced memory usage
       await downloadInBatches(2);
-  
+
       // Generate the ZIP file and trigger download
       const content = await zip.generateAsync({ type: 'blob' });
       saveAs(content, 'videos.zip');
@@ -527,12 +527,12 @@ const Cart: React.FC = () => {
       console.error('Error creating ZIP file:', error);
     }
   };
-  
+
   // Helper function to convert a ReadableStream to a Blob
   function streamToBlob(stream: ReadableStream): Promise<Blob> {
     const chunks: Uint8Array[] = [];
     const reader = stream.getReader();
-  
+
     return new Promise((resolve, reject) => {
       function read() {
         reader.read().then(({ done, value }) => {
@@ -554,10 +554,62 @@ const Cart: React.FC = () => {
 
 
 
+  const callLambdaThroughDjango = async (bucket: any) => {
 
-  const handleDownload = () => {
-    const fileUrl = 'https://surfingram-original-video.s3.us-east-2.amazonaws.com/archive.zip';
-    const fileName = 'archive.zip'; // Set the desired file name
+    const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cart });
+    const videos: { video: string }[] = response.data;
+
+    // Extract only the file names from the public S3 URLs
+    const filenames = videos.map((videoObj) => {
+      const videoUrl = videoObj.video;
+      const url = new URL(videoUrl);
+      return url.pathname.split('/').pop(); // Extract the file name
+    });
+
+
+    // if (!purchaseID) {
+    //   console.error('Purchase ID is not available');
+    //   return;
+    // }
+
+    // Construct the zip file name
+    // const zipFileName = `surfpik_${purchaseID}.zip`;
+    const zipFileName = `surfpik_123.zip`;
+
+    // Prepare the query parameters
+    const params = {
+      bucket: bucket,
+      filenames: filenames,
+      zipFileName: zipFileName,
+    };
+
+    try {
+      // Make the request to the Django view
+      const response = await axios.get('https://oyster-app-b3323.ondigitalocean.app/invoke-lambda/', { params });
+
+      // Check the response status
+      if (response.status === 200) {
+        console.log('Lambda function executed successfully:', response.data);
+        const { publicUrl } = response.data;
+        handleDownload(publicUrl)
+
+        // Return or use the zip file's public URL
+        return publicUrl;
+      } else {
+        console.error('Failed to execute Lambda function:', response.data);
+      }
+    } catch (error) {
+      console.error('Error calling Django view:', error);
+    }
+  };
+
+
+
+
+
+  const handleDownload = (url: any) => {
+    const fileUrl = url;
+    const fileName = 'Surfpik.zip'; // Set the desired file name
 
     // Create an anchor element to trigger the download
     const link = document.createElement('a');
@@ -583,21 +635,21 @@ const Cart: React.FC = () => {
   return (
     <div>
       <Button
-    variant="text"
-    sx={{
-      fontSize: '0.9rem',
-      color: teal[400],
-      borderRadius: '8px',
-      cursor: 'pointer',
-      '&:hover': {
-        backgroundColor: teal[400],
-        color: 'white',
-      },
-    }}
-    onClick={handleNavigateHome}
-  >
-    <ArrowBackIosIcon fontSize="small" /> {spanish ? 'Ir a la página principal' : 'Back to Homepage'}
-  </Button>
+        variant="text"
+        sx={{
+          fontSize: '0.9rem',
+          color: teal[400],
+          borderRadius: '8px',
+          cursor: 'pointer',
+          '&:hover': {
+            backgroundColor: teal[400],
+            color: 'white',
+          },
+        }}
+        onClick={handleNavigateHome}
+      >
+        <ArrowBackIosIcon fontSize="small" /> {spanish ? 'Ir a la página principal' : 'Back to Homepage'}
+      </Button>
 
 
       {cartType === "videos" && (
@@ -607,12 +659,12 @@ const Cart: React.FC = () => {
           </div>
 
           <Button variant="contained" color="primary" onClick={handleIsConnected}>
-          continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
+            continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
 
           <VideosInCart></VideosInCart>
-          
+
           {/* <Button variant="contained" color="primary" onClick={handlePurchaseForVideos}>
             Pay
           </Button>
@@ -632,14 +684,14 @@ const Cart: React.FC = () => {
 
       {cartType === "waves" && (
         <>
-        <div>
-          <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
+          <div>
+            <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
           <Button variant="contained" color="primary" onClick={handleIsConnected}>
-          continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
+            continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
-        <PerAlbumInCart></PerAlbumInCart>
+          <PerAlbumInCart></PerAlbumInCart>
 
           {/* cartTotalImages */}
           {/* <Button variant="contained" color="primary" onClick={handlePurchaseForWaves}>
@@ -650,7 +702,7 @@ const Cart: React.FC = () => {
           <Button variant="contained" color="primary" onClick={downloadImages}>
             Download Images
           </Button> */}
-          
+
         </>
       )}
 
@@ -663,10 +715,10 @@ const Cart: React.FC = () => {
       {cartType === "singleImages" && (
         <>
           <div>
-          <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
+            <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
           <Button variant="contained" color="primary" onClick={handleIsConnected}>
-          continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
+            continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
           <UndividedImgsInCart></UndividedImgsInCart>
@@ -686,35 +738,35 @@ const Cart: React.FC = () => {
 
 
 
-        <Button
-          variant="contained"
-          sx={{
-            marginTop: 2,
-            backgroundColor: teal[400], // Set custom background color
-            '&:hover': {
-              backgroundColor: teal[600], // Custom color on hover (optional)
-            },
-          }}
-          onClick={downloadVideos2}
-        >
-          Download 
-        </Button>
+      <Button
+        variant="contained"
+        sx={{
+          marginTop: 2,
+          backgroundColor: teal[400], // Set custom background color
+          '&:hover': {
+            backgroundColor: teal[600], // Custom color on hover (optional)
+          },
+        }}
+        onClick={() => callLambdaThroughDjango("surfingram-original-video")} // Correct syntax for passing argument
+      >
+        Download
+      </Button>
 
 
-        <Button
-          variant="contained"
-          sx={{
-            marginTop: 2,
-            backgroundColor: teal[400], // Set custom background color
-            '&:hover': {
-              backgroundColor: teal[600], // Custom color on hover (optional)
-            },
-          }}
-          onClick={handleDownload}
-        >
-          Download the 6 GB file
-        </Button>
-      
+      <Button
+        variant="contained"
+        sx={{
+          marginTop: 2,
+          backgroundColor: teal[400], // Set custom background color
+          '&:hover': {
+            backgroundColor: teal[600], // Custom color on hover (optional)
+          },
+        }}
+        onClick={handleDownload}
+      >
+        Download the 6 GB file
+      </Button>
+
 
 
 
