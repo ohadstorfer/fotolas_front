@@ -256,7 +256,7 @@ const Cart: React.FC = () => {
           <div>
             <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
-          <Button variant="contained" color="primary" onClick={handleIsConnected}>
+          <Button variant="contained" color="primary" onClick={handleEmail}>
             continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
@@ -286,7 +286,7 @@ const Cart: React.FC = () => {
           <div>
             <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
-          <Button variant="contained" color="primary" onClick={handleIsConnected}>
+          <Button variant="contained" color="primary" onClick={handleEmail}>
             continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
