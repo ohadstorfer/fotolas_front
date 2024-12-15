@@ -204,7 +204,7 @@ const PaymentSuccessfull = () => {
       const params = new URLSearchParams();
       params.append('bucket', bucket);
       params.append('zipFileName', zipFileName);
-      params.append('user_email', email);
+      params.append('user_email', email.email);
       filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
 
       // Step 5: Make the GET request to Django
@@ -282,7 +282,7 @@ const PaymentSuccessfull = () => {
       const params = new URLSearchParams();
       params.append('bucket', bucket);
       params.append('zipFileName', zipFileName);
-      params.append('user_email', email);
+      params.append('user_email', email.email);
       filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
 
       // Step 5: Make the GET request to Django
@@ -353,7 +353,7 @@ const PaymentSuccessfull = () => {
       const params = new URLSearchParams();
       params.append('bucket', bucket);
       params.append('zipFileName', zipFileName);
-      params.append('user_email', email);
+      params.append('user_email', email.email);
       filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
 
       // Step 5: Make the GET request to Django

@@ -139,6 +139,8 @@ const purchaseSlice = createSlice({
     setEmail: (state, action: PayloadAction<any>) => {
       state.email = action.payload;
       sessionStorage.setItem('email', JSON.stringify(state.email));
+      console.log(state.email);
+      
     },
   },
   extraReducers: (builder) => {
