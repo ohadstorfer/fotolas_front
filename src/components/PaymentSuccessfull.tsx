@@ -219,11 +219,11 @@ const PaymentSuccessfull = () => {
         const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
 
         // Now you can extract the publicUrl from the parsed object
-        const { publicUrl } = body;
-        console.log(publicUrl); // Should now print the URL
+        const { url } = body;
+        console.log(url); // Should now print the URL
 
-        handleDownload(publicUrl); // Trigger the download
-        return publicUrl; // Return the URL
+        handleDownload(url); // Trigger the download
+        return url; // Return the URL
       } else {
         console.error('Lambda function failed:', response.data);
       }
@@ -300,11 +300,11 @@ const PaymentSuccessfull = () => {
         const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
 
         // Now you can extract the publicUrl from the parsed object
-        const { publicUrl } = body;
-        console.log(publicUrl); // Should now print the URL
+        const { url } = body;
+        console.log(url); // Should now print the URL
 
-        handleDownload(publicUrl); // Trigger the download
-        return publicUrl; // Return the URL
+        handleDownload(url); // Trigger the download
+        return url; // Return the URL
       } else {
         console.error('Lambda function failed:', response.data);
       }
@@ -374,11 +374,11 @@ const PaymentSuccessfull = () => {
         const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
 
         // Now you can extract the publicUrl from the parsed object
-        const { publicUrl } = body;
-        console.log(publicUrl); // Should now print the URL
+        const { url } = body;
+        console.log(url); // Should now print the URL
 
-        handleDownload(publicUrl); // Trigger the download
-        return publicUrl; // Return the URL
+        handleDownload(url); // Trigger the download
+        return url; // Return the URL
       } else {
         console.error('Lambda function failed:', response.data);
       }
