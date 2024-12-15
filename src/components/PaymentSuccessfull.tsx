@@ -95,19 +95,13 @@ const PaymentSuccessfull = () => {
   useEffect(() => {
     if (purchaseID) {
       console.log("purchaseID" + purchaseID);
-      setTimeout(() => {
-       
-        if (cartTypeCopy === 'singleImages') {
-          console.log("callLambdaSingleImages");
-          callLambdaSingleImages();
-        }  if (cartTypeCopy === 'videos') {
-          console.log("callLambdaVideo");
-          callLambdaVideo();
-        }  if (cartTypeCopy === 'waves') {
-          console.log("callLambdaWaves");
-          callLambdaWaves();
-        }
-      }, 0);
+      if (cartTypeCopy === 'singleImages') {
+        callLambdaSingleImages();
+      } else if (cartTypeCopy === 'videos') {
+        callLambdaVideo();
+      } else if (cartTypeCopy === 'waves') {
+        callLambdaWaves();
+      }
     }
   }, [purchaseID]);
 
@@ -604,7 +598,7 @@ const PaymentSuccessfull = () => {
           }}
           onClick={Downloading}
         >
-          Download Again <ArrowCircleDownIcon sx={{ marginLeft: '5px' }} />
+          Download <ArrowCircleDownIcon sx={{ marginLeft: '5px' }} />
         </Button>
       }
 
