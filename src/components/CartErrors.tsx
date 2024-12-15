@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import {
 
@@ -25,7 +25,7 @@ import Button from '@mui/material/Button';
 import { selectCart, calculatePriceForImages, calculatePriceForWaves, removeCartType, removeFromCart_singleImages, removeFromCart_waves, removeSessAlbumOfCart, removeFromCart_videos, selectCartOfVideos, selectCartOfSingleImages, selectSessAlbumOfCart, selectWavesInCart, selectCartOfWaves, fetchPricesBySessionAlbumId, fetchPricesForVideosBySessionAlbumId, setCopyCart } from '../slicers/cartSlice';
 import { selectImg, selectVideos } from '../slicers/ImagesSlice';
 import { AspectRatio } from '@mui/joy';
-import { createPurchaseAsync, createPurchaseItemAsync, createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync } from '../slicers/purchaseSlice';
+import { createPurchaseAsync, createPurchaseItemAsync, createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync, selectEmail, setEmail } from '../slicers/purchaseSlice';
 import Video from './Video';
 import VideosInCart from './VideosInCart';
 import UndividedImgsInCart from './UndividedImgsInCart';
@@ -36,6 +36,8 @@ import { selectUser } from '../slicers/userSlice';
 import { useNavigate } from 'react-router-dom';
 import { selectSpanish, selectToken } from '../slicers/sighnInSlice';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import {  Dialog, DialogContent, useMediaQuery } from '@mui/material';
+import EmailForPayment from './EmailForPayment';
 
 
 const Cart: React.FC = () => {
@@ -58,10 +60,13 @@ const Cart: React.FC = () => {
   const user = useSelector(selectUser)
   const conectedUser = useSelector(selectToken)
   const spanish = useSelector(selectSpanish)
+  const email = useSelector(selectEmail)
+  const isMobile = useMediaQuery('(max-width:600px)');
+  const [openDialog, setOpenDialog] = useState(false);
 
 
 
- 
+
 
 
 
@@ -107,174 +112,32 @@ const Cart: React.FC = () => {
   const handleIsConnected = () => {
     if (user && conectedUser) {
       handleCheckout()
-    } else{
-       navigate('/SignUpForPayment')
+    } else {
+      navigate('/SignUpForPayment')
     }
   };
 
 
 
+  const handleEmail = () => {
+    setOpenDialog(true);
+  };
 
 
 
-
-
-  const handleRemoveFromCartWaves = (waveId: number, imageCount: number) => {
-    if (cart.length === 1) {
-      dispatch(removeSessAlbumOfCart());
-      dispatch(removeCartType());
+  useEffect(() => {
+    // Check if cart is empty and remove sessionAlbum from sessionStorage
+    if (email) {
+      handleCheckout()
     }
-    dispatch(removeFromCart_waves({ waveId, imageCount })); // Assuming each image is counted as 1
-    dispatch(calculatePriceForImages());
-  };
-
-
-
-  const handleRemoveFromCartSingleImages = (imgId: number) => {
-    if (cart.length === 1) {
-      dispatch(removeSessAlbumOfCart());
-      dispatch(removeCartType());
-    }
-    dispatch(removeFromCart_singleImages({ imgId: imgId })); // Assuming each image is counted as 1
-    dispatch(calculatePriceForImages());
-  };
-
-
-  const handleRemoveFromCartVideos = (VideoId: number) => {
-    if (cart.length === 1) {
-      dispatch(removeSessAlbumOfCart());
-      dispatch(removeCartType());
-    }
-    dispatch(removeFromCart_videos({ videoId: VideoId })); // Assuming each image is counted as 1
-    dispatch(calculatePriceForImages());
-  };
-
-
-
-
-  const downloadImages = async () => {
-    try {
-      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/', { waveIds: cart });
-      const images = response.data;
-      console.log(images);
-
-      images.forEach(async (image: any) => {
-        const imageResponse = await axios.get(image.photo, { responseType: 'blob' });
-        const url = window.URL.createObjectURL(new Blob([imageResponse.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', image.photo.split('/').pop());
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
-    } catch (error) {
-      console.error('Error downloading images:', error);
-    }
-  };
+  }, [email]);
 
 
 
 
 
-  const handlePurchaseForImages = async () => {
-    console.log("handlePurchaseForImages");
 
-    const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
-    const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
-    const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
-    const total_price = cartTotalPrice;
-    const total_item_quantity = cartTotalItems;
-    const session_album_id = sessAlbumOfCart!.id;
-    const sessDate = sessAlbumOfCart!.sessDate;
-    const spot_name = sessAlbumOfCart!.spot_name;
-    const photographer_name = sessAlbumOfCart!.photographer_name;
-    const imageIds = cart
-
-    const purchaseData = {
-      photographer_id,
-      surfer_id,
-      total_price,
-      total_item_quantity,
-      session_album_id,
-      image_ids: imageIds,
-      sessDate: sessDate,
-      spot_name: spot_name,
-      photographer_name: photographer_name,
-      surfer_name: surfer_name,
-    };
-    console.log(purchaseData);
-
-    await dispatch(createPurchaseWithImagesAsync(purchaseData));
-  };
-
-
-
-
-  const handlePurchaseForVideos = async () => {
-    console.log("handlePurchaseForVideos");
-
-    const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
-    const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
-    const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
-    const total_price = cartTotalPrice;
-    const total_item_quantity = cartTotalItems;
-    const session_album_id = sessAlbumOfCart!.id;
-    const sessDate = sessAlbumOfCart!.sessDate;
-    const spot_name = sessAlbumOfCart!.spot_name;
-    const photographer_name = sessAlbumOfCart!.photographer_name;
-    const videoIds = cart
-
-    const purchaseData = {
-      photographer_id,
-      surfer_id,
-      total_price,
-      total_item_quantity,
-      session_album_id,
-      video_ids: videoIds,
-      sessDate: sessDate,
-      spot_name: spot_name,
-      photographer_name: photographer_name,
-      surfer_name: surfer_name,
-    };
-    console.log(purchaseData);
-
-    await dispatch(createPurchaseWithVideosAsync(purchaseData));
-  };
-
-
-
-
-  const handlePurchaseForWaves = async () => {
-    console.log("handlePurchaseForImages");
-
-    const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
-    const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
-    const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
-    const total_price = cartTotalPrice;
-    const total_item_quantity = cartTotalItems;
-    const session_album_id = sessAlbumOfCart!.id;
-    const sessDate = sessAlbumOfCart!.sessDate;
-    const spot_name = sessAlbumOfCart!.spot_name;
-    const photographer_name = sessAlbumOfCart!.photographer_name;
-    const wave_ids = cart;
-
-    const purchaseData = {
-      photographer_id,
-      surfer_id,
-      total_price,
-      total_item_quantity,
-      session_album_id,
-      wave_ids: wave_ids,
-      sessDate: sessDate,
-      spot_name: spot_name,
-      photographer_name: photographer_name,
-      surfer_name: surfer_name,
-    };
-    console.log(purchaseData);
-
-    await dispatch(createPurchaseWithWavesAsync(purchaseData));
-  };
+ 
 
 
 
@@ -302,15 +165,15 @@ const Cart: React.FC = () => {
         },
         body: JSON.stringify({
           product_name: cartType,
-          amount: cartTotalPrice * 100 , // Amount in cents, e.g., $10.00 -> 1000
+          amount: cartTotalPrice * 100, // Amount in cents, e.g., $10.00 -> 1000
           currency: 'usd',
           quantity: 1,
           connected_account_id: sessAlbumOfCart?.photographer_stripe_account_id,
         }),
       });
-  
+
       const data = await response.json();
-  
+
       // Redirect to the Stripe Checkout URL
       if (data.url) {
         window.location.href = data.url;
@@ -332,24 +195,30 @@ const Cart: React.FC = () => {
 
 
 
+  const handleCloseDialog = () => {
+    setOpenDialog(false);  // Close the dialog
+  };
+
+
+
   return (
     <div>
       <Button
-    variant="text"
-    sx={{
-      fontSize: '0.9rem',
-      color: teal[400],
-      borderRadius: '8px',
-      cursor: 'pointer',
-      '&:hover': {
-        backgroundColor: teal[400],
-        color: 'white',
-      },
-    }}
-    onClick={handleNavigateHome}
-  >
-    <ArrowBackIosIcon fontSize="small" /> {spanish ? 'Ir a la página principal' : 'Back to Homepage'}
-  </Button>
+        variant="text"
+        sx={{
+          fontSize: '0.9rem',
+          color: teal[400],
+          borderRadius: '8px',
+          cursor: 'pointer',
+          '&:hover': {
+            backgroundColor: teal[400],
+            color: 'white',
+          },
+        }}
+        onClick={handleNavigateHome}
+      >
+        <ArrowBackIosIcon fontSize="small" /> {spanish ? 'Ir a la página principal' : 'Back to Homepage'}
+      </Button>
 
 
       {cartType === "videos" && (
@@ -358,13 +227,13 @@ const Cart: React.FC = () => {
             <h2>{cartTotalItems} Videos, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
 
-          <Button variant="contained" color="primary" onClick={handleIsConnected}>
-          continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
+          <Button variant="contained" color="primary" onClick={handleEmail}>
+            continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
 
           <VideosInCart></VideosInCart>
-          
+
           {/* <Button variant="contained" color="primary" onClick={handlePurchaseForVideos}>
             Pay
           </Button>
@@ -384,14 +253,14 @@ const Cart: React.FC = () => {
 
       {cartType === "waves" && (
         <>
-        <div>
-          <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
+          <div>
+            <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
           <Button variant="contained" color="primary" onClick={handleIsConnected}>
-          continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
+            continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
-        <PerAlbumInCart></PerAlbumInCart>
+          <PerAlbumInCart></PerAlbumInCart>
 
           {/* cartTotalImages */}
           {/* <Button variant="contained" color="primary" onClick={handlePurchaseForWaves}>
@@ -402,7 +271,7 @@ const Cart: React.FC = () => {
           <Button variant="contained" color="primary" onClick={downloadImages}>
             Download Images
           </Button> */}
-          
+
         </>
       )}
 
@@ -415,10 +284,10 @@ const Cart: React.FC = () => {
       {cartType === "singleImages" && (
         <>
           <div>
-          <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
+            <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
           <Button variant="contained" color="primary" onClick={handleIsConnected}>
-          continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
+            continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
           <UndividedImgsInCart></UndividedImgsInCart>
@@ -445,6 +314,24 @@ const Cart: React.FC = () => {
         </div>
 
       )}
+
+
+
+
+      <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="lg"
+        PaperProps={{
+          style: {
+            backgroundColor: "#FFEEAD",
+            width: isMobile ? '100%' : '75%',
+            margin: 'auto', // centers the dialog
+          }
+        }}>
+
+        <DialogContent >
+          <EmailForPayment />
+        </DialogContent>
+      </Dialog>
+
 
 
 

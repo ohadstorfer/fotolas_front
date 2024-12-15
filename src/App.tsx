@@ -73,6 +73,7 @@ import RefreshURL from './components/RefreshURL';
 import ExpiredSessAlbum from './components/ExpiredSessAlbum';
 import CartErrorscopy from './components/CartErrorscopy';
 import PaymentSuccessfullcopy from './components/PaymentSuccessfullcopy';
+import EmailForPayment from './components/EmailForPayment';
 
 
 
@@ -114,6 +115,7 @@ function App() {
         <Route path="/ExpiredSessAlbum" element={<ExpiredSessAlbum />} />
         <Route path="/CartErrorscopy" element={<CartErrorscopy />} />
         <Route path="/PaymentSuccessfullcopy" element={<PaymentSuccessfullcopy />} />
+        <Route path="/EmailForPayment" element={<EmailForPayment />} />
         
         
 
@@ -214,6 +216,7 @@ const Root = () => {
           }}
         >
           <div>
+            {/* <EmailForPayment></EmailForPayment> */}
             {/* <PleaseWorkVideosPerAlbums></PleaseWorkVideosPerAlbums> */}
              <Outlet />
 

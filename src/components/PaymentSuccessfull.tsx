@@ -14,7 +14,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { selectSpanish } from '../slicers/sighnInSlice';
 import axios from 'axios';
 import { clearCart, selectCart, selectCartOfWaves, selectCopyCart, selectCopyCartType, selectSessAlbumOfCart, setCopyCart } from '../slicers/cartSlice';
-import { createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync, selectPurchaseID } from '../slicers/purchaseSlice';
+import { createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync, selectEmail, selectPurchaseID } from '../slicers/purchaseSlice';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -45,6 +45,7 @@ const PaymentSuccessfull = () => {
   const [isCartCopied, setIsCartCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [openMessage, setOpenMessage] = React.useState(false);
+  const email = useSelector(selectEmail)
   
 
 
@@ -203,6 +204,7 @@ const PaymentSuccessfull = () => {
       const params = new URLSearchParams();
       params.append('bucket', bucket);
       params.append('zipFileName', zipFileName);
+      params.append('user_email', email);
       filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
 
       // Step 5: Make the GET request to Django
@@ -280,6 +282,7 @@ const PaymentSuccessfull = () => {
       const params = new URLSearchParams();
       params.append('bucket', bucket);
       params.append('zipFileName', zipFileName);
+      params.append('user_email', email);
       filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
 
       // Step 5: Make the GET request to Django
@@ -350,6 +353,7 @@ const PaymentSuccessfull = () => {
       const params = new URLSearchParams();
       params.append('bucket', bucket);
       params.append('zipFileName', zipFileName);
+      params.append('user_email', email);
       filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
 
       // Step 5: Make the GET request to Django

@@ -4,6 +4,7 @@ import { createPurchase, createPurchaseItem, createPurchaseWithImages, createPur
 interface PurchaseState {
   purchaseCreated: boolean;
   purchaseID: any;
+  email: any;
   purchaseItemCreated: boolean;
   photographerPurchases: purchase[];
   surferPurchases: any;
@@ -36,10 +37,14 @@ interface purchaseItem {
 }
 
 
+
+const initialEmail = sessionStorage.getItem('email');
+
 const initialState: PurchaseState = {
   purchaseCreated: false,
   purchaseItemCreated: false,
   purchaseID: null,
+  email: initialEmail ? JSON.parse(initialEmail) : null,
   photographerPurchases: [],
   // surferPurchases: {},
   error: null,
@@ -130,7 +135,12 @@ export const fetchSurferPurchasedItemsAsync = createAsyncThunk(
 const purchaseSlice = createSlice({
   name: 'purchase',
   initialState,
-  reducers: {},
+  reducers: {
+    setEmail: (state, action: PayloadAction<any>) => {
+      state.email = action.payload;
+      sessionStorage.setItem('email', JSON.stringify(state.email));
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createPurchaseAsync.pending, (state) => {
@@ -219,12 +229,19 @@ const purchaseSlice = createSlice({
   },
 });
 
+
+
+export const {setEmail} = purchaseSlice.actions;
+
+
+
 export const selectPurchaseCreated = (state: { purchase: PurchaseState }) => state.purchase.purchaseCreated;
 export const selectPurchaseItemCreated = (state: { purchase: PurchaseState }) => state.purchase.purchaseItemCreated;
 export const selectPurchaseID = (state: { purchase: PurchaseState }) => state.purchase.purchaseID;
 export const selectPhotographerPurchases = (state: { purchase: PurchaseState }) => state.purchase.photographerPurchases;
 export const selectSurferPurchases = (state: { purchase: PurchaseState }) => state.purchase.surferPurchases;
 export const selectPurchasedImages = (state: { purchase: PurchaseState }) => state.purchase.purchasedImages;
+export const selectEmail = (state: { purchase: PurchaseState }) => state.purchase.email;
 
 
 export default purchaseSlice.reducer;

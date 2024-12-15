@@ -158,6 +158,7 @@ const PerAlbum: React.FC = () => {
     setOpenDialog(true);
   };
 
+  
 
   const handleCloseDialog = () => {
     setOpenDialog(false);  // Close the dialog
