@@ -215,11 +215,7 @@ const PaymentSuccessfull = () => {
       if (response.status === 200) {
         console.log('Lambda function executed successfully:', response.data);
 
-        // Parse the body to get the actual response
-        const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
-
-        // Now you can extract the publicUrl from the parsed object
-        const { url } = body;
+        const { url } = response.data;
         console.log(url); // Should now print the URL
 
         handleDownload(url); // Trigger the download
@@ -366,11 +362,7 @@ const PaymentSuccessfull = () => {
       if (response.status === 200) {
         console.log('Lambda function executed successfully:', response.data);
 
-        // Parse the body to get the actual response
-        const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
-
-        // Now you can extract the publicUrl from the parsed object
-        const { url } = body;
+        const { url } = response.data;
         console.log(url); // Should now print the URL
 
         handleDownload(url); // Trigger the download
