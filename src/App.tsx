@@ -74,6 +74,7 @@ import ExpiredSessAlbum from './components/ExpiredSessAlbum';
 import CartErrorscopy from './components/CartErrorscopy';
 import PaymentSuccessfullcopy from './components/PaymentSuccessfullcopy';
 import EmailForPayment from './components/EmailForPayment';
+import CartErrorscopypy from './components/CartErrorscopypy';
 
 
 
@@ -116,6 +117,7 @@ function App() {
         <Route path="/CartErrorscopy" element={<CartErrorscopy />} />
         <Route path="/PaymentSuccessfullcopy" element={<PaymentSuccessfullcopy />} />
         <Route path="/EmailForPayment" element={<EmailForPayment />} />
+        <Route path="/CartErrorscopypy" element={<CartErrorscopypy />} />
         
         
 

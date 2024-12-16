@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { createPurchase, createPurchaseItem, createPurchaseWithImages, createPurchaseWithVideos, createPurchaseWithWaves, fetchPurchasedItemsBySurfer, fetchPurchasesByPhotographer, fetchPurchasesBySurfer } from '../services/purchasesAPI';
+import { createPurchase, createPurchaseItem, createPurchaseNew, createPurchaseWithImages, createPurchaseWithVideos, createPurchaseWithWaves, fetchPurchasedItemsBySurfer, fetchPurchasesByPhotographer, fetchPurchasesBySurfer } from '../services/purchasesAPI';
 
 interface PurchaseState {
   purchaseCreated: boolean;
@@ -55,6 +55,18 @@ const initialState: PurchaseState = {
     purchased_videos: {},
   },
 };
+
+
+
+
+export const createPurchaseNewAsync = createAsyncThunk(
+  'purchase/createPurchaseNewAsync',
+  async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string ,photographer_name: string, surfer_name: string, user_email: string, type: string ,  filenames: string[] }) => {
+    const response = await createPurchaseNew(purchaseData);
+    return response.data;
+  }
+);
+
 
 
 
@@ -166,6 +178,18 @@ const purchaseSlice = createSlice({
         state.error = null;
       })
       .addCase(createPurchaseItemAsync.rejected, (state, action) => {
+        state.error = action.error.message || 'An error occurred';
+      })
+      .addCase(createPurchaseNewAsync.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(createPurchaseNewAsync.fulfilled, (state, action) => {
+        state.purchaseCreated = true;
+        console.log("purchaseID from slicer: " + action.payload.id);
+        state.purchaseID = action.payload.id;
+        state.error = null;
+      })
+      .addCase(createPurchaseNewAsync.rejected, (state, action) => {
         state.error = action.error.message || 'An error occurred';
       })
       .addCase(createPurchaseWithImagesAsync.pending, (state) => {

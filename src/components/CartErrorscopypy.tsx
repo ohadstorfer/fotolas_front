@@ -25,7 +25,7 @@ import Button from '@mui/material/Button';
 import { selectCart, calculatePriceForImages, calculatePriceForWaves, removeCartType, removeFromCart_singleImages, removeFromCart_waves, removeSessAlbumOfCart, removeFromCart_videos, selectCartOfVideos, selectCartOfSingleImages, selectSessAlbumOfCart, selectWavesInCart, selectCartOfWaves, fetchPricesBySessionAlbumId, fetchPricesForVideosBySessionAlbumId, setCopyCart } from '../slicers/cartSlice';
 import { selectImg, selectVideos } from '../slicers/ImagesSlice';
 import { AspectRatio } from '@mui/joy';
-import { createPurchaseAsync, createPurchaseItemAsync, createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync, selectEmail, setEmail } from '../slicers/purchaseSlice';
+import { createPurchaseAsync, createPurchaseItemAsync, createPurchaseNewAsync, createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync, selectEmail, selectPurchaseID, setEmail } from '../slicers/purchaseSlice';
 import Video from './Video';
 import VideosInCart from './VideosInCart';
 import UndividedImgsInCart from './UndividedImgsInCart';
@@ -63,6 +63,7 @@ const Cart: React.FC = () => {
   const email = useSelector(selectEmail)
   const isMobile = useMediaQuery('(max-width:600px)');
   const [openDialog, setOpenDialog] = useState(false);
+  const purchaseID = useSelector(selectPurchaseID);
 
 
 
@@ -125,11 +126,90 @@ const Cart: React.FC = () => {
 
 
 
+  // useEffect(() => {
+  //   // Check if cart is empty and remove sessionAlbum from sessionStorage
+  //   if (email) {
+  //     handleCheckout()
+  //   }
+  // }, [email]);
+
+
+
   useEffect(() => {
-    // Check if cart is empty and remove sessionAlbum from sessionStorage
-    if (email) {
+    if (purchaseID) {
       handleCheckout()
     }
+  }, [purchaseID]);
+
+
+
+
+
+  useEffect(() => {
+    const createPurchase = async () => {
+      if (!email) return;
+  
+      const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
+      const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
+      const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
+      const total_price = cartTotalPrice;
+      const total_item_quantity = cartTotalItems;
+      const session_album_id = sessAlbumOfCart!.id;
+      const sessDate = sessAlbumOfCart!.sessDate;
+      const spot_name = sessAlbumOfCart!.spot_name;
+      const photographer_name = sessAlbumOfCart!.photographer_name;
+      const type = cartType;
+      const user_email = email;
+      let filenames: string[] = [];
+  
+      try {
+        // Get filenames based on cart type
+        if (cartType === 'video') {
+          const videoResponse = await axios.post(
+            'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
+            { video_ids: cart }
+          );
+          filenames = videoResponse.data.map((video: { video: string }) => video.video);
+        } else if (cartType === 'waves') {
+          const imagesResponse = await axios.post(
+            'https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/',
+            { waveIds: cart }
+          );
+          filenames = imagesResponse.data;
+        } else if (cartType === 'singleImages') {
+          const imagesResponse = await axios.post(
+            'https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/',
+            { image_ids: cart }
+          );
+          filenames = imagesResponse.data;
+        }
+  
+        // Construct the purchase data (exclude zipFileName)
+        const purchaseData = {
+          photographer_id,
+          surfer_id,
+          total_price,
+          total_item_quantity,
+          session_album_id,
+          sessDate,
+          spot_name,
+          photographer_name,
+          surfer_name,
+          user_email,
+          type,
+          filenames,
+        };
+  
+        console.log('Creating purchase with data:', purchaseData);
+  
+        // Dispatch the purchase creation
+        await dispatch(createPurchaseNewAsync(purchaseData));
+      } catch (error) {
+        console.error('Error creating purchase:', error);
+      }
+    };
+  
+    createPurchase();
   }, [email]);
 
 
@@ -154,6 +234,7 @@ const Cart: React.FC = () => {
         currency: 'usd',
         quantity: cartTotalItems,
         connected_account_id: sessAlbumOfCart?.photographer_stripe_account_id,
+        purchase_id: purchaseID,
       });
 
 
@@ -169,6 +250,7 @@ const Cart: React.FC = () => {
           currency: 'usd',
           quantity: 1,
           connected_account_id: sessAlbumOfCart?.photographer_stripe_account_id,
+          purchase_id: purchaseID,
         }),
       });
 

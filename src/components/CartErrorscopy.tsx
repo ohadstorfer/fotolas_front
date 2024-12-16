@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import {
 
@@ -25,7 +25,7 @@ import Button from '@mui/material/Button';
 import { selectCart, calculatePriceForImages, calculatePriceForWaves, removeCartType, removeFromCart_singleImages, removeFromCart_waves, removeSessAlbumOfCart, removeFromCart_videos, selectCartOfVideos, selectCartOfSingleImages, selectSessAlbumOfCart, selectWavesInCart, selectCartOfWaves, fetchPricesBySessionAlbumId, fetchPricesForVideosBySessionAlbumId, setCopyCart } from '../slicers/cartSlice';
 import { selectImg, selectVideos } from '../slicers/ImagesSlice';
 import { AspectRatio } from '@mui/joy';
-import { createPurchaseAsync, createPurchaseItemAsync, createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync } from '../slicers/purchaseSlice';
+import { createPurchaseAsync, createPurchaseItemAsync, createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync, selectEmail, setEmail } from '../slicers/purchaseSlice';
 import Video from './Video';
 import VideosInCart from './VideosInCart';
 import UndividedImgsInCart from './UndividedImgsInCart';
@@ -36,8 +36,8 @@ import { selectUser } from '../slicers/userSlice';
 import { useNavigate } from 'react-router-dom';
 import { selectSpanish, selectToken } from '../slicers/sighnInSlice';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
+import {  Dialog, DialogContent, useMediaQuery } from '@mui/material';
+import EmailForPayment from './EmailForPayment';
 
 
 const Cart: React.FC = () => {
@@ -60,6 +60,9 @@ const Cart: React.FC = () => {
   const user = useSelector(selectUser)
   const conectedUser = useSelector(selectToken)
   const spanish = useSelector(selectSpanish)
+  const email = useSelector(selectEmail)
+  const isMobile = useMediaQuery('(max-width:600px)');
+  const [openDialog, setOpenDialog] = useState(false);
 
 
 
@@ -116,167 +119,25 @@ const Cart: React.FC = () => {
 
 
 
+  const handleEmail = () => {
+    setOpenDialog(true);
+  };
 
 
 
-
-
-  const handleRemoveFromCartWaves = (waveId: number, imageCount: number) => {
-    if (cart.length === 1) {
-      dispatch(removeSessAlbumOfCart());
-      dispatch(removeCartType());
+  useEffect(() => {
+    // Check if cart is empty and remove sessionAlbum from sessionStorage
+    if (email) {
+      handleCheckout()
     }
-    dispatch(removeFromCart_waves({ waveId, imageCount })); // Assuming each image is counted as 1
-    dispatch(calculatePriceForImages());
-  };
-
-
-
-  const handleRemoveFromCartSingleImages = (imgId: number) => {
-    if (cart.length === 1) {
-      dispatch(removeSessAlbumOfCart());
-      dispatch(removeCartType());
-    }
-    dispatch(removeFromCart_singleImages({ imgId: imgId })); // Assuming each image is counted as 1
-    dispatch(calculatePriceForImages());
-  };
-
-
-  const handleRemoveFromCartVideos = (VideoId: number) => {
-    if (cart.length === 1) {
-      dispatch(removeSessAlbumOfCart());
-      dispatch(removeCartType());
-    }
-    dispatch(removeFromCart_videos({ videoId: VideoId })); // Assuming each image is counted as 1
-    dispatch(calculatePriceForImages());
-  };
-
-
-
-
-  const downloadImages = async () => {
-    try {
-      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/', { waveIds: cart });
-      const images = response.data;
-      console.log(images);
-
-      images.forEach(async (image: any) => {
-        const imageResponse = await axios.get(image.photo, { responseType: 'blob' });
-        const url = window.URL.createObjectURL(new Blob([imageResponse.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', image.photo.split('/').pop());
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
-    } catch (error) {
-      console.error('Error downloading images:', error);
-    }
-  };
+  }, [email]);
 
 
 
 
 
-  const handlePurchaseForImages = async () => {
-    console.log("handlePurchaseForImages");
 
-    const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
-    const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
-    const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
-    const total_price = cartTotalPrice;
-    const total_item_quantity = cartTotalItems;
-    const session_album_id = sessAlbumOfCart!.id;
-    const sessDate = sessAlbumOfCart!.sessDate;
-    const spot_name = sessAlbumOfCart!.spot_name;
-    const photographer_name = sessAlbumOfCart!.photographer_name;
-    const imageIds = cart
-
-    const purchaseData = {
-      photographer_id,
-      surfer_id,
-      total_price,
-      total_item_quantity,
-      session_album_id,
-      image_ids: imageIds,
-      sessDate: sessDate,
-      spot_name: spot_name,
-      photographer_name: photographer_name,
-      surfer_name: surfer_name,
-    };
-    console.log(purchaseData);
-
-    await dispatch(createPurchaseWithImagesAsync(purchaseData));
-  };
-
-
-
-
-  const handlePurchaseForVideos = async () => {
-    console.log("handlePurchaseForVideos");
-
-    const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
-    const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
-    const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
-    const total_price = cartTotalPrice;
-    const total_item_quantity = cartTotalItems;
-    const session_album_id = sessAlbumOfCart!.id;
-    const sessDate = sessAlbumOfCart!.sessDate;
-    const spot_name = sessAlbumOfCart!.spot_name;
-    const photographer_name = sessAlbumOfCart!.photographer_name;
-    const videoIds = cart
-
-    const purchaseData = {
-      photographer_id,
-      surfer_id,
-      total_price,
-      total_item_quantity,
-      session_album_id,
-      video_ids: videoIds,
-      sessDate: sessDate,
-      spot_name: spot_name,
-      photographer_name: photographer_name,
-      surfer_name: surfer_name,
-    };
-    console.log(purchaseData);
-
-    await dispatch(createPurchaseWithVideosAsync(purchaseData));
-  };
-
-
-
-
-  const handlePurchaseForWaves = async () => {
-    console.log("handlePurchaseForImages");
-
-    const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
-    const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
-    const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
-    const total_price = cartTotalPrice;
-    const total_item_quantity = cartTotalItems;
-    const session_album_id = sessAlbumOfCart!.id;
-    const sessDate = sessAlbumOfCart!.sessDate;
-    const spot_name = sessAlbumOfCart!.spot_name;
-    const photographer_name = sessAlbumOfCart!.photographer_name;
-    const wave_ids = cart;
-
-    const purchaseData = {
-      photographer_id,
-      surfer_id,
-      total_price,
-      total_item_quantity,
-      session_album_id,
-      wave_ids: wave_ids,
-      sessDate: sessDate,
-      spot_name: spot_name,
-      photographer_name: photographer_name,
-      surfer_name: surfer_name,
-    };
-    console.log(purchaseData);
-
-    await dispatch(createPurchaseWithWavesAsync(purchaseData));
-  };
+ 
 
 
 
@@ -334,449 +195,9 @@ const Cart: React.FC = () => {
 
 
 
-
-
-
-
-
-  const downloadVideosFromS3 = async () => {
-    try {
-      // Fetch video metadata and URLs from your backend
-      const response = await axios.post(
-        'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
-        { video_ids: cart }
-      );
-      const videos = response.data;
-
-      // Function to handle downloading a single video
-      const downloadVideo = async (video: any): Promise<void> => {
-        return new Promise((resolve, reject) => {
-          try {
-            const link = document.createElement('a');
-            link.href = video.video; // S3 URL
-            link.setAttribute('download', video.video.split('/').pop() || 'video'); // Extract filename or fallback
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            resolve();
-          } catch (error) {
-            console.error(`Error downloading video ${video.video}:`, error);
-            reject(error);
-          }
-        });
-      };
-
-      // Download all videos sequentially
-      for (const video of videos) {
-        await downloadVideo(video);
-      }
-
-      console.log('All videos downloaded successfully.');
-    } catch (error) {
-      console.error('Error downloading videos:', error);
-    }
+  const handleCloseDialog = () => {
+    setOpenDialog(false);  // Close the dialog
   };
-
-
-
-
-  const downloadVideos = async () => {
-    try {
-      // Make a request to get video URLs for the provided video IDs
-      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cart });
-      const videos = response.data;
-      console.log(videos);
-
-      // Sequentially download each video (one at a time)
-      for (let video of videos) {
-        try {
-          // Fetch the video as a blob
-          const videoResponse = await axios.get(video.video, { responseType: 'blob' });
-
-          // Create a blob URL for the video
-          const url = window.URL.createObjectURL(new Blob([videoResponse.data]));
-
-          // Create an anchor element for downloading the video
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', video.video.split('/').pop()); // Set the file name based on the URL
-          document.body.appendChild(link);
-          link.click();
-
-          // Clean up the DOM and release the blob URL
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        } catch (downloadError) {
-          // Handle individual download errors without stopping the entire process
-          console.error(`Error downloading video ${video.video}:`, downloadError);
-        }
-      }
-    } catch (error) {
-      // Log general errors related to the API request or response parsing
-      console.error('Error downloading videos:', error);
-    }
-  };
-
-
-
-
-
-
-
-  // const downloadVideos2 = async () => {
-  //   try {
-  //     const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cart });
-  //     const videos: { video: string }[] = response.data; // Assuming the response contains an array of objects with a 'video' property
-
-  //     const zip = new JSZip();
-
-  //     // Use a helper function to add videos to the zip file
-  //     const addVideoToZip = async (videoUrl: string) => { // Explicitly set the type of videoUrl to string
-  //       try {
-  //         // Stream the video blob directly into the zip file
-  //         const videoResponse = await axios.get(videoUrl, { responseType: 'blob' });
-  //         zip.file(videoUrl.split('/').pop() || 'unnamed_video', videoResponse.data);
-  //       } catch (downloadError) {
-  //         console.error(`Error downloading video ${videoUrl}:`, downloadError);
-  //       }
-  //     };
-
-  //     // Process videos sequentially
-  //     for (const video of videos) {
-  //       await addVideoToZip(video.video);
-  //     }
-
-  //     // Generate the zip file and trigger download
-  //     const content = await zip.generateAsync({ type: 'blob' });
-  //     saveAs(content, 'surfpik.zip');
-
-  //   } catch (error) {
-  //     console.error('Error creating ZIP file:', error);
-  //   }
-  // };
-
-
-  const downloadVideos2 = async () => {
-    try {
-      const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/', { video_ids: cart });
-      const videos = response.data;
-
-      const zip = new JSZip();
-
-      // Function to download videos in small batches
-      const downloadInBatches = async (batchSize: number) => {
-        const batches = [];
-        for (let i = 0; i < videos.length; i += batchSize) {
-          batches.push(videos.slice(i, i + batchSize));
-        }
-
-        // Process each batch one by one
-        for (const batch of batches) {
-          const downloadPromises = batch.map(async (video: any) => {
-            try {
-              const url = new URL(video.video);
-              url.hostname = `${url.hostname.split('.')[0]}.s3-accelerate.amazonaws.com`;
-
-              // Fetch video and stream it to the ZIP progressively
-              const response = await fetch(url.toString(), { mode: 'cors' });
-
-              // Check if response.body is not null before using it
-              if (response.body) {
-                const reader = response.body.getReader();
-                const stream = new ReadableStream({
-                  start(controller) {
-                    function push() {
-                      reader.read().then(({ done, value }) => {
-                        if (done) {
-                          controller.close();
-                          return;
-                        }
-                        controller.enqueue(value);
-                        push();
-                      });
-                    }
-                    push();
-                  }
-                });
-
-                // Convert the stream to a Blob and add to the zip
-                const blob = await streamToBlob(stream);
-                const fileName = url.pathname.split('/').pop() || 'unnamed_video';
-                zip.file(fileName, blob);
-              } else {
-                console.error('Response body is null');
-              }
-
-            } catch (error) {
-              console.error(`Error downloading video from accelerated URL: ${video.video}`, error);
-            }
-          });
-
-          // Wait for the current batch of downloads to finish
-          await Promise.all(downloadPromises);
-        }
-      };
-
-      // Process videos in batches of 2–3 for reduced memory usage
-      await downloadInBatches(2);
-
-      // Generate the ZIP file and trigger download
-      const content = await zip.generateAsync({ type: 'blob' });
-      saveAs(content, 'videos.zip');
-    } catch (error) {
-      console.error('Error creating ZIP file:', error);
-    }
-  };
-
-  // Helper function to convert a ReadableStream to a Blob
-  function streamToBlob(stream: ReadableStream): Promise<Blob> {
-    const chunks: Uint8Array[] = [];
-    const reader = stream.getReader();
-
-    return new Promise((resolve, reject) => {
-      function read() {
-        reader.read().then(({ done, value }) => {
-          if (done) {
-            resolve(new Blob(chunks));
-          } else {
-            chunks.push(value);
-            read();
-          }
-        }).catch(reject);
-      }
-      read();
-    });
-  }
-
-
-
-
-
-
-
-  const callLambdaVideo = async () => {
-    try {
-      const bucket = 'surfingram-original-video';
-
-      // Step 1: Get video URLs from the backend
-      const videoResponse = await axios.post(
-        'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
-        { video_ids: cart }
-      );
-
-      const videos: { video: string }[] = videoResponse.data;
-
-      // Step 2: Extract file names from URLs
-      const filenames = videos
-        .map((videoObj) => {
-          const videoUrl = videoObj.video;
-          const url = new URL(videoUrl);
-          return url.pathname.split('/').pop(); // Extract file name
-        })
-        .filter((filename): filename is string => filename !== undefined); // Filter out undefined values
-
-      if (filenames.length === 0) {
-        console.error('No valid filenames were retrieved.');
-        return;
-      }
-
-      // Step 3: Construct the zip file name
-      const zipFileName = `surfpik_123.zip`;
-
-      // Step 4: Prepare query parameters
-      const params = new URLSearchParams();
-      params.append('bucket', bucket);
-      params.append('zipFileName', zipFileName);
-      filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
-
-      // Step 5: Make the GET request to Django
-      const response = await axios.get(
-        'https://oyster-app-b3323.ondigitalocean.app/invoke-lambda/',
-        { params }
-      );
-
-      // Step 6: Handle response
-      if (response.status === 200) {
-        console.log('Lambda function executed successfully:', response.data);
-
-        // Parse the body to get the actual response
-        const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
-
-        // Now you can extract the publicUrl from the parsed object
-        const { publicUrl } = body;
-        console.log(publicUrl); // Should now print the URL
-
-        handleDownload(publicUrl); // Trigger the download
-        return publicUrl; // Return the URL
-      } else {
-        console.error('Lambda function failed:', response.data);
-      }
-    } catch (error) {
-      console.error('Error calling Django view:', error);
-    }
-  };
-
-
-
-  const callLambdaWaves = async () => {
-    try {
-      const bucket = 'surfingram';
-
-      // Step 1: Get video URLs from the backend
-      const imagesResponse = await axios.post(
-        'https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/',
-        { waveIds: cart }
-      );
-      console.log(imagesResponse.data);
-
-      const images: { photo: string }[] = imagesResponse.data; // Assuming each image object has a 'photo' property
-
-      // Step 2: Extract file names from URLs
-      const filenames = images
-        .map((imageObj) => {
-          const imageUrl = imageObj.photo; // Accessing 'photo' inside each image object
-          console.log('Extracting file name from URL:', imageUrl); // Log the image URL
-
-          const url = new URL(imageUrl);
-          const fileName = url.pathname.split('/').pop(); // Extract file name
-          console.log('Extracted file name:', fileName); // Log the extracted file name
-
-          return fileName;
-        })
-        .filter((filename): filename is string => filename !== undefined); // Filter out undefined values
-
-      console.log('Final list of file names:', filenames); // Log the final list of file names
-      if (filenames.length === 0) {
-        console.error('No valid filenames were retrieved.');
-        return;
-      }
-
-      // Step 3: Construct the zip file name
-      const zipFileName = `surfpik_123.zip`;
-
-      // Step 4: Prepare query parameters
-      const params = new URLSearchParams();
-      params.append('bucket', bucket);
-      params.append('zipFileName', zipFileName);
-      filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
-
-      // Step 5: Make the GET request to Django
-      const response = await axios.get(
-        'https://oyster-app-b3323.ondigitalocean.app/invoke-lambda/',
-        { params }
-      );
-
-      // Step 6: Handle response
-      if (response.status === 200) {
-        console.log('Lambda function executed successfully:', response.data);
-
-        // Parse the body to get the actual response
-        const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
-
-        // Now you can extract the publicUrl from the parsed object
-        const { publicUrl } = body;
-        console.log(publicUrl); // Should now print the URL
-
-        handleDownload(publicUrl); // Trigger the download
-        return publicUrl; // Return the URL
-      } else {
-        console.error('Lambda function failed:', response.data);
-      }
-    } catch (error) {
-      console.error('Error calling Django view:', error);
-    }
-  };
-
-
-
-  const callLambdaSingleImages = async () => {
-    try {
-      const bucket = 'surfingram';
-
-      // Step 1: Get video URLs from the backend
-      const imagesResponse = await axios.post(
-        'https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/',
-        { waveIds: cart }
-      );
-
-      const images: { images: string }[] = imagesResponse.data;
-
-      // Step 2: Extract file names from URLs
-      const filenames = images
-        .map((imagesObj) => {
-          const imagesUrl = imagesObj.images;
-          const url = new URL(imagesUrl);
-          return url.pathname.split('/').pop(); // Extract file name
-        })
-        .filter((filename): filename is string => filename !== undefined); // Filter out undefined values
-
-      if (filenames.length === 0) {
-        console.error('No valid filenames were retrieved.');
-        return;
-      }
-
-      // Step 3: Construct the zip file name
-      const zipFileName = `surfpik_123.zip`;
-
-      // Step 4: Prepare query parameters
-      const params = new URLSearchParams();
-      params.append('bucket', bucket);
-      params.append('zipFileName', zipFileName);
-      filenames.forEach((filename) => params.append('filenames', filename)); // Safe now
-
-      // Step 5: Make the GET request to Django
-      const response = await axios.get(
-        'https://oyster-app-b3323.ondigitalocean.app/invoke-lambda/',
-        { params }
-      );
-
-      // Step 6: Handle response
-      if (response.status === 200) {
-        console.log('Lambda function executed successfully:', response.data);
-
-        // Parse the body to get the actual response
-        const body = JSON.parse(response.data.body);  // Parse the JSON string in the body
-
-        // Now you can extract the publicUrl from the parsed object
-        const { publicUrl } = body;
-        console.log(publicUrl); // Should now print the URL
-
-        handleDownload(publicUrl); // Trigger the download
-        return publicUrl; // Return the URL
-      } else {
-        console.error('Lambda function failed:', response.data);
-      }
-    } catch (error) {
-      console.error('Error calling Django view:', error);
-    }
-  };
-
-
-
-
-
-  const handleDownload = (url: any) => {
-    const fileUrl = url;
-    const fileName = 'Surfpik.zip'; // Set the desired file name
-
-    // Create an anchor element to trigger the download
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = fileName;
-
-    // Append the link to the body (for Safari mobile compatibility)
-    document.body.appendChild(link);
-
-    // Trigger the click event to start download
-    link.click();
-
-    // Clean up the DOM
-    document.body.removeChild(link);
-  };
-
-
-
-
 
 
 
@@ -806,7 +227,7 @@ const Cart: React.FC = () => {
             <h2>{cartTotalItems} Videos, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
 
-          <Button variant="contained" color="primary" onClick={handleIsConnected}>
+          <Button variant="contained" color="primary" onClick={handleEmail}>
             continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
@@ -835,7 +256,7 @@ const Cart: React.FC = () => {
           <div>
             <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
-          <Button variant="contained" color="primary" onClick={handleIsConnected}>
+          <Button variant="contained" color="primary" onClick={handleEmail}>
             continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
@@ -865,7 +286,7 @@ const Cart: React.FC = () => {
           <div>
             <h2>{cartTotalItems} Images, Total Price: ${cartTotalPrice.toFixed(1)} </h2>
           </div>
-          <Button variant="contained" color="primary" onClick={handleIsConnected}>
+          <Button variant="contained" color="primary" onClick={handleEmail}>
             continue to checkout <ShoppingCartCheckoutIcon></ShoppingCartCheckoutIcon>
           </Button>
 
@@ -886,36 +307,6 @@ const Cart: React.FC = () => {
 
 
 
-      <Button
-        variant="contained"
-        sx={{
-          marginTop: 2,
-          backgroundColor: teal[400],
-          '&:hover': {
-            backgroundColor: teal[600],
-          },
-        }}
-        onClick={() => {
-          if (cartType === 'videos') {
-            callLambdaVideo(); // Call the video Lambda function
-          } else if (cartType === 'waves') {
-            callLambdaWaves(); // Call the waves Lambda function
-          } else if (cartType === 'singleImages') {
-            callLambdaSingleImages(); // Call the single images Lambda function
-          }
-        }}
-      >
-        Download
-      </Button>
-
-
-
-
-
-
-
-
-
 
       {cartType === null && (
         <div>
@@ -923,6 +314,24 @@ const Cart: React.FC = () => {
         </div>
 
       )}
+
+
+
+
+      <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="lg"
+        PaperProps={{
+          style: {
+            backgroundColor: "#FFEEAD",
+            width: isMobile ? '100%' : '50%',
+            margin: 'auto', // centers the dialog
+          }
+        }}>
+
+        <DialogContent >
+          <EmailForPayment />
+        </DialogContent>
+      </Dialog>
+
 
 
 

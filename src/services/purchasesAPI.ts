@@ -16,7 +16,10 @@ export const createPurchaseItem = async (purchaseItemData: { PurchaseId: number,
 
 
 
-
+// New function for creating a purchase with images
+export const createPurchaseNew = async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string ,photographer_name: string, surfer_name: string, user_email: string, type: string ,  filenames: string[] }) => {
+  return await axios.post(`${API_BASE_URL}/create-purchase/`, purchaseData);
+};
 
 
 // New function for creating a purchase with images
