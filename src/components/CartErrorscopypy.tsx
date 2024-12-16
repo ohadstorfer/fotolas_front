@@ -239,12 +239,13 @@ const Cart: React.FC = () => {
     dispatch(setCopyCart())
     try {
       console.log('Sending request to create checkout session with the following data:', {
+        purchase_id: purchaseID,
         product_name: cartType,
         amount: cartTotalPrice, // Amount in cents
         currency: 'usd',
         quantity: cartTotalItems,
         connected_account_id: sessAlbumOfCart?.photographer_stripe_account_id,
-        purchase_id: purchaseID,
+        
       });
 
 

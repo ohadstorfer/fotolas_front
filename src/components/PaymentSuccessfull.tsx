@@ -111,6 +111,8 @@ const PaymentSuccessfull = () => {
 
 
   const Downloading = async () => {
+    console.log("dodododo");
+    
     try {
       if (cartTypeCopy === 'singleImages') {
         console.log('Downloading single images...');
