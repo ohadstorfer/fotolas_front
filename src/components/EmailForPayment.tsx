@@ -57,11 +57,11 @@ export default function EmailForPayment() {
 
 
 
-  useEffect(() => {
-    if (isLoggedIn222) {
-      navigate('/CartErrors');
-    }
-  }, [isLoggedIn222]);
+  // useEffect(() => {
+  //   if (isLoggedIn222) {
+  //     navigate('/CartErrors');
+  //   }
+  // }, [isLoggedIn222]);
 
 
 

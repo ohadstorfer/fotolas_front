@@ -146,12 +146,17 @@ const Cart: React.FC = () => {
 
 
   useEffect(() => {
+    console.log("useEffect triggered with email:", email);
+  
     const createPurchase = async () => {
-      if (!email) return;
+      if (!email) {
+        console.log("Email is missing, aborting...");
+        return;
+      }
   
       const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
       const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
-      const photographer_id = sessAlbumOfCart!.photographer; // Assuming all items are from the same photographer
+      const photographer_id = sessAlbumOfCart!.photographer;
       const total_price = cartTotalPrice;
       const total_item_quantity = cartTotalItems;
       const session_album_id = sessAlbumOfCart!.id;
@@ -159,32 +164,39 @@ const Cart: React.FC = () => {
       const spot_name = sessAlbumOfCart!.spot_name;
       const photographer_name = sessAlbumOfCart!.photographer_name;
       const type = cartType;
-      const user_email = email;
+      const user_email = email.email;
       let filenames: string[] = [];
   
       try {
-        // Get filenames based on cart type
-        if (cartType === 'video') {
+        console.log("Cart type:", cartType);
+        console.log("Cart content:", cart);
+  
+        if (cartType === 'videos') {
+          console.log("Fetching videos...");
           const videoResponse = await axios.post(
             'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
             { video_ids: cart }
           );
           filenames = videoResponse.data.map((video: { video: string }) => video.video);
+          console.log("Fetched videos:", filenames);
         } else if (cartType === 'waves') {
+          console.log("Fetching wave images...");
           const imagesResponse = await axios.post(
             'https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/',
             { waveIds: cart }
           );
           filenames = imagesResponse.data;
+          console.log("Fetched wave images:", filenames);
         } else if (cartType === 'singleImages') {
+          console.log("Fetching single images...");
           const imagesResponse = await axios.post(
             'https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/',
             { image_ids: cart }
           );
           filenames = imagesResponse.data;
+          console.log("Fetched single images:", filenames);
         }
   
-        // Construct the purchase data (exclude zipFileName)
         const purchaseData = {
           photographer_id,
           surfer_id,
@@ -201,8 +213,6 @@ const Cart: React.FC = () => {
         };
   
         console.log('Creating purchase with data:', purchaseData);
-  
-        // Dispatch the purchase creation
         await dispatch(createPurchaseNewAsync(purchaseData));
       } catch (error) {
         console.error('Error creating purchase:', error);
@@ -413,8 +423,6 @@ const Cart: React.FC = () => {
           <EmailForPayment />
         </DialogContent>
       </Dialog>
-
-
 
 
     </div>
