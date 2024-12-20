@@ -57,19 +57,19 @@ const PaymentSuccessfull = () => {
     
 
     // Call the appropriate purchase function based on cartType
-    if (cartType === 'singleImages') {
-      console.log("handlePurchaseForImages");
-      handlePurchaseForImages();
-      // callLambdaSingleImages();
-    } else if (cartType === 'videos') {
-      console.log("handlePurchaseForVideos");
-      handlePurchaseForVideos();
-      // callLambdaVideo();
-    } else if (cartType === 'waves') {
-      console.log("handlePurchaseForWaves");
-      handlePurchaseForWaves();
-      // callLambdaWaves();
-    }
+    // if (cartType === 'singleImages') {
+    //   console.log("handlePurchaseForImages");
+    //   handlePurchaseForImages();
+    //   // callLambdaSingleImages();
+    // } else if (cartType === 'videos') {
+    //   console.log("handlePurchaseForVideos");
+    //   handlePurchaseForVideos();
+    //   // callLambdaVideo();
+    // } else if (cartType === 'waves') {
+    //   console.log("handlePurchaseForWaves");
+    //   handlePurchaseForWaves();
+    //   // callLambdaWaves();
+    // }
 
     // Once the cart has been copied and processed, set the flag to true
     setIsCartCopied(true); // Set this flag to notify the second useEffect
@@ -92,18 +92,18 @@ const PaymentSuccessfull = () => {
 
 
 
-  useEffect(() => {
-    if (purchaseID) {
-      console.log("purchaseID" + purchaseID);
-      if (cartTypeCopy === 'singleImages') {
-        callLambdaSingleImages();
-      } else if (cartTypeCopy === 'videos') {
-        callLambdaVideo();
-      } else if (cartTypeCopy === 'waves') {
-        callLambdaWaves();
-      }
-    }
-  }, [purchaseID]);
+  // useEffect(() => {
+  //   if (purchaseID) {
+  //     console.log("purchaseID" + purchaseID);
+  //     if (cartTypeCopy === 'singleImages') {
+  //       callLambdaSingleImages();
+  //     } else if (cartTypeCopy === 'videos') {
+  //       callLambdaVideo();
+  //     } else if (cartTypeCopy === 'waves') {
+  //       callLambdaWaves();
+  //     }
+  //   }
+  // }, [purchaseID]);
 
 
 
