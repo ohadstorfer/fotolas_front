@@ -177,24 +177,33 @@ const Cart: React.FC = () => {
             'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
             { video_ids: cart }
           );
-          filenames = videoResponse.data.map((video: { video: string }) => video.video);
-          console.log("Fetched videos:", filenames);
+          filenames = videoResponse.data.map((video: { video: string }) => {
+            const urlParts = video.video.split('/');
+            return urlParts[urlParts.length - 1]; // Extract the file name from the URL
+          });
+          console.log("Fetched video filenames:", filenames);
         } else if (cartType === 'waves') {
           console.log("Fetching wave images...");
           const imagesResponse = await axios.post(
             'https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/',
             { waveIds: cart }
           );
-          filenames = imagesResponse.data;
-          console.log("Fetched wave images:", filenames);
+          filenames = imagesResponse.data.map((image: string) => {
+            const urlParts = image.split('/');
+            return urlParts[urlParts.length - 1]; // Extract the file name from the URL
+          });
+          console.log("Fetched wave image filenames:", filenames);
         } else if (cartType === 'singleImages') {
           console.log("Fetching single images...");
           const imagesResponse = await axios.post(
             'https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/',
             { image_ids: cart }
           );
-          filenames = imagesResponse.data;
-          console.log("Fetched single images:", filenames);
+          filenames = imagesResponse.data.map((image: string) => {
+            const urlParts = image.split('/');
+            return urlParts[urlParts.length - 1]; // Extract the file name from the URL
+          });
+          console.log("Fetched single image filenames:", filenames);
         }
   
         const purchaseData = {
