@@ -1,13 +1,8 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Button, Typography, useMediaQuery } from '@mui/material';
 import { teal } from '@mui/material/colors';
-import Stepper from '@mui/joy/Stepper';
-import Step from '@mui/joy/Step';
-import StepIndicator from '@mui/joy/StepIndicator';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useAppDispatch } from '../app/hooks';
 import { removeNewPrices, removeNewSess, selectNewSess } from '../slicers/sessAlbumSlice';
 import { Alert, Box, CircularProgress } from '@mui/joy';
@@ -17,11 +12,8 @@ import axios from 'axios';
 import { clearCart, selectCart, selectCartOfWaves, selectCopyCart, selectCopyCartType, selectSessAlbumOfCart, setCopyCart } from '../slicers/cartSlice';
 import { createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync, selectEmail, selectPurchaseID } from '../slicers/purchaseSlice';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
 import { Dialog, DialogActions, DialogContent, DialogContentText, } from '@mui/material';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+
 
 
 

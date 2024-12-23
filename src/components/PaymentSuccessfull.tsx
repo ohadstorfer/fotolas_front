@@ -23,20 +23,14 @@ const PaymentSuccessfull = () => {
   const dispatch = useAppDispatch();
   
 
-  const fileUrl = `https://surfingram-purchases.s3.us-east-2.amazonaws.com/surfpik_${purchaseID}.zip`;
-  console.log(`https://surfingram-purchases.s3.us-east-2.amazonaws.com/surfpik_${purchaseID}.zip`);
-  
-
 
 
   // Periodically check if the file exists
   useEffect(() => {
-    
     const interval = setInterval(async () => {
       try {
         console.log("Performing a HEAD request");
-        
-        const response = await axios.head(fileUrl); // Perform a HEAD request
+        const response = await axios.head(`https://surfingram-purchases.s3.us-east-2.amazonaws.com/surfpik_${purchaseID}.zip`); // Perform a HEAD request
         if (response.status === 200) {
           console.log("response.status === 200");
           setFileExists(true);
@@ -54,20 +48,13 @@ const PaymentSuccessfull = () => {
     }, 5000); // Check every 5 seconds
 
     return () => clearInterval(interval); // Cleanup interval on unmount
-  }, [fileUrl]);
+  }, [dispatch, purchaseID]);
 
 
 
 
 
 
-
-  useEffect(() => {
-    if(fileExists){
-      dispatch(clearEmail())
-      dispatch(clearPurchaseID())
-    }
-  }, [fileExists, dispatch]);
 
 
 
@@ -76,7 +63,7 @@ const PaymentSuccessfull = () => {
 
   const handleDownload = async () => {
     try {
-      const response = await axios.get(fileUrl, { responseType: 'blob' }); // Download the file
+      const response = await axios.get(`https://surfingram-purchases.s3.us-east-2.amazonaws.com/surfpik_${purchaseID}.zip`, { responseType: 'blob' }); // Download the file
       const blob = new Blob([response.data], { type: 'application/zip' });
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
