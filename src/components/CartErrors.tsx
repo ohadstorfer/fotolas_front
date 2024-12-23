@@ -154,8 +154,10 @@ const Cart: React.FC = () => {
         return;
       }
   
-      const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
-      const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
+      // const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
+      // const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
+      const surfer_id = null;
+      const surfer_name = null;
       const photographer_id = sessAlbumOfCart!.photographer;
       const total_price = cartTotalPrice;
       const total_item_quantity = cartTotalItems;

@@ -60,8 +60,8 @@ const initialState: PurchaseState = {
 
 
 export const createPurchaseNewAsync = createAsyncThunk(
-  'purchase/createPurchaseNewAsync',
-  async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string ,photographer_name: string, surfer_name: string, user_email: string, type: string ,  filenames: string[] }) => {
+  'purchase/create',
+  async (purchaseData: { photographer_id: number, surfer_id: any, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string ,photographer_name: string, surfer_name: any , user_email: string, type: string ,  filenames: string[] }) => {
     const response = await createPurchaseNew(purchaseData);
     return response.data;
   }
@@ -72,7 +72,7 @@ export const createPurchaseNewAsync = createAsyncThunk(
 
 export const createPurchaseWithImagesAsync = createAsyncThunk(
   'purchase/createWithImages',
-  async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string ,photographer_name: string, surfer_name: string,  image_ids: number[] }) => {
+  async (purchaseData: { photographer_id: number, surfer_id: any, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string ,photographer_name: string, surfer_name: any,  image_ids: number[] }) => {
     const response = await createPurchaseWithImages(purchaseData);
     return response.data;
   }
@@ -80,7 +80,7 @@ export const createPurchaseWithImagesAsync = createAsyncThunk(
 
 export const createPurchaseWithVideosAsync = createAsyncThunk(
   'purchase/createWithVideos',
-  async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string, photographer_name: string, surfer_name: string, video_ids: number[] }) => {
+  async (purchaseData: { photographer_id: number, surfer_id: any, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string, photographer_name: string, surfer_name: any, video_ids: number[] }) => {
     console.log(purchaseData.video_ids);
     
     const response = await createPurchaseWithVideos(purchaseData);
@@ -90,7 +90,7 @@ export const createPurchaseWithVideosAsync = createAsyncThunk(
 
 export const createPurchaseWithWavesAsync = createAsyncThunk(
   'purchase/createWithWaves',
-  async (purchaseData: { photographer_id: number, surfer_id: number, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string, photographer_name: string, surfer_name: string, wave_ids: number[] }) => {
+  async (purchaseData: { photographer_id: number, surfer_id: any, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string, photographer_name: string, surfer_name: any, wave_ids: number[] }) => {
     console.log("slicerinng");
     const response = await createPurchaseWithWaves(purchaseData);
     return response.data;
