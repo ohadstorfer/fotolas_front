@@ -39,11 +39,13 @@ interface purchaseItem {
 
 
 const initialEmail = sessionStorage.getItem('email');
+const initialPurchaseID = sessionStorage.getItem('purchaseID');
+
 
 const initialState: PurchaseState = {
   purchaseCreated: false,
   purchaseItemCreated: false,
-  purchaseID: null,
+  purchaseID: initialPurchaseID ? JSON.parse(initialPurchaseID) : null,
   email: initialEmail ? JSON.parse(initialEmail) : null,
   photographerPurchases: [],
   // surferPurchases: {},
@@ -154,6 +156,14 @@ const purchaseSlice = createSlice({
       console.log(state.email);
       
     },
+    clearEmail: (state) => {
+      state.email = null;
+      sessionStorage.removeItem('email');
+    },
+    clearPurchaseID: (state) => {
+      state.purchaseID = null;
+      sessionStorage.removeItem('purchaseID');
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -165,6 +175,7 @@ const purchaseSlice = createSlice({
         console.log("purchaseID from slicer: " + action.payload.id);
         
         state.purchaseID = action.payload.id;
+        sessionStorage.setItem('purchaseID', JSON.stringify(state.purchaseID));
         state.error = null;
       })
       .addCase(createPurchaseAsync.rejected, (state, action) => {
@@ -187,6 +198,7 @@ const purchaseSlice = createSlice({
         state.purchaseCreated = true;
         console.log("purchaseID from slicer: " + action.payload.id);
         state.purchaseID = action.payload.id;
+        sessionStorage.setItem('purchaseID', JSON.stringify(state.purchaseID));
         state.error = null;
       })
       .addCase(createPurchaseNewAsync.rejected, (state, action) => {
@@ -199,6 +211,7 @@ const purchaseSlice = createSlice({
         state.purchaseCreated = true;
         console.log("purchaseID from slicer: " + action.payload.id);
         state.purchaseID = action.payload.id;
+        sessionStorage.setItem('purchaseID', JSON.stringify(state.purchaseID));
         state.error = null;
       })
       .addCase(createPurchaseWithImagesAsync.rejected, (state, action) => {
@@ -211,6 +224,7 @@ const purchaseSlice = createSlice({
         state.purchaseCreated = true;
         console.log("purchaseID from slicer: " + action.payload.id);
         state.purchaseID = action.payload.id;
+        sessionStorage.setItem('purchaseID', JSON.stringify(state.purchaseID));
         state.error = null;
       })
       .addCase(createPurchaseWithWavesAsync.rejected, (state, action) => {
@@ -223,6 +237,7 @@ const purchaseSlice = createSlice({
         state.purchaseCreated = true;
         console.log("purchaseID from slicer: " + action.payload.id);
         state.purchaseID = action.payload.id;
+        sessionStorage.setItem('purchaseID', JSON.stringify(state.purchaseID));
         state.error = null;
       })
       .addCase(createPurchaseWithVideosAsync.rejected, (state, action) => {
@@ -257,7 +272,7 @@ const purchaseSlice = createSlice({
 
 
 
-export const {setEmail} = purchaseSlice.actions;
+export const {setEmail, clearEmail, clearPurchaseID} = purchaseSlice.actions;
 
 
 
