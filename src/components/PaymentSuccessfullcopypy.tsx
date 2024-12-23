@@ -26,17 +26,21 @@ const PaymentSuccessfull = () => {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
+        console.log("Performing a HEAD request");
+        
         const response = await axios.head(fileUrl); // Perform a HEAD request
         if (response.status === 200) {
+          console.log("response.status === 200");
           setFileExists(true);
           setIsChecking(false);
           clearInterval(interval); // Stop checking once the file is found
         }
       } catch (err) {
+        console.log("error");
         if (axios.isAxiosError(err) && err.response?.status !== 404) {
           setError('An error occurred while checking the file.');
-          setIsChecking(false);
-          clearInterval(interval); // Stop checking on error
+          // setIsChecking(false);
+          // clearInterval(interval);
         }
       }
     }, 5000); // Check every 5 seconds
