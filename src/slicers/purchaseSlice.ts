@@ -60,7 +60,7 @@ const initialState: PurchaseState = {
 
 
 export const createPurchaseNewAsync = createAsyncThunk(
-  'purchase/create',
+  'purchase/createPurchaseNew',
   async (purchaseData: { photographer_id: number, surfer_id: any, total_price: number, total_item_quantity: number, session_album_id: number | null, sessDate:Date, spot_name: string ,photographer_name: string, surfer_name: any , user_email: string, type: string ,  filenames: string[] }) => {
     const response = await createPurchaseNew(purchaseData);
     return response.data;
