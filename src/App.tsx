@@ -75,6 +75,7 @@ import CartErrorscopy from './components/CartErrorscopy';
 import PaymentSuccessfullcopy from './components/PaymentSuccessfullcopy';
 import EmailForPayment from './components/EmailForPayment';
 import CartErrorscopypy from './components/CartErrorscopypy';
+import PaymentSuccessfullcopypy from './components/PaymentSuccessfullcopypy';
 
 
 
@@ -118,6 +119,8 @@ function App() {
         <Route path="/PaymentSuccessfullcopy" element={<PaymentSuccessfullcopy />} />
         <Route path="/EmailForPayment" element={<EmailForPayment />} />
         <Route path="/CartErrorscopypy" element={<CartErrorscopypy />} />
+        <Route path="/PaymentSuccessfullcopypy" element={<PaymentSuccessfullcopypy />} />
+        
         
         
 
