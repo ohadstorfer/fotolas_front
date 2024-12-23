@@ -462,3 +462,12 @@ const handlePurchaseForWaves = async () => {
 };
 
 export default Cart;
+
+
+
+
+
+
+
+
+

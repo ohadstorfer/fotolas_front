@@ -25,7 +25,7 @@ import Button from '@mui/material/Button';
 import { selectCart, calculatePriceForImages, calculatePriceForWaves, removeCartType, removeFromCart_singleImages, removeFromCart_waves, removeSessAlbumOfCart, removeFromCart_videos, selectCartOfVideos, selectCartOfSingleImages, selectSessAlbumOfCart, selectWavesInCart, selectCartOfWaves, fetchPricesBySessionAlbumId, fetchPricesForVideosBySessionAlbumId, setCopyCart } from '../slicers/cartSlice';
 import { selectImg, selectVideos } from '../slicers/ImagesSlice';
 import { AspectRatio } from '@mui/joy';
-import { createPurchaseAsync, createPurchaseItemAsync, createPurchaseNewAsync, createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync, selectEmail, selectPurchaseID, setEmail } from '../slicers/purchaseSlice';
+import { createPurchaseAsync, createPurchaseItemAsync, createPurchaseWithImagesAsync, createPurchaseWithVideosAsync, createPurchaseWithWavesAsync, selectEmail, setEmail } from '../slicers/purchaseSlice';
 import Video from './Video';
 import VideosInCart from './VideosInCart';
 import UndividedImgsInCart from './UndividedImgsInCart';
@@ -38,6 +38,16 @@ import { selectSpanish, selectToken } from '../slicers/sighnInSlice';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import {  Dialog, DialogContent, useMediaQuery } from '@mui/material';
 import EmailForPayment from './EmailForPayment';
+
+
+
+
+
+// this component is the original cart. without saving email and aouto sending email after purchase.
+
+
+
+
 
 
 const Cart: React.FC = () => {
@@ -63,7 +73,6 @@ const Cart: React.FC = () => {
   const email = useSelector(selectEmail)
   const isMobile = useMediaQuery('(max-width:600px)');
   const [openDialog, setOpenDialog] = useState(false);
-  const purchaseID = useSelector(selectPurchaseID);
 
 
 
@@ -126,196 +135,18 @@ const Cart: React.FC = () => {
 
 
 
-  // useEffect(() => {
-  //   // Check if cart is empty and remove sessionAlbum from sessionStorage
-  //   if (email) {
-  //     handleCheckout()
-  //   }
-  // }, [email]);
-
-
-
   useEffect(() => {
-    if (purchaseID) {
+    // Check if cart is empty and remove sessionAlbum from sessionStorage
+    if (email) {
       handleCheckout()
     }
-  }, [purchaseID]);
-
-
-
-
-
-  useEffect(() => {
-    console.log("useEffect triggered with email:", email);
-  
-    const createPurchase = async () => {
-      if (!email) {
-        console.log("Email is missing, aborting...");
-        return;
-      }
-  
-      const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
-      const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
-      const photographer_id = sessAlbumOfCart!.photographer;
-      const total_price = cartTotalPrice;
-      const total_item_quantity = cartTotalItems;
-      const session_album_id = sessAlbumOfCart!.id;
-      const sessDate = sessAlbumOfCart!.sessDate;
-      const spot_name = sessAlbumOfCart!.spot_name;
-      const photographer_name = sessAlbumOfCart!.photographer_name;
-      const type = cartType;
-      const user_email = email.email;
-      let filenames: string[] = [];
-  
-      try {
-        console.log("Cart type:", cartType);
-        console.log("Cart content:", cart);
-  
-        if (cartType === 'videos') {
-          console.log("Fetching videos...");
-          const videoResponse = await axios.post(
-            'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
-            { video_ids: cart }
-          );
-          filenames = videoResponse.data.map((video: { video: string }) => {
-            const urlParts = video.video.split('/');
-            return urlParts[urlParts.length - 1]; // Extract the file name from the URL
-          });
-          console.log("Fetched video filenames:", filenames);
-        } else if (cartType === 'waves') {
-          console.log("Fetching wave images...");
-          const imagesResponse = await axios.post(
-            'https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/',
-            { waveIds: cart }
-          );
-          filenames = imagesResponse.data.map((image: string) => {
-            const urlParts = image.split('/');
-            return urlParts[urlParts.length - 1]; // Extract the file name from the URL
-          });
-          console.log("Fetched wave image filenames:", filenames);
-        } else if (cartType === 'singleImages') {
-          console.log("Fetching single images...");
-          const imagesResponse = await axios.post(
-            'https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/',
-            { image_ids: cart }
-          );
-          filenames = imagesResponse.data.map((image: string) => {
-            const urlParts = image.split('/');
-            return urlParts[urlParts.length - 1]; // Extract the file name from the URL
-          });
-          console.log("Fetched single image filenames:", filenames);
-        }
-  
-        const purchaseData = {
-          photographer_id,
-          surfer_id,
-          total_price,
-          total_item_quantity,
-          session_album_id,
-          sessDate,
-          spot_name,
-          photographer_name,
-          surfer_name,
-          user_email,
-          type,
-          filenames,
-        };
-  
-        console.log('Creating purchase with data:', purchaseData);
-        await dispatch(createPurchaseNewAsync(purchaseData));
-      } catch (error) {
-        console.error('Error creating purchase:', error);
-      }
-    };
-  
-    createPurchase();
   }, [email]);
 
 
 
 
-  
 
 
-  const createPurchase2 = async () => {
-    if (!email) {
-      console.log("Email is missing, aborting...");
-      return;
-    }
-
-    const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
-    const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
-    const photographer_id = sessAlbumOfCart!.photographer;
-    const total_price = cartTotalPrice;
-    const total_item_quantity = cartTotalItems;
-    const session_album_id = sessAlbumOfCart!.id;
-    const sessDate = sessAlbumOfCart!.sessDate;
-    const spot_name = sessAlbumOfCart!.spot_name;
-    const photographer_name = sessAlbumOfCart!.photographer_name;
-    const type = cartType;
-    const user_email = email.email;
-    let filenames: string[] = [];
-
-    try {
-      console.log("Cart type:", cartType);
-      console.log("Cart content:", cart);
-
-      if (cartType === 'videos') {
-        console.log("Fetching videos...");
-        const videoResponse = await axios.post(
-          'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
-          { video_ids: cart }
-        );
-        filenames = videoResponse.data.map((video: { video: string }) => {
-          const urlParts = video.video.split('/');
-          return urlParts[urlParts.length - 1]; // Extract the file name from the URL
-        });
-        console.log("Fetched video filenames:", filenames);
-      } else if (cartType === 'waves') {
-        console.log("Fetching wave images...");
-        const imagesResponse = await axios.post(
-          'https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/',
-          { waveIds: cart }
-        );
-        filenames = imagesResponse.data.map((image: string) => {
-          const urlParts = image.split('/');
-          return urlParts[urlParts.length - 1]; // Extract the file name from the URL
-        });
-        console.log("Fetched wave image filenames:", filenames);
-      } else if (cartType === 'singleImages') {
-        console.log("Fetching single images...");
-        const imagesResponse = await axios.post(
-          'https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/',
-          { image_ids: cart }
-        );
-        filenames = imagesResponse.data.map((image: string) => {
-          const urlParts = image.split('/');
-          return urlParts[urlParts.length - 1]; // Extract the file name from the URL
-        });
-        console.log("Fetched single image filenames:", filenames);
-      }
-
-      const purchaseData = {
-        photographer_id,
-        surfer_id,
-        total_price,
-        total_item_quantity,
-        session_album_id,
-        sessDate,
-        spot_name,
-        photographer_name,
-        surfer_name,
-        user_email,
-        type,
-        filenames,
-      };
-
-      console.log('Creating purchase with data:', purchaseData);
-      await dispatch(createPurchaseNewAsync(purchaseData));
-    } catch (error) {
-      console.error('Error creating purchase:', error);
-    }
-  };
  
 
 
@@ -325,20 +156,14 @@ const Cart: React.FC = () => {
 
 
   const handleCheckout = async () => {
-    if (!purchaseID) {
-      createPurchase2();  // Call createPurchase if there is no purchaseID
-      return;  // Exit the function after the purchase is created
-    }
     dispatch(setCopyCart())
     try {
       console.log('Sending request to create checkout session with the following data:', {
-        purchase_id: purchaseID,
         product_name: cartType,
         amount: cartTotalPrice, // Amount in cents
         currency: 'usd',
         quantity: cartTotalItems,
         connected_account_id: sessAlbumOfCart?.photographer_stripe_account_id,
-        
       });
 
 
@@ -354,7 +179,6 @@ const Cart: React.FC = () => {
           currency: 'usd',
           quantity: 1,
           connected_account_id: sessAlbumOfCart?.photographer_stripe_account_id,
-          purchase_id: purchaseID,
         }),
       });
 
@@ -517,6 +341,8 @@ const Cart: React.FC = () => {
           <EmailForPayment />
         </DialogContent>
       </Dialog>
+
+
 
 
     </div>
