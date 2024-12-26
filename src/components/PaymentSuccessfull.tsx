@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Button, Typography, CircularProgress, Box, Dialog, DialogActions, DialogContent, DialogContentText, useMediaQuery } from '@mui/material';
+import { Button, Typography, Box, Dialog, DialogActions, DialogContent, DialogContentText, useMediaQuery } from '@mui/material';
 import { teal } from '@mui/material/colors';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { selectSpanish } from '../slicers/sighnInSlice';
 import { clearEmail, clearPurchaseID, selectPurchaseID } from '../slicers/purchaseSlice';
-import { Alert } from '@mui/joy';
+import { Alert, CircularProgress } from '@mui/joy';
 import { useAppDispatch } from '../app/hooks';
 
 const PaymentSuccessfull = () => {
@@ -28,7 +28,12 @@ const PaymentSuccessfull = () => {
   // Periodically check if the file exists
   useEffect(() => {
     const interval = setInterval(async () => {
+      if (!purchaseID) {
+        console.log("purchaseID is null. Retrying...");
+        return; // Skip this interval iteration and retry
+      }
       try {
+        
         console.log("Performing a HEAD request");
         const response = await axios.head(`https://surfingram-purchases.s3.us-east-2.amazonaws.com/surfpik_${purchaseID}.zip`); // Perform a HEAD request
         if (response.status === 200) {
@@ -94,7 +99,7 @@ const PaymentSuccessfull = () => {
 
 
 {isChecking &&
-        <Alert
+        <><Alert
           variant="outlined"
           color="success"
           sx={{
@@ -104,11 +109,15 @@ const PaymentSuccessfull = () => {
           }}
         >
           <Typography>
-          We're sending you an email with a link to download your files. This process may take a few minutes, so thank you for your patience.
+            We're sending you an email with a link to download your files. This process may take a few minutes, so thank you for your patience.
           </Typography>
 
           <CircularProgress color="success" />
         </Alert>
+        <br></br> 
+        <Typography>
+        The email may have already been sent. Please check your inbox, including the spam or junk folder.
+          </Typography></>
       }
 
 
@@ -132,7 +141,7 @@ const PaymentSuccessfull = () => {
       }
 
 
-
+<br></br> 
 
 
 
