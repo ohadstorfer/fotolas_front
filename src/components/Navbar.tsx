@@ -24,7 +24,7 @@ import { getPhotographerByUserId, selectProfilePhotographer } from '../slicers/p
 import { useEffect, useState } from 'react';
 import { clearUser, getUserById, selectUser } from '../slicers/userSlice';
 import { clearPhotographer } from '../slicers/photographerSlice';
-import { selectSessAlbums } from '../slicers/sessAlbumSlice';
+import { clearSessAlbums, selectSessAlbums } from '../slicers/sessAlbumSlice';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { selectCartTotalItems } from '../slicers/cartSlice';
 import { selectRefreshNavbar } from '../slicers/signUpSlice';
@@ -259,6 +259,16 @@ export default function PrimarySearchAppBar() {
     , [isExpired]);
 
 
+
+    useEffect(() => {
+      if (selectedSpot) { 
+        dispatch(clearSessAlbums())
+        navigate(`/Spot/${selectedSpot.id}`); }
+      
+    }
+      , [selectedSpot]);
+
+
   const handleLogOut = () => {
     handleMenuClose();
     dispatch(clearUser());
@@ -445,7 +455,7 @@ export default function PrimarySearchAppBar() {
             options={allSpots}
             getOptionLabel={(spot) => spot.name}
             // value={selectedSpot}
-            onInputChange={(event, newInputValue) => setSearchValue(newInputValue)}
+            // onInputChange={(event, newInputValue) => setSearchValue(newInputValue)}
             renderInput={(params) => (
               <TextField
                 {...params}
