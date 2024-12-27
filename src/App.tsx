@@ -120,6 +120,8 @@ function App() {
         <Route path="/EmailForPayment" element={<EmailForPayment />} />
         <Route path="/CartErrorscopypy" element={<CartErrorscopypy />} />
         <Route path="/PaymentSuccessfullcopypy" element={<PaymentSuccessfullcopypy />} />
+        <Route path="/PleaseWorkVideosPerAlbums" element={<PleaseWorkVideosPerAlbums />} />
+        
         
         
         
