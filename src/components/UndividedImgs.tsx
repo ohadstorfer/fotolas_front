@@ -170,15 +170,17 @@ const UndividedImgs: React.FC = () => {
 
 
 
-<Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-    <CustomPagination
-      count={total_pages_Videos!}
-      page={currentPage}
-      onChange={handlePageChange}
-      variant="outlined"
-      color="primary"
-    />
-  </Box>
+{total_pages_Videos! > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <CustomPagination
+            count={total_pages_Videos!}
+            page={currentPage}
+            onChange={handlePageChange}
+            variant="outlined"
+          />
+        </Box>
+      )}
+
 
 
 
@@ -282,15 +284,17 @@ const UndividedImgs: React.FC = () => {
 
 
 
-<Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-    <CustomPagination
-      count={total_pages_Videos!}
-      page={currentPage}
-      onChange={handlePageChange}
-      variant="outlined"
-      color="primary"
-    />
-  </Box>
+{total_pages_Videos! > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <CustomPagination
+            count={total_pages_Videos!}
+            page={currentPage}
+            onChange={handlePageChange}
+            variant="outlined"
+          />
+        </Box>
+      )}
+
 
 
   

@@ -254,7 +254,7 @@ const PerAlbum: React.FC = () => {
       </Box>
 
 
-
+      {total_pages! > 1 && (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
         <CustomPagination
           count={total_pages!}
@@ -263,6 +263,7 @@ const PerAlbum: React.FC = () => {
           variant="outlined"
         />
       </Box>
+      )}
 
 
 
@@ -344,6 +345,7 @@ const PerAlbum: React.FC = () => {
 
 
 
+      {total_pages! > 1 && (
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
         <CustomPagination
           count={total_pages!}
@@ -352,6 +354,7 @@ const PerAlbum: React.FC = () => {
           variant="outlined"
         />
       </Box>
+      )}
 
 
 

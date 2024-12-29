@@ -143,55 +143,57 @@ const Video: React.FC = () => {
   return (
     <div>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <SessAlbumDetails />
+        <SessAlbumDetails />
 
 
-      <Button
-    variant="text"
-    sx={{
-      margin: '5px 0',
-      fontSize: '0.9rem',
-      color: teal[400],
-      borderRadius: '8px',
-      cursor: 'pointer',
-      '&:hover': {
-        backgroundColor: teal[400],
-        color: 'white',
-      },
-    }}
-    onClick={handleNavigateHome}
-  >
-    <ArrowBackIosIcon fontSize="small" /> {spanish ? 'Ir a la página principal' : 'Back to Homepage'}
-  </Button>
+        <Button
+          variant="text"
+          sx={{
+            margin: '5px 0',
+            fontSize: '0.9rem',
+            color: teal[400],
+            borderRadius: '8px',
+            cursor: 'pointer',
+            '&:hover': {
+              backgroundColor: teal[400],
+              color: 'white',
+            },
+          }}
+          onClick={handleNavigateHome}
+        >
+          <ArrowBackIosIcon fontSize="small" /> {spanish ? 'Ir a la página principal' : 'Back to Homepage'}
+        </Button>
 
-      {Prices && (
-        <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
-          <Typography>
-            Price Details:
-          </Typography>
-          <Typography>
-            For 1-3 videos: {Prices.price_1_to_3} $
-          </Typography>
-          <Typography>
-            For 4-15 videos: {Prices.price_4_to_15} $
-          </Typography>
-          <Typography>
-            For 15+ videos: {Prices.price_16_plus} $
-          </Typography>
+        {Prices && (
+          <Box sx={{ padding: '5px', borderRadius: '8px', margin: '5px' }}>
+            <Typography>
+              Price Details:
+            </Typography>
+            <Typography>
+              For 1-3 videos: {Prices.price_1_to_3} $
+            </Typography>
+            <Typography>
+              For 4-15 videos: {Prices.price_4_to_15} $
+            </Typography>
+            <Typography>
+              For 15+ videos: {Prices.price_16_plus} $
+            </Typography>
+          </Box>
+        )}
+
+      </Box>
+
+
+      {total_pages_Videos! > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <CustomPagination
+            count={total_pages_Videos!}
+            page={currentPage}
+            onChange={handlePageChange}
+            variant="outlined"
+          />
         </Box>
       )}
-
-</Box>
-
-
-<Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-    <CustomPagination
-      count={total_pages_Videos!}
-      page={currentPage}
-      onChange={handlePageChange}
-      variant="outlined"
-    />
-  </Box>
 
 
 
@@ -273,16 +275,18 @@ const Video: React.FC = () => {
 
 
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-    <CustomPagination
-      count={total_pages_Videos!}
-      page={currentPage}
-      onChange={handlePageChange}
-      variant="outlined"
-    />
-  </Box>
+      {total_pages_Videos! > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <CustomPagination
+            count={total_pages_Videos!}
+            page={currentPage}
+            onChange={handlePageChange}
+            variant="outlined"
+          />
+        </Box>
+      )}
 
-  
+
 
 
 
