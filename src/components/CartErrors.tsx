@@ -190,8 +190,8 @@ const Cart: React.FC = () => {
             'https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/',
             { waveIds: cart }
           );
-          filenames = imagesResponse.data.map((image: string) => {
-            const urlParts = image.split('/');
+          filenames = imagesResponse.data.map((image: { photo: string }) => {
+            const urlParts = image.photo.split('/');
             return urlParts[urlParts.length - 1]; // Extract the file name from the URL
           });
           console.log("Fetched wave image filenames:", filenames);
@@ -201,8 +201,8 @@ const Cart: React.FC = () => {
             'https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/',
             { image_ids: cart }
           );
-          filenames = imagesResponse.data.map((image: string) => {
-            const urlParts = image.split('/');
+          filenames = imagesResponse.data.map((image: { photo: string }) => {
+            const urlParts = image.photo.split('/');
             return urlParts[urlParts.length - 1]; // Extract the file name from the URL
           });
           console.log("Fetched single image filenames:", filenames);
