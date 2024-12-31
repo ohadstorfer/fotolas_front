@@ -1,7 +1,7 @@
 import * as React from 'react';
 import AspectRatio from '@mui/joy/AspectRatio';
 import Box from '@mui/joy/Box';
-import Button from '@mui/joy/Button';
+import Button from '@mui/material/Button';
 import Card from '@mui/joy/Card';
 import CardContent from '@mui/joy/CardContent';
 import Typography from '@mui/joy/Typography';
@@ -16,6 +16,9 @@ import { useEffect, useState } from 'react';
 import { sessGetDataAsync } from '../slicers/sessAlbumSlice';
 import SessAlbum from './SessAlbum';
 import { useMediaQuery } from '@mui/material';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+
+
 
 export default function UserCard() {
   const dispatch = useAppDispatch();
@@ -29,7 +32,7 @@ export default function UserCard() {
   useEffect(() => {
     if (spotId) {
       dispatch(getSpotById(Number(spotId)));
-      dispatch(sessGetDataAsync({ filterType: "photographer", filterId: Number(spotId) }))
+      dispatch(sessGetDataAsync({ filterType: "spot", filterId: Number(spotId) }))
         .then(() => setLoading(false))
         .catch(() => setLoading(false));
     }
@@ -37,6 +40,10 @@ export default function UserCard() {
 
   
 
+
+  const handleNavigateHome = () => {
+    navigate('/'); // Navigate to the home page
+  };
 
 
   
@@ -95,6 +102,27 @@ export default function UserCard() {
         </CardContent>
       </Card>
     </Box>
+    
+    <br></br>
+    <Button
+          variant="text"
+          sx={{
+            margin: '5px 0',
+            fontSize: '0.9rem',
+            color: teal[400],
+            borderRadius: '8px',
+            cursor: 'pointer',
+            '&:hover': {
+              backgroundColor: teal[400],
+              color: 'white',
+            },
+          }}
+          onClick={handleNavigateHome}
+        >
+          <ArrowBackIosIcon fontSize="small" /> Back to Homepage
+        </Button>
+        <br></br>
+
     <Box>{!loading && spot?.id && <SessAlbum filterType="spot" filterId={spot.id} />}</Box></>
 
   );
