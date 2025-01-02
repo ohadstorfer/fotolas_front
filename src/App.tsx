@@ -223,10 +223,14 @@ const Root = () => {
           }}
         >
           <div>
-            {/* <EmailForPayment></EmailForPayment> */}
-            {/* <PleaseWorkVideosPerAlbums></PleaseWorkVideosPerAlbums> */}
+
              <Outlet />
 
+
+            {/* <EmailForPayment></EmailForPayment> */}
+            {/* <PleaseWorkVideosPerAlbums></PleaseWorkVideosPerAlbums> */}
+            {/* <BecomePhotographercopy></BecomePhotographercopy> */}
+            {/* <VerificationProccess></VerificationProccess> */}
             {/* <CartErrorscopy></CartErrorscopy> */}
             {/* <PaymentSuccessfull></PaymentSuccessfull> */}
             {/* <CartErrors></CartErrors> */}

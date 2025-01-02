@@ -344,8 +344,8 @@ export default function UserCard() {
 
 
   const explanationText = spanish
-    ? "Estás a punto de crear una cuenta de fotógrafo. Para ello, necesitarás proporcionar los detalles de tu cuenta bancaria para que puedas vender fotos y videos, y recibir pagos. También deberás seleccionar el país de tu cuenta bancaria."
-    : "You are about to create a photographer account. To do so, you will need to provide your bank account details so you will be able to sell photos and videos and receive payments. You will also need to select the country of your bank account.";
+    ? "Estás a punto de crear una cuenta de fotógrafo, y para ello necesitarás proporcionar los detalles de tu cuenta bancaria para que puedas vender fotos y videos, y recibir pagos. A continuación, te dejamos un sitio web que te ayudará a encontrar fácilmente el número IBAN de tu cuenta bancaria:"
+    : "You are about to create a photographer account, and to do so, you will need to provide your bank account details to sell photos and videos and receive payments. Here is a helpful website where you can easily find the IBAN number for your bank account:";
 
 
 
@@ -479,6 +479,10 @@ export default function UserCard() {
 
 
 
+
+  const handleClickIBAN = () => {
+    window.open('https://wise.com/gb/iban/el-salvador', '_blank');
+  };
 
 
 
@@ -652,11 +656,31 @@ export default function UserCard() {
         margin: '0 auto'
       }}>
         <div className="banner">
-          <h2>SurfPik</h2>
+          <h2>Surfpik</h2>
         </div>
         <div className="content">
           {/* Display the explanation */}
           <p>{explanationText}</p>
+
+
+          <Button
+            onClick={handleClickIBAN}
+            sx={{
+              marginBottom: '16px',
+              backgroundColor: teal[400],
+              color: 'white',
+              '&:hover': {
+                backgroundColor: teal[500],
+              },
+            }}
+          >
+            {spanish ? "Encuentra tu IBAN" : "Find Your IBAN"}
+
+          </Button>
+
+          <p>{spanish ? "Por favor, selecciona el país de tu banco de las opciones a continuación:" : "Please select your bank's country from the options below:"}</p>
+
+
 
           <Autocomplete
             id="country-select-demo"
@@ -827,7 +851,7 @@ export default function UserCard() {
             </div>
           )} */}
 
-          
+
         </div>
       </Box>
 

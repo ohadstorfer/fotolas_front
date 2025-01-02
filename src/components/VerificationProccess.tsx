@@ -63,6 +63,13 @@ const VerificationProccess = () => {
 
 
 
+  const handleClickIBAN = () => {
+    window.open('https://wise.com/gb/iban/el-salvador', '_blank');
+  };
+
+
+
+
   return (
     <div className="container">
 
@@ -98,6 +105,32 @@ const VerificationProccess = () => {
       >
         {spanish ? "Ir a verificar el estado de tu solicitud de verificación" : 'Go to check your verification status'}
       </Button>
+
+
+
+      
+<br></br>
+<br></br>
+
+<p>{spanish ? "Te dejamos un sitio web que te ayudará a encontrar fácilmente el número IBAN de tu cuenta bancaria:" : "Here is a helpful website where you can easily find the IBAN number for your bank account:"}</p>
+<Button
+      onClick={handleClickIBAN}
+      sx={{
+        // marginTop: '25px',
+        marginBottom: '16px',
+        backgroundColor: teal[400],
+        color: 'white',
+        '&:hover': {
+          backgroundColor: teal[500],
+        },
+      }}
+    >
+      {spanish ? "Encuentra tu IBAN" : "Find Your IBAN"}
+
+    </Button>
+
+
+
     </div>
   );
 };
