@@ -341,16 +341,37 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
 
 
     
-        {(nextPage || previousPage) && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-            <Button variant="contained" onClick={handlePreviousPage} disabled={!previousPage} sx={{ mr: 2 }}>
-              Previous
-            </Button>
-            <Button variant="contained" onClick={handleNextPage} disabled={!nextPage}>
-              Next
-            </Button>
-          </Box>
-        )}
+{(nextPage || previousPage) && (
+  <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+    <Button
+      variant="contained"
+      onClick={handlePreviousPage}
+      disabled={!previousPage}
+      sx={{
+        mr: 2,
+        bgcolor: teal[400],
+        '&:hover': {
+          bgcolor: teal[500],
+        },
+      }}
+    >
+      Previous
+    </Button>
+    <Button
+      variant="contained"
+      onClick={handleNextPage}
+      disabled={!nextPage}
+      sx={{
+        bgcolor: teal[400],
+        '&:hover': {
+          bgcolor: teal[500],
+        },
+      }}
+    >
+      Next
+    </Button>
+  </Box>
+)}
       </div></>
   );
 };

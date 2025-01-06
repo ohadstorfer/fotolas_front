@@ -34,7 +34,13 @@ const Images: React.FC = () => {
 
 
 
+  useEffect(() => {
+    if (selectedImage) {
+      console.log(imgs);
+      
 
+    }
+  }, [selectedImage]);
 
 
 
