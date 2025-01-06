@@ -39,30 +39,12 @@ const defaultTheme = createTheme({
 
 
 export default function EmailForPayment() {
-  const navigate = useNavigate();
-  const existedUseError = useSelector(selectExistedUseError);
-  const isLoggedIn222 = useSelector(selectLoggedIn);
   const dispatch = useAppDispatch();
-  const refreshNavbarbool = useSelector(selectRefreshNavbar);
-
-  // State for error messages
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false); // Loading state
-
   const [openTerms, setOpenTerms] = React.useState(false);
   const [isChecked, setIsChecked] = React.useState(false);
   const [changeToRed, setChangeToRed] = React.useState(false);
-
-
-
-
-
-  // useEffect(() => {
-  //   if (isLoggedIn222) {
-  //     navigate('/CartErrors');
-  //   }
-  // }, [isLoggedIn222]);
-
 
 
 
@@ -81,45 +63,31 @@ export default function EmailForPayment() {
 
 
 
-
-
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     if (!isChecked) {
       setChangeToRed(true);
       alert("Please agree to the terms and conditions before proceeding.");
       return;
     }
-
     const data = new FormData(event.currentTarget);
     const validationErrors = validateForm(data);
-
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-
     setLoading(true); // Set loading to true
     const credentials = {
       email: data.get("email") as string,
     };
-
     try {
       dispatch (setEmail(credentials))
-      
     } catch (error) {
       console.error('SignUp failed:', error);
     } finally {
       setLoading(false); // Reset loading state
     }
   };
-
-
-
-
-
 
 
   const handleOpenTerms = () => setOpenTerms(true);

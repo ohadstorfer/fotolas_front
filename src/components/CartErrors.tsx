@@ -36,8 +36,21 @@ import { selectUser } from '../slicers/userSlice';
 import { useNavigate } from 'react-router-dom';
 import { selectSpanish, selectToken } from '../slicers/sighnInSlice';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import {  Dialog, DialogContent, useMediaQuery } from '@mui/material';
+import {  Checkbox, CssBaseline, Dialog, DialogActions, DialogContent, FormControl, useMediaQuery } from '@mui/material';
 import EmailForPayment from './EmailForPayment';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import TextField from '@mui/material/TextField';
+import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
+import TermsForApprovment from './TermsForApprovment';
+import CircularProgress from '@mui/material/CircularProgress';
+import { store } from '../app/store';
+
+
+
+
 
 
 const Cart: React.FC = () => {
@@ -64,9 +77,14 @@ const Cart: React.FC = () => {
   const isMobile = useMediaQuery('(max-width:600px)');
   const [openDialog, setOpenDialog] = useState(false);
   const purchaseID = useSelector(selectPurchaseID);
+  const [isNewEmail, setIsNewEmail] = useState(false);
 
 
-
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState(false); // Loading state
+  const [openTerms, setOpenTerms] = React.useState(false);
+  const [isChecked, setIsChecked] = React.useState(false);
+  const [changeToRed, setChangeToRed] = React.useState(false);
 
 
 
@@ -126,17 +144,26 @@ const Cart: React.FC = () => {
 
 
 
-  // useEffect(() => {
-  //   // Check if cart is empty and remove sessionAlbum from sessionStorage
-  //   if (email) {
-  //     handleCheckout()
-  //   }
-  // }, [email]);
+  useEffect(() => {
+    const createPurchaseIfEmailIsSet = async () => {
+      if (email && isNewEmail) {
+        try {
+          await createPurchase2();
+        } catch (error) {
+          console.error("Error during purchase creation:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    createPurchaseIfEmailIsSet();
+  }, [email]);
 
 
 
   useEffect(() => {
-    if (purchaseID) {
+    if (purchaseID && isNewEmail) {
       handleCheckout()
     }
   }, [purchaseID]);
@@ -145,93 +172,93 @@ const Cart: React.FC = () => {
 
 
 
-  useEffect(() => {
-    console.log("useEffect triggered with email:", email);
+  // useEffect(() => {
+  //   console.log("useEffect triggered with email:", email);
   
-    const createPurchase = async () => {
-      if (!email) {
-        console.log("Email is missing, aborting...");
-        return;
-      }
+  //   const createPurchase = async () => {
+  //     if (!email) {
+  //       console.log("Email is missing, aborting...");
+  //       return;
+  //     }
   
-      // const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
-      // const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
-      const surfer_id = null;
-      const surfer_name = null;
-      const photographer_id = sessAlbumOfCart!.photographer;
-      const total_price = cartTotalPrice;
-      const total_item_quantity = cartTotalItems;
-      const session_album_id = sessAlbumOfCart!.id;
-      const sessDate = sessAlbumOfCart!.sessDate;
-      const spot_name = sessAlbumOfCart!.spot_name;
-      const photographer_name = sessAlbumOfCart!.photographer_name;
-      const type = cartType;
-      const user_email = email.email;
-      let filenames: string[] = [];
+  //     // const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
+  //     // const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
+  //     const surfer_id = null;
+  //     const surfer_name = null;
+  //     const photographer_id = sessAlbumOfCart!.photographer;
+  //     const total_price = cartTotalPrice;
+  //     const total_item_quantity = cartTotalItems;
+  //     const session_album_id = sessAlbumOfCart!.id;
+  //     const sessDate = sessAlbumOfCart!.sessDate;
+  //     const spot_name = sessAlbumOfCart!.spot_name;
+  //     const photographer_name = sessAlbumOfCart!.photographer_name;
+  //     const type = cartType;
+  //     const user_email = email.email;
+  //     let filenames: string[] = [];
   
-      try {
-        console.log("Cart type:", cartType);
-        console.log("Cart content:", cart);
+  //     try {
+  //       console.log("Cart type:", cartType);
+  //       console.log("Cart content:", cart);
   
-        if (cartType === 'videos') {
-          console.log("Fetching videos...");
-          const videoResponse = await axios.post(
-            'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
-            { video_ids: cart }
-          );
-          filenames = videoResponse.data.map((video: { video: string }) => {
-            const urlParts = video.video.split('/');
-            return urlParts[urlParts.length - 1]; // Extract the file name from the URL
-          });
-          console.log("Fetched video filenames:", filenames);
-        } else if (cartType === 'waves') {
-          console.log("Fetching wave images...");
-          const imagesResponse = await axios.post(
-            'https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/',
-            { waveIds: cart }
-          );
-          filenames = imagesResponse.data.map((image: { photo: string }) => {
-            const urlParts = image.photo.split('/');
-            return urlParts[urlParts.length - 1]; // Extract the file name from the URL
-          });
-          console.log("Fetched wave image filenames:", filenames);
-        } else if (cartType === 'singleImages') {
-          console.log("Fetching single images...");
-          const imagesResponse = await axios.post(
-            'https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/',
-            { image_ids: cart }
-          );
-          filenames = imagesResponse.data.map((image: { photo: string }) => {
-            const urlParts = image.photo.split('/');
-            return urlParts[urlParts.length - 1]; // Extract the file name from the URL
-          });
-          console.log("Fetched single image filenames:", filenames);
-        }
+  //       if (cartType === 'videos') {
+  //         console.log("Fetching videos...");
+  //         const videoResponse = await axios.post(
+  //           'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
+  //           { video_ids: cart }
+  //         );
+  //         filenames = videoResponse.data.map((video: { video: string }) => {
+  //           const urlParts = video.video.split('/');
+  //           return urlParts[urlParts.length - 1]; // Extract the file name from the URL
+  //         });
+  //         console.log("Fetched video filenames:", filenames);
+  //       } else if (cartType === 'waves') {
+  //         console.log("Fetching wave images...");
+  //         const imagesResponse = await axios.post(
+  //           'https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/',
+  //           { waveIds: cart }
+  //         );
+  //         filenames = imagesResponse.data.map((image: { photo: string }) => {
+  //           const urlParts = image.photo.split('/');
+  //           return urlParts[urlParts.length - 1]; // Extract the file name from the URL
+  //         });
+  //         console.log("Fetched wave image filenames:", filenames);
+  //       } else if (cartType === 'singleImages') {
+  //         console.log("Fetching single images...");
+  //         const imagesResponse = await axios.post(
+  //           'https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/',
+  //           { image_ids: cart }
+  //         );
+  //         filenames = imagesResponse.data.map((image: { photo: string }) => {
+  //           const urlParts = image.photo.split('/');
+  //           return urlParts[urlParts.length - 1]; // Extract the file name from the URL
+  //         });
+  //         console.log("Fetched single image filenames:", filenames);
+  //       }
   
-        const purchaseData = {
-          photographer_id,
-          surfer_id,
-          total_price,
-          total_item_quantity,
-          session_album_id,
-          sessDate,
-          spot_name,
-          photographer_name,
-          surfer_name,
-          user_email,
-          type,
-          filenames,
-        };
+  //       const purchaseData = {
+  //         photographer_id,
+  //         surfer_id,
+  //         total_price,
+  //         total_item_quantity,
+  //         session_album_id,
+  //         sessDate,
+  //         spot_name,
+  //         photographer_name,
+  //         surfer_name,
+  //         user_email,
+  //         type,
+  //         filenames,
+  //       };
   
-        console.log('Creating purchase with data:', purchaseData);
-        await dispatch(createPurchaseNewAsync(purchaseData));
-      } catch (error) {
-        console.error('Error creating purchase:', error);
-      }
-    };
+  //       console.log('Creating purchase with data:', purchaseData);
+  //       await dispatch(createPurchaseNewAsync(purchaseData));
+  //     } catch (error) {
+  //       console.error('Error creating purchase:', error);
+  //     }
+  //   };
   
-    createPurchase();
-  }, [email]);
+  //   createPurchase();
+  // }, [email]);
 
 
 
@@ -239,14 +266,14 @@ const Cart: React.FC = () => {
   
 
 
-  const createPurchase2 = async () => {
+  const createPurchase2 = async (): Promise<void> => {
     if (!email) {
       console.log("Email is missing, aborting...");
       return;
     }
-
-    const surfer_id = JSON.parse(localStorage.getItem('token') || '{}').id;
-    const surfer_name = JSON.parse(localStorage.getItem('token') || '{}').fullName;
+  
+    const surfer_id = JSON.parse(localStorage.getItem("token") || "{}").id;
+    const surfer_name = JSON.parse(localStorage.getItem("token") || "{}").fullName;
     const photographer_id = sessAlbumOfCart!.photographer;
     const total_price = cartTotalPrice;
     const total_item_quantity = cartTotalItems;
@@ -257,46 +284,46 @@ const Cart: React.FC = () => {
     const type = cartType;
     const user_email = email.email;
     let filenames: string[] = [];
-
+  
     try {
       console.log("Cart type:", cartType);
       console.log("Cart content:", cart);
-
-      if (cartType === 'videos') {
+  
+      if (cartType === "videos") {
         console.log("Fetching videos...");
         const videoResponse = await axios.post(
-          'https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/',
+          "https://oyster-app-b3323.ondigitalocean.app/api/get_videos_by_ids/",
           { video_ids: cart }
         );
         filenames = videoResponse.data.map((video: { video: string }) => {
-          const urlParts = video.video.split('/');
+          const urlParts = video.video.split("/");
           return urlParts[urlParts.length - 1]; // Extract the file name from the URL
         });
         console.log("Fetched video filenames:", filenames);
-      } else if (cartType === 'waves') {
+      } else if (cartType === "waves") {
         console.log("Fetching wave images...");
         const imagesResponse = await axios.post(
-          'https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/',
+          "https://oyster-app-b3323.ondigitalocean.app/api/get_images_for_multiple_waves/",
           { waveIds: cart }
         );
-        filenames = imagesResponse.data.map((image: string) => {
-          const urlParts = image.split('/');
+        filenames = imagesResponse.data.map((image: { photo: string }) => {
+          const urlParts = image.photo.split("/");
           return urlParts[urlParts.length - 1]; // Extract the file name from the URL
         });
         console.log("Fetched wave image filenames:", filenames);
-      } else if (cartType === 'singleImages') {
+      } else if (cartType === "singleImages") {
         console.log("Fetching single images...");
         const imagesResponse = await axios.post(
-          'https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/',
+          "https://oyster-app-b3323.ondigitalocean.app/api/get_images_by_ids/",
           { image_ids: cart }
         );
-        filenames = imagesResponse.data.map((image: string) => {
-          const urlParts = image.split('/');
+        filenames = imagesResponse.data.map((image: { photo: string }) => {
+          const urlParts = image.photo.split("/");
           return urlParts[urlParts.length - 1]; // Extract the file name from the URL
         });
         console.log("Fetched single image filenames:", filenames);
       }
-
+  
       const purchaseData = {
         photographer_id,
         surfer_id,
@@ -311,11 +338,13 @@ const Cart: React.FC = () => {
         type,
         filenames,
       };
-
-      console.log('Creating purchase with data:', purchaseData);
-      await dispatch(createPurchaseNewAsync(purchaseData));
+  
+      console.log("Creating purchase with data:", purchaseData);
+      const result = await dispatch(createPurchaseNewAsync(purchaseData)).unwrap();
+      console.log("Purchase created:", result);
     } catch (error) {
-      console.error('Error creating purchase:', error);
+      console.error("Error creating purchase:", error);
+      throw error; // Rethrow the error to handle it in the calling function
     }
   };
  
@@ -327,53 +356,52 @@ const Cart: React.FC = () => {
 
 
   const handleCheckout = async () => {
-    if (!purchaseID) {
-      createPurchase2();  // Call createPurchase if there is no purchaseID
-      return;  // Exit the function after the purchase is created
-    }
-    dispatch(setCopyCart())
+    setIsNewEmail(false);
     try {
-      console.log('Sending request to create checkout session with the following data:', {
+      if (!purchaseID) {
+        createPurchase2();  // Call createPurchase if there is no purchaseID
+        return;  // Exit the function after the purchase is created
+      }
+      
+      dispatch(setCopyCart());
+  
+      console.log("Sending request to create checkout session with the following data:", {
         purchase_id: purchaseID,
         product_name: cartType,
         amount: cartTotalPrice, // Amount in cents
-        currency: 'usd',
+        currency: "usd",
         quantity: cartTotalItems,
         connected_account_id: sessAlbumOfCart?.photographer_stripe_account_id,
-        
       });
-
-
+  
       // Send a request to your Django endpoint to create a checkout session
-      const response = await fetch('https://oyster-app-b3323.ondigitalocean.app/api/create-checkout-session/', {
-        method: 'POST',
+      const response = await fetch("https://oyster-app-b3323.ondigitalocean.app/api/create-checkout-session/", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           product_name: cartType,
           amount: cartTotalPrice * 100, // Amount in cents, e.g., $10.00 -> 1000
-          currency: 'usd',
+          currency: "usd",
           quantity: 1,
           connected_account_id: sessAlbumOfCart?.photographer_stripe_account_id,
-          purchase_id: purchaseID,
+          purchase_id: purchaseID, // Use the updated purchaseID here
         }),
       });
-
-      const data = await response.json();
-
-      // Redirect to the Stripe Checkout URL
-      if (data.url) {
-        window.location.href = data.url;
+  
+      const result = await response.json();
+  
+      if (response.ok) {
+        console.log("Redirecting to Stripe checkout...");
+        window.location.href = result.url; // Redirect to Stripe checkout URL
       } else {
-        throw new Error('No URL returned');
+        console.error("Error creating checkout session:", result);
       }
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      alert('Failed to create checkout session.');
+      console.error("Error in handleCheckout:", error);
     }
   };
-
 
 
   const handleNavigateHome = () => {
@@ -386,6 +414,83 @@ const Cart: React.FC = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);  // Close the dialog
   };
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const validateForm = (data: FormData) => {
+    const newErrors: { [key: string]: string } = {};
+    const email = data.get("email") as string;
+    const confirmEmail = data.get("confirmEmail") as string;
+
+    if (!email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Email address is invalid";
+    if (email !== confirmEmail) newErrors.confirmEmail = "Emails must match";
+
+    return newErrors;
+  };
+
+
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!isChecked) {
+      setChangeToRed(true);
+      alert("Please agree to the terms and conditions before proceeding.");
+      return;
+    }
+    const data = new FormData(event.currentTarget);
+    const validationErrors = validateForm(data);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    setLoading(true); // Set loading to true
+    const credentials = {
+      email: data.get("email") as string,
+    };
+    try {
+      dispatch (setEmail(credentials))
+    } catch (error) {
+      console.error('SignUp failed:', error);
+    } finally {
+      setIsNewEmail(true);
+      setLoading(false); // Reset loading state
+    }
+  };
+
+  
+
+
+
+
+  const handleOpenTerms = () => setOpenTerms(true);
+  const handleCloseTerms = () => setOpenTerms(false);
+
+
+
+
+
+
+  const defaultTheme = createTheme({
+    palette: {
+      background: {
+        default: '#FFEEAD', // Set the default background color
+      }
+    },
+  });
+  
+
+
 
 
 
@@ -506,7 +611,17 @@ const Cart: React.FC = () => {
 
 
 
-      <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="lg"
+      
+
+
+
+
+
+
+      {/* {openDialog && ( */}
+
+
+<Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="lg"
         PaperProps={{
           style: {
             backgroundColor: "#FFEEAD",
@@ -516,9 +631,166 @@ const Cart: React.FC = () => {
         }}>
 
         <DialogContent >
-          <EmailForPayment />
-        </DialogContent>
-      </Dialog>
+          
+       
+
+
+
+
+      <ThemeProvider theme={defaultTheme} >
+      <Container component="main" maxWidth="xs" >
+        <CssBaseline />
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: teal[400] }}>
+            <AlternateEmailIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Email
+          </Typography>
+          <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.5 }}>
+            We need it to send you your files.
+          </Typography>
+          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  error={!!errors.email}
+                  helperText={errors.email}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="confirmEmail"
+                  label="Confirm Email Address"
+                  name="confirmEmail"
+                  autoComplete="email"
+                  error={!!errors.confirmEmail}
+                  helperText={errors.confirmEmail}
+                />
+              </Grid>
+
+
+
+
+            </Grid>
+
+
+
+
+            <Grid item xs={12}>
+              <FormControl
+                required
+              >
+                <Box
+                  sx={{
+                    mt: 2,
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Checkbox
+                    checked={isChecked}
+                    onChange={(e) => setIsChecked(e.target.checked)}
+                    sx={{
+                      color: teal[400],
+                      '&.Mui-checked': {
+                        color: teal[400],
+                      },
+                    }}
+                  />
+                  <Typography
+                    variant="body2"
+                    color={changeToRed && !loading ? "red" : "textSecondary"}
+                    onClick={handleOpenTerms}
+                    sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+                  >
+                    Please read and approve our Terms and Conditions.
+                  </Typography>
+                </Box>
+              </FormControl>
+            </Grid>
+
+
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2, backgroundColor: teal[400] }}
+              disabled={loading} // Disable button when loading
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                <>
+                  Continue to checkout <ShoppingCartCheckoutIcon />
+                </>
+              )}
+            </Button>
+            
+          </Box>
+        </Box>
+      </Container>
+    
+
+
+
+
+
+      
+
+
+
+
+
+      {openTerms && (
+        <Dialog
+          open={openTerms}
+          onClose={handleCloseTerms}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogContent>
+            <TermsForApprovment></TermsForApprovment>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseTerms} autoFocus>
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+
+
+
+
+    </ThemeProvider>
+
+
+    </DialogContent>
+    </Dialog>
+
+
+{/* )} */}
+
+
+
+
 
 
     </div>
