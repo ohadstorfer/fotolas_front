@@ -373,124 +373,156 @@ const Home = () => {
 
   let retryTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 3) => {
-    console.log(`Starting upload for ${files.length} ${urlType} files`);
+const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 3) => {
+  console.log(`Starting upload for ${files.length} ${urlType} files`);
 
+  const fetchPresignedUrls = async (): Promise<string[]> => {
+    let attempt = 0;
+    while (attempt < maxRetries) {
+      try {
+        console.log(`Attempting to fetch presigned URLs for ${urlType}, attempt ${attempt + 1}`);
+        const response = await axios.get(
+          `https://oyster-app-b3323.ondigitalocean.app/presigned_urls_for_${urlType}?num_urls=${files.length}`
+        );
+        console.log(`Successfully fetched presigned URLs for ${urlType}`);
+        return response.data.urls;
+      } catch (error) {
+        attempt++;
+        if (axios.isAxiosError(error)) {
+          if (
+            error.code === 'ECONNABORTED' ||
+            error.message === 'Network Error' ||
+            error.response?.status === 408 ||
+            error.message.includes('No \'Access-Control-Allow-Origin\' header is present') ||
+            !navigator.onLine
+          ) {
+            console.warn(`Failed to fetch presigned URLs, retrying... (attempt ${attempt}/${maxRetries})`);
+            await new Promise((resolve) => setTimeout(resolve, 100 * attempt)); // Incremental backoff
+          } else {
+            console.error(`Non-retriable error while fetching presigned URLs:`, error.message);
+            throw new Error('Failed to fetch presigned URLs due to an unexpected error.');
+          }
+        } else {
+          console.error('An unknown error occurred while fetching presigned URLs');
+          throw new Error('An unknown error occurred while fetching presigned URLs.');
+        }
+      }
+    }
+    throw new Error(`Failed to fetch presigned URLs after ${maxRetries} attempts`);
+  };
 
-    try {
-      const response = await axios.get(`https://oyster-app-b3323.ondigitalocean.app/presigned_urls_for_${urlType}?num_urls=${files.length}`);
-      const presignedUrls = response.data.urls;
-      console.log(`Received presigned URLs for ${urlType} files`);
+  try {
+    const presignedUrls = await fetchPresignedUrls();
 
-      const uploadPromises = files.map((file, index) => {
-        const url = presignedUrls[index];
-        let attempt = 0;
+    const uploadPromises = files.map((file, index) => {
+      const url = presignedUrls[index];
+      let attempt = 0;
 
-        const uploadWithRetry = async (): Promise<string> => {
-          try {
-            console.log(`Attempting to upload ${file.name} to S3 (${urlType}), attempt ${attempt + 1}`);
-            await axios.put(url, file, {
-              headers: {
-                'Content-Type': file.type,
-              },
-            });
-            console.log(`${file.name} uploaded successfully to ${urlType}`);
-            return url.split('?')[0];
-          } catch (error) {
-            if (axios.isAxiosError(error)) {
-              // Handle network errors separately
-              if (error.code === 'ECONNABORTED' || error.message === 'Network Error' ||
-                error.response?.status === 408 || !navigator.onLine) {
-                console.log('Network error occurred. Retrying...');
-                if (navigator.onLine) {
-                  attempt++;
-                }
+      const uploadWithRetry = async (): Promise<string> => {
+        try {
+          console.log(`Attempting to upload ${file.name} to S3 (${urlType}), attempt ${attempt + 1}`);
+          await axios.put(url, file, {
+            headers: {
+              'Content-Type': file.type,
+            },
+          });
+          console.log(`${file.name} uploaded successfully to ${urlType}`);
+          return url.split('?')[0];
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            if (
+              error.code === 'ECONNABORTED' ||
+              error.message === 'Network Error' ||
+              error.response?.status === 408 ||
+              !navigator.onLine
+            ) {
+              console.log('Network error occurred. Retrying...');
+              attempt++;
 
-                if (attempt >= maxRetries) {
-                  console.error(`Failed to upload ${file.name} after ${maxRetries} attempts`);
-                  throw new Error(`Failed to upload ${file.name} after ${maxRetries} attempts.`);
-                }
+              if (attempt >= maxRetries) {
+                console.error(`Failed to upload ${file.name} after ${maxRetries} attempts`);
+                throw new Error(`Failed to upload ${file.name} after ${maxRetries} attempts.`);
+              }
 
-                const delay = 100;
-                console.warn(`Retrying upload for ${file.name}, attempt ${attempt} with a delay of ${delay}ms`);
+              const delay = 100;
+              console.warn(`Retrying upload for ${file.name}, attempt ${attempt} with a delay of ${delay}ms`);
 
-                return new Promise<string>((resolve, reject) => {
-                  const retryUpload = async () => {
-                    if (navigator.onLine) {
+              return new Promise<string>((resolve, reject) => {
+                const retryUpload = async () => {
+                  if (navigator.onLine) {
+                    try {
+                      const result = await uploadWithRetry();
+                      resolve(result);
+                    } catch (err) {
+                      reject(err);
+                    }
+                  } else {
+                    console.log('User is offline, waiting for connection restoration.');
+                    setError('Network error: Waiting for connection to resume.');
+                    setNetworkError(true);
+                    clearTimeout(retryTimeout as ReturnType<typeof setTimeout>);
+
+                    const connectionRestoredListener = async () => {
+                      console.log('Connection restored, resuming upload.');
+                      setNetworkError(false);
+                      window.removeEventListener('online', connectionRestoredListener);
                       try {
                         const result = await uploadWithRetry();
                         resolve(result);
                       } catch (err) {
                         reject(err);
                       }
-                    } else {
-                      console.log('User is offline, waiting for connection restoration.');
-                      setError('Network error: Waiting for connection to resume.');
-                      setNetworkError(true);
-                      clearTimeout(retryTimeout as ReturnType<typeof setTimeout>);
+                    };
 
-                      const connectionRestoredListener = async () => {
+                    window.addEventListener('online', connectionRestoredListener);
+
+                    retryTimeout = setTimeout(() => {
+                      if (navigator.onLine) {
                         console.log('Connection restored, resuming upload.');
                         setNetworkError(false);
                         window.removeEventListener('online', connectionRestoredListener);
-                        try {
-                          const result = await uploadWithRetry();
-                          resolve(result);
-                        } catch (err) {
-                          reject(err);
-                        }
-                      };
+                        uploadWithRetry().then(resolve).catch(reject);
+                      } else {
+                        console.log('Still offline, waiting for the connection to resume.');
+                      }
+                    }, delay);
+                  }
+                };
 
-                      window.addEventListener('online', connectionRestoredListener);
-
-                      retryTimeout = setTimeout(() => {
-                        if (navigator.onLine) {
-                          console.log('Connection restored, resuming upload.');
-                          setNetworkError(false);
-                          window.removeEventListener('online', connectionRestoredListener);
-                          uploadWithRetry().then(resolve).catch(reject);
-                        } else {
-                          console.log('Still offline, waiting for the connection to resume.');
-                        }
-                      }, delay);
-                    }
-                  };
-
-                  retryUpload();
-                });
-              } else {
-                // For non-network errors, stop the upload process
-                console.error(`Non-network error encountered during upload:`, error);
-                setError('Upload failed due to an unexpected error. Please try again later.');
-                throw new Error('Stopping upload due to an unexpected error.');
-              }
-            } else if (error instanceof Error) {
-              // Handle other generic errors
-              console.error(`Unexpected error encountered during upload:`, error.message);
-              throw error;
+                retryUpload();
+              });
             } else {
-              console.error('An unknown error occurred during the upload process');
-              throw new Error('An unknown error occurred during the upload process.');
+              console.error(`Non-network error encountered during upload:`, error);
+              setError('Upload failed due to an unexpected error. Please try again later.');
+              throw new Error('Stopping upload due to an unexpected error.');
             }
+          } else if (error instanceof Error) {
+            console.error(`Unexpected error encountered during upload:`, error.message);
+            throw error;
+          } else {
+            console.error('An unknown error occurred during the upload process');
+            throw new Error('An unknown error occurred during the upload process.');
           }
-        };
+        }
+      };
 
-        return uploadWithRetry();
-      });
+      return uploadWithRetry();
+    });
 
-      const results = await Promise.all(uploadPromises);
-      console.log(`All ${urlType} files uploaded successfully`);
-      return results;
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(`Error uploading ${urlType} files:`, error.message);
-        throw error;
-      } else {
-        console.error('An unknown error occurred while uploading files');
-        throw new Error('An unknown error occurred while uploading files.');
-      }
+    const results = await Promise.all(uploadPromises);
+    console.log(`All ${urlType} files uploaded successfully`);
+    return results;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(`Error uploading ${urlType} files:`, error.message);
+      throw error;
+    } else {
+      console.error('An unknown error occurred while uploading files');
+      throw new Error('An unknown error occurred while uploading files.');
     }
-  };
+  }
+};
+
 
 
 
