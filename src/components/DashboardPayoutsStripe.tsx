@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { selectUser } from '../slicers/userSlice';
 import { Box } from '@mui/joy';
 import { useMediaQuery } from '@mui/material';
+import DashboardPhotographer from './DashboardPhotographer';
 
 const App = () => {
   // Explicitly typing state as either null or StripeConnectInstance
@@ -53,7 +54,7 @@ const App = () => {
 
   return (
 
-    <ConnectComponentsProvider connectInstance={stripeConnectInstance}>
+    <><ConnectComponentsProvider connectInstance={stripeConnectInstance}>
       <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
         <div style={{
           maxWidth: '100%',
@@ -69,6 +70,10 @@ const App = () => {
         </div>
       </div>
     </ConnectComponentsProvider>
+    
+    <br></br><br></br>
+    <DashboardPhotographer></DashboardPhotographer></>
+
 
   );
 };

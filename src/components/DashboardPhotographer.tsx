@@ -85,6 +85,11 @@ export default function PhotographerPurchases() {
       },
     }}
   />
-</Box></>
+</Box>
+
+
+
+
+</>
   );
 }
