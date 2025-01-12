@@ -66,12 +66,12 @@ const App = () => {
           backgroundColor: '#f9f9f9',
         }}>
           <ConnectBalances />
-          <ConnectPayments />
+          {/* <ConnectPayments /> */}
         </div>
       </div>
     </ConnectComponentsProvider>
     
-    <br></br><br></br>
+    <br></br>
     <DashboardPhotographer></DashboardPhotographer></>
 
 

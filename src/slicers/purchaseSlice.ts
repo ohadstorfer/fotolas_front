@@ -20,6 +20,7 @@ interface purchase {
   photographer: number;
   surfer: number;
   total_price: number;
+  netPrice: number;
   total_item_quantity: number;
   SessionAlbum: number;
   sessDate: Date;

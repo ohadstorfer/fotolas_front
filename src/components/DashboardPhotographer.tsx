@@ -34,13 +34,14 @@ export default function PhotographerPurchases() {
 
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: spanish ? 'ID' : 'ID', width: 90, align: 'center', headerAlign: 'center' },
-    { field: 'order_date', headerName: spanish ? 'Fecha de Pedido' : 'Order Date', width: 150, align: 'center', headerAlign: 'center' },
+    { field: 'sessDate', headerName: spanish ? 'Fecha de Sesión' : 'Session Date', width: 150, align: 'center', headerAlign: 'center' },
+    { field: 'spot_name', headerName: spanish ? 'Nombre del Lugar' : 'Spot Name', width: 150, align: 'center', headerAlign: 'center' },
+    { field: 'netPrice', headerName: spanish ? 'Precio Neto ($)' : 'Net Price ($)', width: 150, align: 'center', headerAlign: 'center' },
     { field: 'total_price', headerName: spanish ? 'Precio Total ($)' : 'Total Price ($)', width: 150, align: 'center', headerAlign: 'center' },
     { field: 'total_item_quantity', headerName: spanish ? 'Cantidad de Artículos' : 'Item Quantity', type: 'number', width: spanish ? 180: 110, align: 'center', headerAlign: 'center' },
-    { field: 'surfer_name', headerName: spanish ? 'Nombre del Comprador' : 'Buyer Name', width: spanish ? 180 :150, align: 'center', headerAlign: 'center' },
-    { field: 'spot_name', headerName: spanish ? 'Nombre del Lugar' : 'Spot Name', width: 150, align: 'center', headerAlign: 'center' },
-    { field: 'sessDate', headerName: spanish ? 'Fecha de Sesión' : 'Session Date', width: 150, align: 'center', headerAlign: 'center' },
+    { field: 'order_date', headerName: spanish ? 'Fecha de Pedido' : 'Order Date', width: 150, align: 'center', headerAlign: 'center' },
+    { field: 'id', headerName: spanish ? 'ID' : 'ID', width: 90, align: 'center', headerAlign: 'center' },
+    // { field: 'surfer_name', headerName: spanish ? 'Nombre del Comprador' : 'Buyer Name', width: spanish ? 180 :150, align: 'center', headerAlign: 'center' },
   ];
 
   
