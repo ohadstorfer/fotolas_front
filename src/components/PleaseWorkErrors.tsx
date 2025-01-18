@@ -108,7 +108,7 @@ const Home = () => {
   useEffect(() => {
     const fetchWatermark = async () => {
       try {
-        const watermarkUrl = 'https://surfingram-profile-images.s3.us-east-2.amazonaws.com/watermark.png';
+        const watermarkUrl = 'https://surfingram-profile-images.s3.us-east-2.amazonaws.com/newatemark.png';
         const img = new Image();
         img.src = watermarkUrl;
         img.crossOrigin = 'Anonymous';
