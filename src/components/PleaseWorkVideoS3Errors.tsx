@@ -40,7 +40,7 @@ const PleaseWorkcopy = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const isMobile = useMediaQuery('(max-width:600px)');
-  let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+  // let retryTimeout: ReturnType<typeof setTimeout> | null = null;
   const spanish = useSelector(selectSpanish)
   const [dialogOpen, setDialogOpen] = useState(false);
   const [videoType, setVideoType] = useState<string | null>(null);
@@ -138,7 +138,7 @@ const PleaseWorkcopy = () => {
 
 
 
-  
+
   const setSpanish = () => {
     dispatch(toggleSpanish());
   };
@@ -159,67 +159,227 @@ const PleaseWorkcopy = () => {
 
 
 
-  const uploadFilesToS3 = async (files: File[], urlEndpoint: string, retryCount = 3) => {
-    try {
-      console.log(`Starting upload for ${files.length} files`);
 
-       // Extract MIME types of the files
-    const fileTypes = files.map(file => file.type);
 
-    // Log request payload
-    console.log('Request Payload:', {
-      num_urls: files.length,
-      file_types: fileTypes
-  });
-  
-    
-     // Fetch presigned URLs with file types using GET with params
-     const response = await axios.get(urlEndpoint, {
-      params: {
-          num_urls: files.length,
-          file_types: fileTypes.join(','),  // Convert array to comma-separated string
+  // const uploadFilesToS3 = async (files: File[], urlEndpoint: string, retryCount = 3) => {
+  //   try {
+  //     console.log(`Starting upload for ${files.length} files`);
+
+  //     // Extract MIME types of the files
+  //     const fileTypes = files.map(file => file.type);
+
+  //     // Log request payload
+  //     console.log('Request Payload:', {
+  //       num_urls: files.length,
+  //       file_types: fileTypes
+  //     });
+
+  //     // Fetch presigned URLs with file types using GET with params
+  //     const response = await axios.get(urlEndpoint, {
+  //       params: {
+  //         num_urls: files.length,
+  //         file_types: fileTypes.join(','),  // Convert array to comma-separated string
+  //       }
+  //     });
+
+  //     const presignedUrls = response.data.urls;
+  //     console.log(`Received presigned URLs`);
+
+  //     // Map files to their upload promises
+  //     const uploadPromises = files.map((file, index) => {
+  //       const url = presignedUrls[index];
+  //       let attempt = 0;
+
+
+  //       // Retry function
+  //       const uploadWithRetry = async (): Promise<string> => {
+  //         console.log("the file type: " + file.type);
+  //         try {
+  //           const fileBlob = new Blob([file], { type: file.type });
+  //           console.log(`Attempting to upload ${file.name}, attempt ${attempt + 1}`);
+  //           await axios.put(url, fileBlob, {
+  //             headers: {
+  //               'Content-Type': file.type,
+  //             },
+  //           });
+  //           console.log(`${file.name} uploaded successfully`);
+  //           return url.split('?')[0]; // Return the URL without the query params
+  //         } catch (error) {
+  //           // Distinguish between network and non-network errors
+  //           if (axios.isAxiosError(error)) {
+  //             if (error.code === 'ECONNABORTED' || error.message === 'Network Error' || !navigator.onLine) {
+  //               // Network-related errors
+  //               console.log(`Network error occurred during upload of ${file.name}`);
+  //               if (navigator.onLine) attempt++;
+
+  //               if (attempt >= retryCount) {
+  //                 console.error(`Failed to upload ${file.name} after ${retryCount} attempts`);
+  //                 throw new Error(`Failed to upload ${file.name} after ${retryCount} attempts.`);
+  //               }
+
+  //               const delay = 100
+  //               console.warn(`Retrying upload for ${file.name}, attempt ${attempt} with a delay of ${delay}ms`);
+
+  //               return new Promise<string>((resolve, reject) => {
+  //                 const retryUpload = async () => {
+  //                   if (navigator.onLine) {
+  //                     try {
+  //                       const result = await uploadWithRetry();
+  //                       resolve(result);
+  //                     } catch (err) {
+  //                       reject(err);
+  //                     }
+  //                   } else {
+  //                     console.log(`User is offline, waiting for connection restoration for ${file.name}.`);
+  //                     setNetworkError(true);
+  //                     clearTimeout(retryTimeout as ReturnType<typeof setTimeout>);
+  //                     // Add an event listener for when the connection is restored
+  //                     const connectionRestoredListener = async () => {
+  //                       console.log(`Connection restored, resuming upload for ${file.name}.`);
+  //                       setNetworkError(false);
+  //                       window.removeEventListener('online', connectionRestoredListener);
+  //                       try {
+  //                         const result = await uploadWithRetry();
+  //                         resolve(result);
+  //                       } catch (err) {
+  //                         reject(err);
+  //                       }
+  //                     };
+
+  //                     window.addEventListener('online', connectionRestoredListener);
+
+  //                     retryTimeout = setTimeout(() => {
+  //                       if (navigator.onLine) {
+  //                         window.removeEventListener('online', connectionRestoredListener);
+  //                         uploadWithRetry().then(resolve).catch(reject);
+  //                       } else {
+  //                         console.log(`Still offline, waiting for connection for ${file.name}`);
+  //                       }
+  //                     }, delay);
+  //                   }
+  //                 };
+
+  //                 retryUpload();
+  //               });
+  //             } else {
+  //               // Non-network related errors (server errors, invalid URL, etc.)
+  //               console.error(`Non-network error encountered during upload of ${file.name}:`, error);
+  //               throw new Error(`Upload failed due to a non-network error for ${file.name}`);
+  //             }
+  //           } else {
+  //             // Handle unexpected errors
+  //             console.error(`Unexpected error during upload of ${file.name}:`, error);
+  //             throw error;
+  //           }
+  //         }
+  //       };
+
+  //       // Initiate the retry logic for each file
+  //       return uploadWithRetry();
+  //     });
+
+  //     // Wait for all uploads to complete
+  //     const results = await Promise.all(uploadPromises);
+  //     console.log('All files uploaded successfully');
+  //     return results;
+  //   } catch (error) {
+  //     // Log the error and rethrow it for higher-level handling
+  //     console.error('Error uploading files:', error);
+  //     throw error;
+  //   }
+  // };
+
+
+
+
+  let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  const uploadFilesToS3 = async (files: File[], urlEndpoint: string, maxRetries = 10) => {
+    console.log(`Starting upload for ${files.length} ${urlEndpoint} files`);
+
+    const fetchPresignedUrls = async (): Promise<string[]> => {
+      let attempt = 0;
+      while (attempt < maxRetries) {
+        try {
+          const fileTypes = files.map(file => file.type);
+
+          console.log(`Attempting to fetch presigned URLs for ${urlEndpoint}, attempt ${attempt + 1}`);
+
+          // Log request payload
+          console.log('Request Payload:', {
+            num_urls: files.length,
+            file_types: fileTypes
+          });
+
+          // Fetch presigned URLs with file types using GET with params
+          const response = await axios.get(urlEndpoint, {
+            params: {
+              num_urls: files.length,
+              file_types: fileTypes.join(','),  // Convert array to comma-separated string
+            }
+          });
+
+          console.log(`Successfully fetched presigned URLs for ${urlEndpoint}`);
+          return response.data.urls;
+        } catch (error) {
+          attempt++;
+          if (axios.isAxiosError(error)) {
+            if (
+              error.code === 'ECONNABORTED' ||
+              error.message === 'Network Error' ||
+              error.response?.status === 408 ||
+              error.message.includes('No \'Access-Control-Allow-Origin\' header is present') ||
+              !navigator.onLine
+            ) {
+              console.warn(`Failed to fetch presigned URLs, retrying... (attempt ${attempt}/${maxRetries})`);
+              await new Promise((resolve) => setTimeout(resolve, 100 * attempt)); // Incremental backoff
+            } else {
+              console.error(`Non-retriable error while fetching presigned URLs:`, error.message);
+              throw new Error('Failed to fetch presigned URLs due to an unexpected error.');
+            }
+          } else {
+            console.error('An unknown error occurred while fetching presigned URLs');
+            throw new Error('An unknown error occurred while fetching presigned URLs.');
+          }
+        }
       }
-  });
+      throw new Error(`Failed to fetch presigned URLs after ${maxRetries} attempts`);
+    };
 
+    try {
+      const presignedUrls = await fetchPresignedUrls();
 
-
-
-      const presignedUrls = response.data.urls;
-      console.log(`Received presigned URLs`);
-
-      // Map files to their upload promises
       const uploadPromises = files.map((file, index) => {
         const url = presignedUrls[index];
         let attempt = 0;
-        
-        
-        // Retry function
+
         const uploadWithRetry = async (): Promise<string> => {
-          console.log("the file type: " + file.type);
           try {
-            const fileBlob = new Blob([file], { type: file.type });
-            console.log(`Attempting to upload ${file.name}, attempt ${attempt + 1}`);
-            await axios.put(url, fileBlob, {
+            console.log(`Attempting to upload ${file.name} to S3 (${urlEndpoint}), attempt ${attempt + 1}`);
+            await axios.put(url, file, {
               headers: {
                 'Content-Type': file.type,
               },
             });
-            console.log(`${file.name} uploaded successfully`);
-            return url.split('?')[0]; // Return the URL without the query params
+            console.log(`${file.name} uploaded successfully to ${urlEndpoint}`);
+            return url.split('?')[0];
           } catch (error) {
-            // Distinguish between network and non-network errors
             if (axios.isAxiosError(error)) {
-              if (error.code === 'ECONNABORTED' || error.message === 'Network Error' || !navigator.onLine) {
-                // Network-related errors
-                console.log(`Network error occurred during upload of ${file.name}`);
-                if (navigator.onLine) attempt++;
+              if (
+                error.code === 'ECONNABORTED' ||
+                error.message === 'Network Error' ||
+                error.response?.status === 408 ||
+                !navigator.onLine
+              ) {
+                console.log('Network error occurred. Retrying...');
+                attempt++;
 
-                if (attempt >= retryCount) {
-                  console.error(`Failed to upload ${file.name} after ${retryCount} attempts`);
-                  throw new Error(`Failed to upload ${file.name} after ${retryCount} attempts.`);
+                if (attempt >= maxRetries) {
+                  console.error(`Failed to upload ${file.name} after ${maxRetries} attempts`);
+                  throw new Error(`Failed to upload ${file.name} after ${maxRetries} attempts.`);
                 }
 
-                const delay = 100
+                const delay = 100;
                 console.warn(`Retrying upload for ${file.name}, attempt ${attempt} with a delay of ${delay}ms`);
 
                 return new Promise<string>((resolve, reject) => {
@@ -232,12 +392,13 @@ const PleaseWorkcopy = () => {
                         reject(err);
                       }
                     } else {
-                      console.log(`User is offline, waiting for connection restoration for ${file.name}.`);
+                      console.log('User is offline, waiting for connection restoration.');
+                      setError('Network error: Waiting for connection to resume.');
                       setNetworkError(true);
                       clearTimeout(retryTimeout as ReturnType<typeof setTimeout>);
-                      // Add an event listener for when the connection is restored
+
                       const connectionRestoredListener = async () => {
-                        console.log(`Connection restored, resuming upload for ${file.name}.`);
+                        console.log('Connection restored, resuming upload.');
                         setNetworkError(false);
                         window.removeEventListener('online', connectionRestoredListener);
                         try {
@@ -252,10 +413,12 @@ const PleaseWorkcopy = () => {
 
                       retryTimeout = setTimeout(() => {
                         if (navigator.onLine) {
+                          console.log('Connection restored, resuming upload.');
+                          setNetworkError(false);
                           window.removeEventListener('online', connectionRestoredListener);
                           uploadWithRetry().then(resolve).catch(reject);
                         } else {
-                          console.log(`Still offline, waiting for connection for ${file.name}`);
+                          console.log('Still offline, waiting for the connection to resume.');
                         }
                       }, delay);
                     }
@@ -264,32 +427,40 @@ const PleaseWorkcopy = () => {
                   retryUpload();
                 });
               } else {
-                // Non-network related errors (server errors, invalid URL, etc.)
-                console.error(`Non-network error encountered during upload of ${file.name}:`, error);
-                throw new Error(`Upload failed due to a non-network error for ${file.name}`);
+                console.error(`Non-network error encountered during upload:`, error);
+                setError('Upload failed due to an unexpected error. Please try again later.');
+                throw new Error('Stopping upload due to an unexpected error.');
               }
-            } else {
-              // Handle unexpected errors
-              console.error(`Unexpected error during upload of ${file.name}:`, error);
+            } else if (error instanceof Error) {
+              console.error(`Unexpected error encountered during upload:`, error.message);
               throw error;
+            } else {
+              console.error('An unknown error occurred during the upload process');
+              throw new Error('An unknown error occurred during the upload process.');
             }
           }
         };
 
-        // Initiate the retry logic for each file
         return uploadWithRetry();
       });
 
-      // Wait for all uploads to complete
       const results = await Promise.all(uploadPromises);
-      console.log('All files uploaded successfully');
+      console.log(`All files uploaded successfully`);
       return results;
     } catch (error) {
-      // Log the error and rethrow it for higher-level handling
-      console.error('Error uploading files:', error);
-      throw error;
+      if (error instanceof Error) {
+        console.error(`Error uploading files:`, error.message);
+        throw error;
+      } else {
+        console.error('An unknown error occurred while uploading files');
+        throw new Error('An unknown error occurred while uploading files.');
+      }
     }
   };
+
+
+
+
 
 
 
@@ -398,6 +569,27 @@ const PleaseWorkcopy = () => {
 
 
 
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
   const createVideos = async (originalUrls: string[], watermarkedUrls: string[], imgUrls: string[]) => {
     try {
       const response = await axios.post('https://oyster-app-b3323.ondigitalocean.app/create-multuple-videos/', {
@@ -460,7 +652,7 @@ const PleaseWorkcopy = () => {
 
 
 
-      
+
 
 
 

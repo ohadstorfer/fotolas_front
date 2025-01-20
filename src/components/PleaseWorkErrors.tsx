@@ -371,9 +371,9 @@ const Home = () => {
 
 
 
-  let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+let retryTimeout: ReturnType<typeof setTimeout> | null = null;
 
-const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 3) => {
+const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 10) => {
   console.log(`Starting upload for ${files.length} ${urlType} files`);
 
   const fetchPresignedUrls = async (): Promise<string[]> => {
