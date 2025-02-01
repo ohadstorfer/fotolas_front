@@ -226,6 +226,8 @@ const Root = () => {
 
              <Outlet />
 
+             {/* <PleaseWorkneww></PleaseWorkneww> */}
+
 
             {/* <EmailForPayment></EmailForPayment> */}
             {/* <PleaseWorkVideosPerAlbums></PleaseWorkVideosPerAlbums> */}

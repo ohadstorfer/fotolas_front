@@ -531,10 +531,6 @@ const uploadFilesToS3 = async (files: File[], urlType: string, maxRetries = 10) 
 
   // Example handleUpload function with error handling for both network and non-network errors
   const handleUpload = async () => {
-
-
-
-
     if (files.length === 0) {
       console.error('No files selected.');
       return;

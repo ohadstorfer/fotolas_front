@@ -53,10 +53,19 @@ const ExpiredSessAlbum = () => {
       }}
     >
 
-      <Typography>
+      {/* <Typography>
       <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>This album is expired. </span><br />
         Images and videos on our website are available for a limited time. Images remain accessible for 30 days, while videos are available for 5 days.
+      </Typography> */}
+
+
+
+      <Typography>
+      <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>This album is expired. </span><br />
+      albums on our website are available for a limited time. They remain accessible for 30 days.
       </Typography>
+
+
     </Alert>
 
 

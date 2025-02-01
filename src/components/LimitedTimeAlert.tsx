@@ -17,9 +17,14 @@ const isMobile = useMediaQuery('(max-width:600px)');
         textAlign: 'center',
       }}
     >
-      <Typography>
+      {/* <Typography>
         Images and videos on our website are available for a limited time. Images remain accessible for 30 days, while videos are available for 5 days.
+      </Typography> */}
+
+      <Typography>
+      Albums on our website are only available for a limited time, remaining accessible for 30 days.
       </Typography>
+
     </Alert>
   );
 };
