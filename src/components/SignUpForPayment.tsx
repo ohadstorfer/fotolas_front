@@ -273,7 +273,7 @@ export default function SignUp() {
                   fullWidth
                   variant="outlined"
                 >
-                  <InputLabel htmlFor="confirmPassword">confirmPassword</InputLabel>
+                  <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
                   <OutlinedInput
                     id="confirmPassword"
                     name="confirmPassword"

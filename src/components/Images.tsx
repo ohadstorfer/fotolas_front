@@ -58,7 +58,6 @@ const Images: React.FC = () => {
                       component="img"
                       height="200"
                       image={img.WatermarkedPhoto} // Use the image URL from your Redux store
-                      alt={`Image ${img.id}`}
                     />
                   </AspectRatio>
                 </CardActionArea>
@@ -116,7 +115,6 @@ const Images: React.FC = () => {
           {selectedImage && (
             <img
               src={selectedImage}
-              alt="Larger View"
               style={{
                 width: '100%',    // Ensures the image takes up full width
                 height: 'auto',   // Maintains aspect ratio

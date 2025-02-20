@@ -288,7 +288,7 @@ const PerAlbum: React.FC = () => {
                       component="img"
                       height="200"
                       image={personalAlbum.cover_image}
-                      alt={`Image ${personalAlbum.id}`}
+                      
                     />
                     <Box
                       sx={{

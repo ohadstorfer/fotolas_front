@@ -343,7 +343,7 @@ const handlePurchaseForWaves = async () => {
                       component="img"
                       height="100"
                       image={personalAlbum.cover_image}
-                      alt={`Image ${personalAlbum.id}`}
+                      
                     />
                     <Box
                       sx={{
@@ -411,7 +411,7 @@ const handlePurchaseForWaves = async () => {
                     component="img"
                     height="200"
                     image={img.WatermarkedPhoto} // Use the image URL from your Redux store
-                    alt={`Image ${img.id}`}
+                    
                   />
                     <Box
                       sx={{

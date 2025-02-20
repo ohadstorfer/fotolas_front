@@ -216,7 +216,7 @@ const Video: React.FC = () => {
                     ) : (
                       <img
                         src={video.img}
-                        alt={`Thumbnail for video ${video.id}`}
+                        // alt={`Thumbnail for video ${video.id}`}
                         onError={(e) => {
                           e.currentTarget.src = video.img.replace('0000001', '0000000'); // Use fallback image on error
                         }}

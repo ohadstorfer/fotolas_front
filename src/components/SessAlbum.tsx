@@ -57,6 +57,7 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
   const isMobile = useMediaQuery('(max-width:600px)');
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [loaded, setLoaded] = useState(false);
 
 
 
@@ -176,7 +177,7 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
                       component="img"
                       height="200"
                       image={sessAlbum.cover_image}
-                      alt={`Image ${sessAlbum.id}`} />
+                       />
                     <Box
                       sx={{
                         position: 'relative',        // Set position to relative for positioning child elements

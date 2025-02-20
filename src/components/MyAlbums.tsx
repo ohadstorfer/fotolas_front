@@ -166,7 +166,7 @@ const MyAlbums: React.FC = () => {
                       component="img"
                       height="200"
                       image={sessAlbum.cover_image}
-                      alt={`Image ${sessAlbum.id}`} />
+                       />
                     <Box
                       sx={{
                         position: 'relative',

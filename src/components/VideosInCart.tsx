@@ -158,7 +158,7 @@ const VideosInCart: React.FC = () => {
               {isActive ? (
                 <video controls autoPlay muted src={video.WatermarkedVideo} />
               ) : (
-                <img src={video.img} alt={`Thumbnail for video ${video.id}`} />
+                <img src={video.img}  />
               )}
               <Box
                 sx={{

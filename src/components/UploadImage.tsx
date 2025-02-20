@@ -65,7 +65,7 @@ const UploadImage = () => {
 
                 <div>
                     {imagePreview && (
-                        <img src={imagePreview} alt='profileImg' />
+                        <img src={imagePreview}  />
                     )}
                 </div>
             </form>

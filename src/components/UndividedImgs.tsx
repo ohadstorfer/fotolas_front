@@ -196,7 +196,7 @@ const UndividedImgs: React.FC = () => {
               }}>
                 <CardActionArea onClick={() => handleOpenDialog(img.WatermarkedPhoto)}>
                   <AspectRatio ratio="4/3">
-                    <CardMedia component="img" height="200" image={img.WatermarkedPhoto} alt={`Image ${img.id}`} />
+                    <CardMedia component="img" height="200" image={img.WatermarkedPhoto}  />
                     <Box
                       sx={{
                         position: 'absolute',
@@ -301,7 +301,7 @@ const UndividedImgs: React.FC = () => {
           {selectedImage && (
             <img
               src={selectedImage}
-              alt="Larger View"
+              
               style={{
                 width: '100%',    // Ensures the image takes up full width
                 height: 'auto',   // Maintains aspect ratio
