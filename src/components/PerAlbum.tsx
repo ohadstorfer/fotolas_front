@@ -214,10 +214,9 @@ const PerAlbum: React.FC = () => {
 
 
 
-  if (selectedSessAlbum?.days_until_expiration! < 0) {
+  if (selectedSessAlbum?.days_until_expiration! < 0 && !selectedSessAlbum?.forever) {
     return <ExpiredSessAlbum />;
   }
-
 
 
   return (

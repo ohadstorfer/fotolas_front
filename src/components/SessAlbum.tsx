@@ -43,6 +43,7 @@ interface sess {
   photographer_name: string;
   photographer_profile_image: string;
   videos: boolean;
+  forever: boolean;
   dividedToWaves: boolean;
   expiration_date: Date;
   days_until_expiration: number;
@@ -220,9 +221,34 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
 
 
 
+                      {sessAlbum.days_until_expiration < 0 && !sessAlbum.forever && (
+                      <Box
+                          sx={{
+                            position: 'absolute',
+                            top: 0,
+                            right: 9,
+                            display: 'flex',
+                            alignItems: 'center',
+                            p: 1,
+                            bgcolor: 'rgba(0, 0, 0, 0.0)',
+                          }}
+                        >
+
+                            <span style={{ color: red[500], fontSize: isMobile ? '14px' : '16px', fontWeight: 'bold' }}>
+                              Expired
+                            </span>
+                          
+                          </Box>
+                        )}
+
+
+
+
+
+
 
                       {/* Conditional rendering of the icon and text */}
-                      {sessAlbum.days_until_expiration <= 3 && (
+                      {/* {sessAlbum.days_until_expiration <= 3 && (
                         <Box
                           sx={{
                             position: 'absolute',
@@ -260,7 +286,7 @@ const SessAlbum: React.FC<SessAlbumProps> = ({ filterType, filterId }) => {
                             />
                           )}
                         </Box>
-                      )}
+                      )} */}
 
 
 

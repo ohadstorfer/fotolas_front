@@ -27,6 +27,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import CloseIcon from '@mui/icons-material/Close';
 import { selectSpanish } from '../slicers/sighnInSlice';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ExpiredSessAlbum from './ExpiredSessAlbum';
 
 const PerAlbum: React.FC = () => {
   const personalAlbums = useSelector(selectPersonalAlbum);
@@ -207,6 +208,11 @@ const PerAlbum: React.FC = () => {
     }
   };
 
+
+  if (selectedSessAlbum?.days_until_expiration! < 0 && !selectedSessAlbum?.forever) {
+    return <ExpiredSessAlbum />;
+  }
+  
 
   return (
     <div>
